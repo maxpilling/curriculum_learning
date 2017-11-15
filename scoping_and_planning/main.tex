@@ -38,9 +38,7 @@ The game in use is StarCraft 2 and will be implemented using the StarCraft 2
 Learning Environment developed by Blizzard and Google.
 The project deals with feasible implementations of machine learning within
 StarCraft 2 with an emphasis on accuracy and speed over complexity and
-flexibility. Currently, the game uses an AI model that does not learn
-or adapt to the current game state, so using machine learning an agent can be
-taught to change strategies in real time.
+flexibility.
 
 \subsection{Context}
 Recently AI research has been conquering extremely complex games such as
@@ -50,8 +48,9 @@ making but have some aspects in common: The domain is set and unchanging
 the game (they can see all the board and all pieces).
 The next step in AI research of this type is to look at problems that expand
 beyond these limitations; computer games offer a new challenge as they
-do not have to rely on turn-based gameplay. All agents (human or machine)
-can act simultaneously on the world in real time; this dramatically increases
+do not have to rely on turn-based gameplay (\textcite{vinyals2017starcraft}).
+All agents (human or machine) can act simultaneously on the world in real time;
+this dramatically increases
 the speed at which an AI must think and react to the problem presented.
 In addition, many computer games rely on presenting an incomplete version
 of the world, deliberately hiding information from the players so reasoning
@@ -66,7 +65,6 @@ races each of which has substantially different gameplay mechanics and units.
 Because of all these additional challenges mastering the whole game is
 beyond the remit of this project, so a smaller subset of the problem
 will be created using in-game tools to work with.
-
 
 \subsection{Problem Statement}
 
@@ -90,15 +88,18 @@ achieve different playing patterns that best fit the given character.
 
 \subsection{Possible Solution}
 
-Using machine learning, we intend to develop a system that can
-apply existing methods to a specific problem space. The main
-solution would consist of a neural network that will be used to
-teach the agent, without any human Intervention, to achieve a
-certain objective. This will be done in phases of learning where
-the problem space will shift and change. A custom build level will
-be required for a starting position to teach the agent.
-Levels will be designed according to the required behaviour
-that the agent should learn.
+A solution to this problem will include a number of different
+components. For starters, it will require an interface with
+the DeepMind StarCraft 2 Learning Environment
+(\cite{pysc2}),
+such that our agent may interface with the game.
+Next, we will need a number of maps that the agent may train
+on and be tested in.
+
+Most importantly, will be the model we use for the agent itself.
+The agent should be able to act intelligently on the maps it was
+tested with, and hopefully be able to generalise somewhat
+to secondary challenges.
 
 \subsection{Quality of Solution}
 The following define the quality of the solution:
@@ -109,7 +110,6 @@ The following define the quality of the solution:
     \item Did the agent find the optimal solution or something
           within an acceptable threshold?
 \end{itemize}
-
 
 The agent should able to achieve the given objective within a reasonable
 time frame that is defined by the given task. To achieve this the agent
@@ -186,6 +186,12 @@ Our objectives are as follows:
           agent isn’t performing un-needed tasks, and finally the
           complexity of environment the agent can deal with.
 
+          Furthermore, depending on the task we choose, we may be able to
+          compare against the basic agents that are included in the
+          \cite{pysc2} environment, such that we can compare their progress
+          and their intelligence, since they use more traditional techniques,
+          such as greedy algorithms.
+
     \item A written report, to go alongside the prototype.
 
           This report will include the analysis as well as the research that
@@ -221,7 +227,6 @@ Our deliverables are as follows:
     \item Finally, Individual Reports and logbooks which will outline what each
           team member did on an individual day, and a retrospective on the project.
 \end{itemize}
-
 
 \section{Project Schedule}
 
