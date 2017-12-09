@@ -321,3 +321,6 @@ TSWLatexianTemp*
 # expex forward references with \gathertags
 *-tags.tex
 *.pdf
+
+# Ignore Python Enviroment Folder
+.meng_env
