@@ -28,6 +28,10 @@ else
     echo "Password is 'iagreetotheeula' and binds you to the AI and Machine Learning License."
     unzip /tmp/melee.zip -d ~/StarCraftII/Maps/
     rm /tmp/melee.zip
+
+    wget --continue https://github.com/deepmind/pysc2/releases/download/v1.2/mini_games.zip -O /tmp/mini_games.zip
+    unzip /tmp/mini_games.zip -d ~/StarCraftII/Maps/
+    rm /tmp/mini_games.zip
 fi
 
 echo "----------------------------------------------------------"
