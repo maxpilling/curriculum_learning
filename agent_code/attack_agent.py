@@ -97,7 +97,7 @@ class QLearningTable:
 
         q_predict = self.q_table.ix[s, a]
 
-        if s_ != 'terminal':    # Not terminal meaning it does not end the game, then apply a reward
+        if next_s != 'terminal':    # Not terminal meaning it does not end the game, then apply a reward
             # From next state check all actions and take the max value
             q_target = r + self.gamma * self.q_table.ix[next_s, :].max()    #NEEDS TO BE UPDATED TO USE "TD ERROR"
         else:
