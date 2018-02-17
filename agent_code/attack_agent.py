@@ -66,7 +66,7 @@ for mm_x in range(0, 64):
 
 class QLearningTable:
     def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.9):
-        self.actions = actions  # a list
+        self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
         self.epsilon = e_greedy
@@ -81,8 +81,7 @@ class QLearningTable:
             state_action = self.q_table.ix[observation, :]
 
             # some actions have the same value
-            state_action = state_action.reindex(
-                np.random.permutation(state_action.index))
+            state_action = state_action.reindex(np.random.permutation(state_action.index))
 
             action = state_action.idxmax()  # Return max value
         else:
@@ -110,7 +109,7 @@ class QLearningTable:
     def check_state_exist(self, state):
         if state not in self.q_table.index:
             # append new state to q table
-            self.q_table = self.q_table.append(pd.Series([0] * len(self.actions), index=self.q_table.columns, name=state))
+            self.q_table = self.q_table.append(pd.Series([0] * len(self.actions), index=self.q_table.columns, name=state))  # [0] * len(actions) creates an array with 8 zeros in it
 
 
 class SparseAgent(base_agent.BaseAgent):
@@ -130,8 +129,7 @@ class SparseAgent(base_agent.BaseAgent):
         self.move_number = 0
 
         if os.path.isfile(DATA_FILE + '.gz'):
-            self.qlearn.q_table = pd.read_pickle(
-                DATA_FILE + '.gz', compression='gzip')
+            self.qlearn.q_table = pd.read_pickle(DATA_FILE + '.gz', compression='gzip')
 
     # Used for the case when base is at bottom right
     def transformDistance(self, x, x_distance, y, y_distance):
@@ -165,8 +163,7 @@ class SparseAgent(base_agent.BaseAgent):
         if obs.last():
             reward = obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
 
-            self.qlearn.learn(str(self.previous_state),
-                              self.previous_action, reward, 'terminal')
+            self.qlearn.learn(str(self.previous_state), self.previous_action, reward, 'terminal')
 
             self.qlearn.q_table.to_pickle(DATA_FILE + '.gz', 'gzip')
 
@@ -203,7 +200,7 @@ class SparseAgent(base_agent.BaseAgent):
         if self.move_number == 0:
             self.move_number += 1
 
-            # Define running stats of the player
+            # Define running stats of the player. This is the state of of the game for the agent
             current_state = np.zeros(8)
             current_state[0] = cc_count                                 # Number of command centers
             current_state[1] = supply_depot_count                       # Number of supply depots
@@ -229,8 +226,7 @@ class SparseAgent(base_agent.BaseAgent):
 
             # Start by checking if first step than we learn
             if self.previous_action is not None:
-                self.qlearn.learn(str(self.previous_state),
-                                  self.previous_action, 0, str(current_state))
+                self.qlearn.learn(str(self.previous_state), self.previous_action, 0, str(current_state))
 
             # Get action to do
             rl_action = self.qlearn.choose_action(str(current_state))
