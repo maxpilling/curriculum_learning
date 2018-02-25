@@ -5,7 +5,7 @@ Recently, there has been a revival in the usage of deep
 learning\cite{lecun2015deep} techniques, allowing for large advances across
 a number of fields including image recognition\cite{krizhevsky2012imagenet},
 speech recognition\cite{graves2013speech, hinton2012deep}. Similarly,
-there has been recent advancements in the area of reinforcement learning,
+there have been recent advancements in the area of reinforcement learning,
 where intelligent agents have been able to complete tasks that were once thought
 to be too complex for an agent to complete, such as beating humans in the game
 Go\cite{silver2016mastering} and more generally such as across a wide range of
@@ -21,7 +21,7 @@ learning algorithms struggle with, including partial observation, a large action
 space, control of multiple units and the reward is delayed across thousands of
 steps, meaning the agent needs to use long-term strategies.
 
-This environment was developed to be used as a test bed for both new learning
+This environment was developed to be used as a testbed for both new learning
 techniques, as well as the improvement of new learning techniques. An agent
 that is able to intelligently play the mini-games and the full game of
 StarCraft II would need to act very intelligently, which has lead to the large
@@ -40,7 +40,8 @@ applying reinforcement learning techniques and similar to SC2 has become
 much easier. With the use of SC2LE, the major aspects of the game are
 delivered using an easier to use API, rather than having to read the
 screen's state using the pixel values. This, along with an input API,
-mean that the creating agents on top of SC2 is much easier.
+results in an environment that is much easier to interface with than
+using traditional computer vision and mouse emulation techniques.
 
 Specifically, this project aims to apply interesting techniques such as
 transfer and curriculum learning to the problems defined in the SC2LE\@.
@@ -50,7 +51,7 @@ in the SC2LE\@.
 
 \section{Objectives}
 
-As the project is broadly very experimental, there is a few objectives that
+As the project is broadly very experimental, there are a few objectives that
 have been defined, as well as associated deliverables, which are:
 
 \begin{enumerate}
@@ -69,26 +70,26 @@ In turn, these objectives lead to the following deliverable:
 
 \begin{enumerate}
     \item A Git repository containing the prototypes and any other associated
-        code in getting the agents running.
+        code for getting the agents running.
     \item Associated learnt weights for each of the given agents, such that
         their performance can be easily tested without having to retrain
         the network.
-    \item The evaluation of each of the given agents, along side a full report
+    \item The evaluation of each of the given agents, alongside a full report
         detailing the rest of the project.
 \end{enumerate}
 
 \section{Scope}
 
-The scope for this project is somewhat restricted, at least compared to the full
+The scope of this project is somewhat restricted, at least compared to the full
 scope that could be taken under this project title. StarCraft II is a very complex
 game, with a steep learning curve even for a human player, such that the training
 of an agent to play the entire game of StarCraft II is infeasible, at least in the
 given time-frame. This has instead lead to the using `mini-games' that are defined
 in SC2LE, which were created by DeepMind in order to mock small portions of the
 game. This means that the full game will not be the main target, but instead
-parts of the game that are in a restricted scope, with more well defined targets.
-One advantage of this however, is that there is more well defined scores for
-these mini-games, such that comparison against other methods and human players is
+parts of the game, using a restricted scope, with more well-defined targets.
+One advantage of this, however, is that there are more well-defined scores for
+these mini-games, such that comparison with other methods and human players is
 made easier.
 
 Similarly, there are other methods that could be used to train an agent for this
@@ -104,17 +105,18 @@ be used to train agents.
 
 \section{Report Structure}
 
-There is 7 chapters to this report, including this Introduction chapter.
+There are 7 chapters to this report, including this Introduction chapter.
+The rest of the chapters are as follows.
 
 Following this, there is Chapter~\ref{method}, where the methodologies,
 approach to development, technologies to be used and the project
 schedule will be discussed in further detail.
 
 Chapter~\ref{research} will go into more detail on the research that went into
-the project. This will include the theory for Reinforcement Learning and the
+the project. This will include the theory of Reinforcement Learning and the
 associated techniques we expect to use with this, including Q-Learning,
 Convolutional Neural Networks and the basics of neural networks as a
-whole. This chapter will also include a look into the problems we
+whole. This chapter will also include a look at the problems we
 expect to face in this project, as well as techniques that have been tried
 before on similar projects.
 
@@ -134,7 +136,7 @@ comparisons across a number of mini-games, as well as other small game types.
 Also, it will contain comparisons against the published numbers for the given
 games, as a suitable baseline.
 
-Finally, Chapter~\ref{conclusion} concludes the report, and discusses a few
+Finally, Chapter~\ref{conclusion} concludes the report and discusses a few
 extensions that could be tested. This chapter will also give a retrospective
 on the project as a whole, comparing how the project faired against the estimates
 made in Chapter~\ref{method}.
