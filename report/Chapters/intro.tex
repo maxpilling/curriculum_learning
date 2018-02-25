@@ -79,4 +79,27 @@ In turn, these objectives lead to the following deliverable:
 
 \section{Scope}
 
+The scope for this project is somewhat restricted, at least compared to the full
+scope that could be taken under this project title. StarCraft II is a very complex
+game, with a steep learning curve even for a human player, such that the training
+of an agent to play the entire game of StarCraft II is infeasible, at least in the
+given time-frame. This has instead lead to the using `mini-games' that are defined
+in SC2LE, which were created by DeepMind in order to mock small portions of the
+game. This means that the full game will not be the main target, but instead
+parts of the game that are in a restricted scope, with more well defined targets.
+One advantage of this however, is that there is more well defined scores for
+these mini-games, such that comparison against other methods and human players is
+made easier.
+
+Similarly, there are other methods that could be used to train an agent for this
+task, but it was decided to use reinforcement learning, instead of using some
+form of supervised learning method. This was chosen out of interest in the
+application of reinforcement learning, and it being used more prominently
+in this area.
+If a supervised method was needed, DeepMind
+do provide a number of game replays of professional%
+\footnote{\url{https://en.wikipedia.org/wiki/Professional_StarCraft_competition}}
+players playing, which could
+be used to train agents.
+
 \section{Report Structure}
