@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyproj
 
 # C extensions
 *.so
@@ -324,3 +325,7 @@ TSWLatexianTemp*
 
 # Ignore Python Enviroment Folder
 .meng_env
+
+## Visual Studio
+*.sln
+*.suo
