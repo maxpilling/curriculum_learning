@@ -86,8 +86,22 @@ class QLearning:
             This reduces the number of feedforward passes needed and improves the overall performance.
         """
 
-        self.X = tf.placeholder(tf.float32, shape=[None, self.n_input], name='Input')         # Create 16 nodes input array for states and actions
-        self.y = tf.placeholder(tf.float32, shape=1, name='output')                           # Create output node which is a single value
+        self.graph = tf.Graph()
+        with self.graph.as_default():
+            self.X = tf.placeholder(tf.float32, shape=[None, self.n_input], name='Input')         # Create 16 nodes input array for states and actions
+            self.y = tf.placeholder(tf.float32, shape=1, name='output')                           # Create output node which is a single value
+
+            # A different implementation
+            self.W = tf.Variable(tf.random_uniform(shape=[self.n_input,1], minval=0, seed=0.01, dtype=tf.float32), dtype=tf.float32)    # 8 inputs and 1 output
+        
+            self.Qout = tf.matmul(self.X, self.W)                       # Multiply weights by nodes
+
+            self.loss = tf.reduce_sum(tf.square(self.y - self.Qout))    # Loss function
+
+            self.trainer = tf.train.GradientDescentOptimizer(self.lr)   # Update the network
+            self.updateModel = self.trainer.minimize(self.loss)         # Minimize loss
+            #tf.reset_default_graph()                                    # Reset the model with new values
+
 
         # Weight and bias nodes
         #self.W1 = tf.Variable(tf.random_uniform(shape=[self.n_input, self.n_hidden1], minval=0, seed=0.01, dtype=tf.float32), dtype=tf.float32)       # Weights for first hidden layer
@@ -106,11 +120,6 @@ class QLearning:
         #self.hidden_1 = tf.nn.relu( tf.matmul(self.X, self.W1) )
         #self.hidden_2 = tf.nn.relu( tf.matmul(self.X, self.W2) )
 
-        # A different implementation
-        self.W = tf.Variable(tf.random_uniform(shape=[self.n_input,1], minval=0, seed=0.01, dtype=tf.float32), dtype=tf.float32)          # 8 inputs and 1 output
-        
-        self.Qout = tf.matmul(self.X, self.W)         # Multiply weights by nodes
-
         #self.predict = tf.argmax(self.Qout, 1)       # Predicted value
 
 
@@ -119,7 +128,7 @@ class QLearning:
 
         # Uses epsilon greedy exploration to find the next action
         if np.random.uniform() < self.epsilon:
-            with tf.Session() as sess:
+            with tf.Session(graph=self.graph) as sess:
                 tf.global_variables_initializer().run()
 
                 for action in self.actions:
@@ -162,33 +171,29 @@ class QLearning:
         # !!!!! Using NN NEED TO UPDATE TO USE THE BATCH SIZE
         
         #self.predict = tf.argmax(self.Qout, 1)                     # Predicted value
+        action_values = []
 
-        self.loss = tf.reduce_sum(tf.square(self.y - self.Qout))   # Loss function
-
-        self.trainer = tf.train.GradientDescentOptimizer(self.lr)  # Update the network
-        self.updateModel = self.trainer.minimize(self.loss)        # Minimize loss
-        tf.reset_default_graph()                                   # Reset the model with new values
-
-        with tf.Session() as sess:
+        with tf.Session(graph=self.graph) as sess:
                 tf.global_variables_initializer().run()
 
                 for mem in self.memory:
 
-                    #choose best action
+                    # Get the state and action taken at that time 
                     states = np.append(mem[0], mem[1])      # index 0 is state, index 1 is action taken then         
                     states_T = np.reshape(states, (-1, 9) ) # Reshape to make 9 rows instead
 
                     q_predict = sess.run(self.Qout, feed_dict={self.X: states_T }) # Run network and get value for action in state
                     
+                    # If not a terminal state then look at next state action value for Q target
                     if mem[3] != None :
                         for action in self.actions:
                             #choose best action
-                            states = np.append(next_s, action)      # Append to make a single array with 9 columns            
-                            states_T = np.reshape(states, (-1, 9) ) # Reshape to make 9 rows instead
-                            output = sess.run(self.Qout, feed_dict={self.X: states_T }) # Run network and get value for action in state
+                            states = np.append(mem[3], action)                          # Append to make a single array with 9 columns            
+                            states_T = np.reshape(states, (-1, 9) )                     # Reshape to make 9 rows instead
+                            output = sess.run(self.Qout, feed_dict={self.X: states_T }) # Get the next states max action value by running the network
                             action_values.append(output)
 
-                        q_target = mem[2] + self.gamma * max(action_values)   # Get the max valued action for next state
+                        q_target = mem[2] + self.gamma * max(action_values)             # Apply values
                     else:
                         q_target = mem[2]
 
@@ -421,8 +426,8 @@ class Agent(base_agent.BaseAgent):
                         return actions.FunctionCall(_HARVEST_GATHER, [_QUEUED, target]) # Send SCV to harvest. NOTICE it is queued so SCV will finish building first
         
         # NEED TO REMOVE LATER 
-        self.qlearn.remember(self.previous_state, self.previous_action, 0, current_state)
-        self.qlearn.remember(self.previous_state, self.previous_action, 100, next_s=None)
+        self.qlearn.remember(self.previous_state, 1, 0, [1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        self.qlearn.remember(self.previous_state, 2, 100, next_s=None)
         self.qlearn.learn()
 
         return actions.FunctionCall(_NO_OP, [])
