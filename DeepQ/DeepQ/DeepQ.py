@@ -66,7 +66,7 @@ for mm_x in range(0, 64):
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.7):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.8):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
@@ -89,7 +89,7 @@ class QLearning:
         self.graph = tf.Graph()
         with self.graph.as_default():
             self.X = tf.placeholder(tf.float32, shape=[None, self.n_input], name='Input')         # Create 16 nodes input array for states and actions
-            self.y = tf.placeholder(tf.float32, shape=1, name='output')                           # Create output node which is a single value
+            self.y = tf.placeholder(tf.float32, shape=[1, 1], name='output')                           # Create output node which is a single value
 
             # A different implementation
             self.W = tf.Variable(tf.random_uniform(shape=[self.n_input,1], minval=0, seed=0.01, dtype=tf.float32), dtype=tf.float32)    # 8 inputs and 1 output
@@ -101,7 +101,6 @@ class QLearning:
             self.trainer = tf.train.GradientDescentOptimizer(self.lr)   # Update the network
             self.updateModel = self.trainer.minimize(self.loss)         # Minimize loss
             #tf.reset_default_graph()                                    # Reset the model with new values
-
 
         # Weight and bias nodes
         #self.W1 = tf.Variable(tf.random_uniform(shape=[self.n_input, self.n_hidden1], minval=0, seed=0.01, dtype=tf.float32), dtype=tf.float32)       # Weights for first hidden layer
@@ -165,7 +164,6 @@ class QLearning:
         # Save to memory 
         self.memory.append([s, a, r, next_s])
 
-
     """ Update the wieghts based on the memory batch. """
     def learn(self):
         # !!!!! Using NN NEED TO UPDATE TO USE THE BATCH SIZE
@@ -182,10 +180,10 @@ class QLearning:
                     states = np.append(mem[0], mem[1])      # index 0 is state, index 1 is action taken then         
                     states_T = np.reshape(states, (-1, 9) ) # Reshape to make 9 rows instead
 
-                    q_predict = sess.run(self.Qout, feed_dict={self.X: states_T }) # Run network and get value for action in state
+                    #q_predict = sess.run(self.Qout, feed_dict={self.X: states_T }) # Run network and get value for action in state
                     
                     # If not a terminal state then look at next state action value for Q target
-                    if mem[3] != None :
+                    if mem[3].any() != [-1] :
                         for action in self.actions:
                             #choose best action
                             states = np.append(mem[3], action)                          # Append to make a single array with 9 columns            
@@ -195,9 +193,9 @@ class QLearning:
 
                         q_target = mem[2] + self.gamma * max(action_values)             # Apply values
                     else:
-                        q_target = mem[2]
+                        q_target = np.array( [[mem[2]]] )
 
-                    updateM = sess.run( self.updateModel, feed_dict={self.Qout: q_predict, self.y: q_target })
+                    updateM = sess.run( [self.updateModel, self.W] , feed_dict={self.X: states_T, self.y: q_target })
 
 class Agent(base_agent.BaseAgent):
     def __init__(self):
@@ -247,7 +245,7 @@ class Agent(base_agent.BaseAgent):
         if obs.last():
             reward = obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
 
-            self.qlearn.remember(self.previous_state, self.previous_action, reward, next_s=None)
+            self.qlearn.remember(self.previous_state, self.previous_action, reward, next_s=[-1])
             self.qlearn.learn()
 
             self.previous_action = None
@@ -279,7 +277,6 @@ class Agent(base_agent.BaseAgent):
         barracks_y, barracks_x = (unit_type == _TERRAN_BARRACKS).nonzero()
         barracks_count = int(round(len(barracks_y) / 137))                  # Divide by the number of pixels a command center usually takes "137" in this case
 
-
         if self.move_number == 0:
             self.move_number += 1
 
@@ -307,10 +304,9 @@ class Agent(base_agent.BaseAgent):
             for i in range(0, 4):
                 current_state[i + 4] = hot_squares[i]
 
-            # Start by checking if first step than we learn
+            # Save to memory for learning later
             if self.previous_action is not None:
                 self.qlearn.remember(self.previous_state, self.previous_action, 0, current_state)
-                self.qlearn.learn()
 
             # Get action to do
             rl_action = self.qlearn.choose_action(current_state)
@@ -424,11 +420,6 @@ class Agent(base_agent.BaseAgent):
                         target = [int(m_x), int(m_y)]
 
                         return actions.FunctionCall(_HARVEST_GATHER, [_QUEUED, target]) # Send SCV to harvest. NOTICE it is queued so SCV will finish building first
-        
-        # NEED TO REMOVE LATER 
-        self.qlearn.remember(self.previous_state, 1, 0, [1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-        self.qlearn.remember(self.previous_state, 2, 100, next_s=None)
-        self.qlearn.learn()
 
         return actions.FunctionCall(_NO_OP, [])
 
