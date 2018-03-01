@@ -66,7 +66,7 @@ for mm_x in range(0, 64):
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.8):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.75):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
@@ -75,10 +75,10 @@ class QLearning:
         self.memory = []    # Used to store the memory of each game step taken
 
         # ------ Setup NN ---------
-        self.n_input = 9           # Number of nodes on first layer (the input)
+        self.n_input = 8           # Number of nodes on first layer (the input)
         self.n_hidden1 = 20         # Number of nodes on hidden layer 1
         self.n_hidden2 = 10         # Number of nodes on hidden layer 2
-        self.n_target = 1          # Number of nodes on final layer (the output)
+        self.n_target = 8          # Number of nodes on final layer (the output)
 
 
         """ 
@@ -89,10 +89,10 @@ class QLearning:
         self.graph = tf.Graph()
         with self.graph.as_default():
             self.X = tf.placeholder(tf.float32, shape=[None, self.n_input], name='Input')         # Create 16 nodes input array for states and actions
-            self.y = tf.placeholder(tf.float32, shape=[1, 1], name='output')                           # Create output node which is a single value
+            self.y = tf.placeholder(tf.float32, shape=[None, self.n_target], name='output')                           # Create output node which is a single value
 
             # A different implementation
-            self.W = tf.Variable(tf.random_uniform(shape=[self.n_input,1], minval=0, seed=0.01, dtype=tf.float32), dtype=tf.float32)    # 8 inputs and 1 output
+            self.W = tf.Variable(tf.random_uniform(shape=[self.n_input, self.n_target], minval=0, seed=0.01, dtype=tf.float32), dtype=tf.float32)    # 8 inputs and 1 output
         
             self.Qout = tf.matmul(self.X, self.W)                       # Multiply weights by nodes
 
@@ -100,7 +100,8 @@ class QLearning:
 
             self.trainer = tf.train.GradientDescentOptimizer(self.lr)   # Update the network
             self.updateModel = self.trainer.minimize(self.loss)         # Minimize loss
-            #tf.reset_default_graph()                                    # Reset the model with new values
+            self.predict = tf.argmax(self.Qout, 1)                      # Predicted value
+
 
         # Weight and bias nodes
         #self.W1 = tf.Variable(tf.random_uniform(shape=[self.n_input, self.n_hidden1], minval=0, seed=0.01, dtype=tf.float32), dtype=tf.float32)       # Weights for first hidden layer
@@ -119,8 +120,6 @@ class QLearning:
         #self.hidden_1 = tf.nn.relu( tf.matmul(self.X, self.W1) )
         #self.hidden_2 = tf.nn.relu( tf.matmul(self.X, self.W2) )
 
-        #self.predict = tf.argmax(self.Qout, 1)       # Predicted value
-
 
     def choose_action(self, observation):
         action_values = []
@@ -130,33 +129,18 @@ class QLearning:
             with tf.Session(graph=self.graph) as sess:
                 tf.global_variables_initializer().run()
 
-                for action in self.actions:
-                    #choose best action
-                    states = observation                    # Take states
-                    states = np.append(states, action)      # Append to make a single array with 9 columns            
-                    states_T = np.reshape(states, (-1, 9) ) # Reshape to make 9 rows instead
+                #choose best action
+                states = observation                    # Take states           
+                states_T = np.reshape(states, (-1, self.n_input) ) # Reshape to make 9 rows instead
 
-                    #output, allQ = sess.run([self.predict, self.Qout], feed_dict={self.X: states})
-                    output = sess.run(self.Qout, feed_dict={self.X: states_T }) # Run network and get value for action in state
-                    action_values.append(output)
+                output = sess.run(self.predict, feed_dict={self.X: states_T }) # Run network and get value for action in state
 
-            return action_values.index(max(action_values))   # Return index with max value action
+            return output[0]       # Return index with max value action
 
         else:
             # choose random action
             action = np.random.randint(low=0, high=7)  # Take a random action
             return action
-
-        # -------- Using NN ----------
-       
-        #with tf.name_scope("train"):
-        #    optimizer = tf.train.GradientDescentOptimizer(self.lr)
-        #    training_op = optimizer.minimize(loss)
-
-        #with tf.Session() as sess:
-        #    self.init.run()
-        #    output, allQ = sess.run([self.predict, self.Qout], feed_dict={self.state: action})
-        #    print(output)
 
     """ Adds the state, action, reward recieved, and next state is terminal or normal state. """
     def remember(self, s, a, r, next_s):
@@ -168,7 +152,6 @@ class QLearning:
     def learn(self):
         # !!!!! Using NN NEED TO UPDATE TO USE THE BATCH SIZE
         
-        #self.predict = tf.argmax(self.Qout, 1)                     # Predicted value
         action_values = []
 
         with tf.Session(graph=self.graph) as sess:
@@ -177,25 +160,26 @@ class QLearning:
                 for mem in self.memory:
 
                     # Get the state and action taken at that time 
-                    states = np.append(mem[0], mem[1])      # index 0 is state, index 1 is action taken then         
-                    states_T = np.reshape(states, (-1, 9) ) # Reshape to make 9 rows instead
-
-                    #q_predict = sess.run(self.Qout, feed_dict={self.X: states_T }) # Run network and get value for action in state
+                    states = mem[0]                                     # index 0 is state, index 1 is action taken then         
+                    states_T = np.reshape(states, (-1, self.n_input) )  # Reshape to make 9 rows instead
                     
                     # If not a terminal state then look at next state action value for Q target
                     if mem[3].any() != [-1] :
-                        for action in self.actions:
-                            #choose best action
-                            states = np.append(mem[3], action)                          # Append to make a single array with 9 columns            
-                            states_T = np.reshape(states, (-1, 9) )                     # Reshape to make 9 rows instead
-                            output = sess.run(self.Qout, feed_dict={self.X: states_T }) # Get the next states max action value by running the network
-                            action_values.append(output)
+                        states = mem[3]                                     # Get the next state
+                        states_T = np.reshape(states, (-1, self.n_input) )  # Reshape to make 9 rows instead
 
-                        q_target = mem[2] + self.gamma * max(action_values)             # Apply values
+                        output, allQ = sess.run([self.predict, self.Qout], feed_dict={self.X: states_T })  # Get the next states max action value by running the network
+                        allQ[0, output[0]] *=  mem[2] + self.gamma
+                        q_target = allQ
+
+                    # If ternminal state
                     else:
-                        q_target = np.array( [[mem[2]]] )
+                        output, allQ = sess.run([self.predict, self.Qout], feed_dict={self.X: states_T })  # Get the next states max action value by running the network
+                        allQ[0, output[0]] = mem[2]   # Assign the final reward
+                        q_target = allQ
 
-                    updateM = sess.run( [self.updateModel, self.W] , feed_dict={self.X: states_T, self.y: q_target })
+                    updateM, updateW = sess.run( [self.updateModel, self.W] , feed_dict={self.X: states_T, self.y: q_target })
+        self.memory = []
 
 class Agent(base_agent.BaseAgent):
     def __init__(self):
@@ -212,6 +196,9 @@ class Agent(base_agent.BaseAgent):
 
         # Since it is using multistep actions, we keep track of it using move_number
         self.move_number = 0
+
+        # Step counter for learning every certain count
+        self.turn_counter = 0
 
     # Used for the case when base is at bottom right
     def transformDistance(self, x, x_distance, y, y_distance):
@@ -240,6 +227,8 @@ class Agent(base_agent.BaseAgent):
 
     def step(self, obs):
         super(Agent, self).step(obs)
+
+        self.turn_counter += 1
 
         # Checks that game has ended if so then get final reward
         if obs.last():
@@ -306,8 +295,9 @@ class Agent(base_agent.BaseAgent):
 
             # Save to memory for learning later
             if self.previous_action is not None:
-                self.qlearn.remember(self.previous_state, self.previous_action, 0, current_state)
-
+                r = (current_state[1]*5) + (current_state[2]*6) + (current_state[3]*5)       # R is rewards for building and army
+                self.qlearn.remember(self.previous_state, self.previous_action, r, current_state)
+            
             # Get action to do
             rl_action = self.qlearn.choose_action(current_state)
 
@@ -420,6 +410,11 @@ class Agent(base_agent.BaseAgent):
                         target = [int(m_x), int(m_y)]
 
                         return actions.FunctionCall(_HARVEST_GATHER, [_QUEUED, target]) # Send SCV to harvest. NOTICE it is queued so SCV will finish building first
+        
+        # Check counter to learn and reset every 20 steps
+        if self.turn_counter > 20:        
+            self.qlearn.learn()
+            self.turn_counter = 0
 
         return actions.FunctionCall(_NO_OP, [])
 
