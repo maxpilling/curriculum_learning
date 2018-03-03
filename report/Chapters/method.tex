@@ -1,7 +1,40 @@
-\chapter{Project Methodology}
+\chapter{Project Methodology}%
 \label{method}
 
 \section{Technology}
+
+This project uses two main technologies, which will be outlined here.
+
+The first, is StarCraft II itself. StarCraft II is a real-time strategy game on
+the PC\@. % Rest of the description here or in the research section? Probably here.
+% An image of SC II is also probably worth adding here.
+
+The bulk of this project is based around the work done by DeepMind, producing
+the StarCraft II Learning Environment, which is a Python\cite{python-website}
+wrapper for the Blizzard produced API for StarCraft II\cite{bliz-api}. This
+environment removes a lot of the traditional issues that come playing
+games using machine learning agent. This is because the two main issues, that
+is input and unit recognition have been removed, which allows the more interesting
+problems to be addressed more easily. This is due to a rich input API that means
+passing the result from an agent is much more easy, as well as a large number
+of pre-made feature maps, meaning issues such as unit recognition are made much
+simpler.
+
+% An image for the SC2LE should either be added here, or in the implementation
+% section, to aid the descriptions there. I would think maybe a general one here
+% and more specific examples later?
+
+A second reason for using SC2LE was that it is written in Python, which most
+of the currently popular machine learning libraries are written in. We chose to
+use TensorFlow\cite{tensorflow2015-whitepaper} produced by Google. Primarily,
+this was due to its prevalence in the community meaning it had large amounts of
+support, as well as documentation. It also allows simple neural networks to be
+built up quickly, to help the rapid iterations we will need once we are experimenting
+with different network types and parameters. Also, it is easily accelerated on the
+GPU, meaning that large speed ups can be gained when running on appropriate hardware.
+This hardware is accessible at Leeds University using the ARC machines, which are
+part of the High Performance Computing facilities at the University
+of Leeds\cite{arc}.
 
 \section{Approach}
 
