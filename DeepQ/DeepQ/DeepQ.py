@@ -66,7 +66,7 @@ for mm_x in range(0, 64):
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.75):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.8):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
@@ -74,10 +74,12 @@ class QLearning:
 
         self.memory = []    # Used to store the memory of each game step taken
 
+        self.action_taken = []
+
         # ------ Setup NN ---------
         self.n_input = 8           # Number of nodes on first layer (the input)
-        self.n_hidden1 = 20         # Number of nodes on hidden layer 1
-        self.n_hidden2 = 10         # Number of nodes on hidden layer 2
+        self.n_hidden1 = 20        # Number of nodes on hidden layer 1
+        self.n_hidden2 = 10        # Number of nodes on hidden layer 2
         self.n_target = 8          # Number of nodes on final layer (the output)
 
 
@@ -91,49 +93,52 @@ class QLearning:
             self.X = tf.placeholder(tf.float32, shape=[None, self.n_input], name='Input')         # Create 16 nodes input array for states and actions
             self.y = tf.placeholder(tf.float32, shape=[None, self.n_target], name='output')                           # Create output node which is a single value
 
-            # A different implementation
-            self.W = tf.Variable(tf.random_uniform(shape=[self.n_input, self.n_target], minval=0, seed=0.01, dtype=tf.float32), dtype=tf.float32)    # 8 inputs and 1 output
-        
-            self.Qout = tf.matmul(self.X, self.W)                       # Multiply weights by nodes
+            # Create Weights
+            self.W1 = tf.Variable(tf.random_uniform(shape=[self.n_input, self.n_hidden1], minval=0, seed=None, dtype=tf.float32), dtype=tf.float32)    # 8 inputs and 1 output
+            #self.W1 = tf.Variable(tf.random_normal(shape=[self.n_input, self.n_hidden1], dtype=tf.float32), dtype=tf.float32)       # Weights for first hidden layer
+            #self.b1 = tf.Variable(tf.random_uniform(([self.n_hidden1]), seed=0.01), name='b1') 
+
+            self.W2 = tf.Variable(tf.random_uniform(shape=[self.n_hidden1, self.n_hidden2], minval=0, seed=None, dtype=tf.float32), dtype=tf.float32)
+            #self.b2 = tf.Variable(tf.random_uniform(([self.n_hidden2]), seed=0.01 ))
+            
+            self.W_out = tf.Variable(tf.random_uniform(shape=[self.n_hidden2, self.n_target], minval=0, seed=None, dtype=tf.float32), dtype=tf.float32)
+            #self.b_out = tf.Variable(tf.random_uniform(([self.n_target]), seed=0.01 ))
+
+            # Connect the nodes
+            #self.hidden_1 = tf.nn.relu(tf.add(tf.matmul(self.X, self.W1), self.b1))
+            #self.hidden_2 = tf.nn.relu(tf.add(tf.matmul(self.hidden_1, self.W2), self.b2))
+
+            self.hidden_1 = tf.nn.relu(tf.matmul(self.X, self.W1))
+            self.hidden_2 = tf.nn.relu(tf.matmul(self.hidden_1, self.W2))
+
+            #self.Qout = tf.add( tf.matmul(self.hidden_2, self.W_out), self.b_out)   # Multiply weights by nodes
+            self.Qout = tf.matmul(self.hidden_2, self.W_out)
 
             self.loss = tf.reduce_sum(tf.square(self.y - self.Qout))    # Loss function
 
             self.trainer = tf.train.GradientDescentOptimizer(self.lr)   # Update the network
             self.updateModel = self.trainer.minimize(self.loss)         # Minimize loss
             self.predict = tf.argmax(self.Qout, 1)                      # Predicted value
+            self.init = tf.global_variables_initializer()
 
-
-        # Weight and bias nodes
-        #self.W1 = tf.Variable(tf.random_uniform(shape=[self.n_input, self.n_hidden1], minval=0, seed=0.01, dtype=tf.float32), dtype=tf.float32)       # Weights for first hidden layer
-        #self.b1 = tf.Variable(bias_initializer([n_neurons_1]), name='b1')                      # Bias node for first hidden layer
-
-        #self.W2 = tf.Variable(tf.random_uniform(shape=[self.n_hidden1, self.n_hidden2], minval=0, seed=0.01, dtype=tf.float32), dtype=tf.float32)
-        #self.b2 = tf.Variable(bias_initializer([n_hidden2]))
-
-        #self.W_out = tf.Variable(weight_initializer([self.n_hidden2, self.n_targets]))
-        #self.bias_out = tf.Variable(bias_initializer([n_targets]))
-
-        # Connect the nodes
-        #self.hidden_1 = tf.nn.relu(tf.add(tf.matmul(self.X, self.W1), bias_hidden_1))
-        #self.hidden_2 = tf.nn.relu(tf.add(tf.matmul(hidden_1, W_hidden_2), bias_hidden_2))
-
-        #self.hidden_1 = tf.nn.relu( tf.matmul(self.X, self.W1) )
-        #self.hidden_2 = tf.nn.relu( tf.matmul(self.X, self.W2) )
-
+        # Need to initialize variabless
+        self.sess = tf.Session(graph=self.graph)
+        with self.sess.as_default():
+            self.sess.run(self.init)
 
     def choose_action(self, observation):
-        action_values = []
-
+        
         # Uses epsilon greedy exploration to find the next action
         if np.random.uniform() < self.epsilon:
-            with tf.Session(graph=self.graph) as sess:
-                tf.global_variables_initializer().run()
-
+            #with tf.Session(graph=self.graph) as sess:
+            with self.sess.as_default():
+                #sess.run(self.init)
                 #choose best action
                 states = observation                    # Take states           
                 states_T = np.reshape(states, (-1, self.n_input) ) # Reshape to make 9 rows instead
 
-                output = sess.run(self.predict, feed_dict={self.X: states_T }) # Run network and get value for action in state
+                output, allQ = self.sess.run( [ self.predict, self.Qout ], feed_dict={self.X: states_T }) # Run network and get value for action in state
+            #self.action_taken.append(output[0])
 
             return output[0]       # Return index with max value action
 
@@ -154,31 +159,28 @@ class QLearning:
         
         action_values = []
 
-        with tf.Session(graph=self.graph) as sess:
-                tf.global_variables_initializer().run()
+        with self.sess.as_default():
 
                 for mem in self.memory:
-
-                    # Get the state and action taken at that time 
-                    states = mem[0]                                     # index 0 is state, index 1 is action taken then         
-                    states_T = np.reshape(states, (-1, self.n_input) )  # Reshape to make 9 rows instead
-                    
                     # If not a terminal state then look at next state action value for Q target
                     if mem[3].any() != [-1] :
                         states = mem[3]                                     # Get the next state
-                        states_T = np.reshape(states, (-1, self.n_input) )  # Reshape to make 9 rows instead
+                        states_T = np.reshape(states, (-1, self.n_input) )  # Reshape to make 8 rows instead
 
-                        output, allQ = sess.run([self.predict, self.Qout], feed_dict={self.X: states_T })  # Get the next states max action value by running the network
-                        allQ[0, output[0]] *=  mem[2] + self.gamma
+                        output, allQ = self.sess.run([self.predict, self.Qout], feed_dict={self.X: states_T })  # Get the next states max action value by running the network
+                        # Q Learning update
+                        allQ[0, output[0]] =  mem[2] + ( self.gamma * allQ[0, output[0]] )
                         q_target = allQ
 
                     # If ternminal state
                     else:
-                        output, allQ = sess.run([self.predict, self.Qout], feed_dict={self.X: states_T })  # Get the next states max action value by running the network
+                        states = mem[0]                                     # index 0 is state
+                        states_T = np.reshape(states, (-1, self.n_input) )  # Reshape to make 9 rows instead
+                        output, allQ = self.sess.run([self.predict, self.Qout], feed_dict={self.X: states_T })  # Get the next states max action value by running the network
                         allQ[0, output[0]] = mem[2]   # Assign the final reward
                         q_target = allQ
 
-                    updateM, updateW = sess.run( [self.updateModel, self.W] , feed_dict={self.X: states_T, self.y: q_target })
+                    updateM, updateL = self.sess.run( [self.updateModel, self.loss] , feed_dict={self.X: states_T, self.y: q_target })
         self.memory = []
 
 class Agent(base_agent.BaseAgent):
@@ -412,7 +414,7 @@ class Agent(base_agent.BaseAgent):
                         return actions.FunctionCall(_HARVEST_GATHER, [_QUEUED, target]) # Send SCV to harvest. NOTICE it is queued so SCV will finish building first
         
         # Check counter to learn and reset every 20 steps
-        if self.turn_counter > 20:        
+        if self.turn_counter > 50:        
             self.qlearn.learn()
             self.turn_counter = 0
 
