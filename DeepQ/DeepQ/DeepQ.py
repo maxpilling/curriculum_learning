@@ -121,10 +121,13 @@ class QLearning:
             self.init = tf.global_variables_initializer()               # Initilizes variables
             self.saver = tf.train.Saver()                               # Saves the model and restores
 
-        # Need to initialize variabless
+        # Need to initialize variabless or import variables from existing file
         self.sess = tf.Session(graph=self.graph)
         with self.sess.as_default():
-            self.sess.run(self.init)
+            if os.path.exists("agent_model.ckpt"):
+                self.saver.restore(self.sess, "agent_model.ckpt")
+            else:
+                self.sess.run(self.init)
 
     def choose_action(self, observation):
         
@@ -242,6 +245,9 @@ class Agent(base_agent.BaseAgent):
 
             self.move_number = 0
 
+            # Save the model
+            self.saver.save(self.sess, "agent_model.ckpt")
+
             return actions.FunctionCall(_NO_OP, [])
 
         unit_type = obs.observation['screen'][_UNIT_TYPE]
@@ -303,8 +309,8 @@ class Agent(base_agent.BaseAgent):
                     r += 5*current_state[2]
                 if current_state[3] > self.previous_state[3]:   # Check for new army units
                     r += 6*current_state[3]
-                if current_state[4] < self.previous_state[4] or current_state[5] < self.previous_state[5] or current_state[6] < self.previous_state[6] or current_state[7] < self.previous_state[7]:   # Check for any enemy kills
-                    r += 15
+                #if current_state[4] < self.previous_state[4] or current_state[5] < self.previous_state[5] or current_state[6] < self.previous_state[6] or current_state[7] < self.previous_state[7]:   # Check for any enemy kills
+                    #r += 15
 
                 self.qlearn.remember(self.previous_state, self.previous_action, r, current_state)
             
