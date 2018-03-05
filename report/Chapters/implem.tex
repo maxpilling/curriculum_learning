@@ -1,12 +1,125 @@
 \chapter{Implementation \& Design}%
 \label{implem}
-\section{Environment setup}
-Since the game is very complex and can consist of many possible action spaces, the majority of the experimentation focuses on the \textbf{Simle64} map. The map contains a single opponent and 2 starting bases. The agent is spawned into one of the 2 areas randomly and starts out with the \textbf{SCV} units, characters for building and mining. The initial stage begins with mining of necessary of resources for progressing through level by creating the required buildings and training \textbf{Marines}, fighter characters. This requires the agent to control the \textbf{SCV} and \textbf{Marine} units using complex three action commands.
 
-\section{Q-Learning Table}
+\section{Problem Space}
+Since the game is very complex and can consist of many possible action spaces,
+the majority of the experimentation focuses on the DeepMind mini-games
+and simple small games in the \textbf{Simple64} map.
 
+The mini-games consist of small constrained challenges that represent
+small parts of the full game of StarCraft II, allowing simple actions
+in the game to be tested, as well as compared against a range of
+published scores.
 
-\section{Deep Q Networks}
+The \textbf{Simple64} map was also chosen to allow experimentation on
+a very simple version of the full game, where the challenge is
+to beat the games AI, which is built using more traditional game AI
+technology, and also can cheat at higher difficulties.
 
+The map contains a single opponent and 2 starting bases.
+The agent is spawned into one of the 2 areas randomly and starts out
+with the \textbf{SCV} units, characters for building and mining.
+The initial stage begins with mining of necessary of resources for progressing
+through level by creating the required buildings and training \textbf{Marines}, fighter characters.
+This requires the agent to control the \textbf{SCV} and \textbf{Marine} units
+using complex three action commands.
 
-\section{Convolutional Neural Networks}
+\section{PySC2 API}
+
+% Possibly needs a broader explanation of what this is, and why we use it.
+
+The agent takes an action based on the given information about the current game
+state, the contextual environment.
+This relies on how the information can be extracted using the \textbf{PySC2} API\@.
+In order to make the agent as close to a human player as possible, the API uses an orthogonal
+projection to view the game world, as opposed to how a human would see
+perspective projection that is tilted to the side.
+
+This is mainly due to the issue of overlapping units,
+where an agent would not be able to distinguish them apart.
+The agent would have a $84 \times 84$ grid view of the current screen.
+
+The API also provides access to the player mini-map. The mini-map provides:
+
+\begin{itemize}
+    \item The entire map view including unexplored areas (blacked out)
+    \item All units and building in the game
+    \item Objects represented by an index for classification
+\end{itemize}
+
+The classifications of mini-map objects are:
+\begin{enumerate}
+    \item Background
+    \item Agent's units
+    \item Allied units
+    \item Neutral units
+    \item Hostile units
+\end{enumerate}
+
+The entire game state is accessed using the \textbf{Observation} method provided in the API\@.
+In order to access any information from the game, the must be called with the
+relevant index since the \textbf{Obs} variable is an array of arrays with
+relevant information. For example, in order to access the mini-map,
+use $obs.observation['screen'][UNITTYPE]$. The agent can see that a
+unit is hid through the mini-map but can not identify the type of
+unit unless the screen array is accessed for unit type information.
+
+The screen array provides the following:
+
+\begin{itemize}
+    \item Powers of a selected unit
+    \item Unit type
+    \item Hit points of a selected unit
+    \item Unit density (how many units are in a given area of screen)
+    \item and more information on character abilities
+\end{itemize}
+
+For an action to be taken, a return call is made with the required action for the step.
+This means that the action must be coded to select the relative unit and return the coordinates
+for selecting the unit and issuing an action. There are 2 types of actions:
+
+\begin{itemize}
+    \item Queued: an action that will take place once the current
+        action is finished
+    \item Immediate: interrupts the current action being carried out and
+        forces the character to begin the returned action.
+\end{itemize}
+
+Some actions require an extra parameter for position.
+This makes the action space much larger as the agent could choose any given
+position to issue the action in a $84 \times 84$ grid.
+So an action such as building a simple building would have $84 \times 84$
+possible positions to represent the single action of building.
+
+\section{Development Choices}
+
+As part of building an intelligent agent, or working with any form of deep learning application,
+there are a number of parameters that can be tuned, that will alter the networks performance
+for a given task.
+
+The biggest challenge was identifying what information the agent would need such that the
+input to the network was:
+
+\begin{itemize}
+    \item Useful in many states
+    \item Critical to a given optimal decision
+    \item Contextual
+    \item Provides a baseline for what a unique state would look like
+\end{itemize}
+
+Once a state can be defined, the actions available to an agent will determine its
+impact on the game world. The agent must be able to take actions that allow it to
+transition between states with the ability to advance out of a loop created
+by switching between the same states. This is what makes the choice of the input
+state so crucial.
+
+If given insufficient information, the agent could potentially make undesirable
+choices due to not having enough information and performing the best
+action that was visible.
+
+This leads to what action in a given state is optimal and can the agent learn whether
+the correct decision was made. The learning algorithm should allow an agent
+to identify that remaining in a given loop is not the correct action and that learning
+new actions could be the better outcome.
+Since this is using a state action pair the agent will not attempt to take any
+other actions that have not been tested and defined to be the highest output.
