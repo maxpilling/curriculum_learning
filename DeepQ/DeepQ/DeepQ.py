@@ -66,11 +66,12 @@ for mm_x in range(0, 64):
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.1, reward_decay=0.9, e_greedy=0.85):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.6):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
         self.epsilon = e_greedy
+        self.epsilon_decay = 0.99
 
         self.memory = []    # Used to store the memory of each game step taken
 
@@ -124,15 +125,15 @@ class QLearning:
         # Need to initialize variabless or import variables from existing file
         self.sess = tf.Session(graph=self.graph)
         with self.sess.as_default():
-            if os.path.isfile("agent_model.ckpt"):
-                self.saver.restore(self.sess, "agent_model.ckpt")
+            if os.path.exists("./model"):
+                self.saver.restore(self.sess, "./model/agent_model.ckpt")
             else:
                 self.sess.run(self.init)
 
     def choose_action(self, observation):
         
         # Uses epsilon greedy exploration to find the next action
-        if np.random.uniform() < self.epsilon:
+        if np.random.uniform() > self.epsilon:
             with self.sess.as_default():
                 #choose best action
                 states = observation                                # Take states           
@@ -145,6 +146,7 @@ class QLearning:
         else:
             # choose random action
             action = np.random.randint(low=0, high=7)  # Take a random action
+            self.epsilon *= self.epsilon_decay         # Reduces the value of epsilon everytime we take a random step
             return action
 
     """ Adds the state, action, reward recieved, and next state is terminal or normal state. """
@@ -205,7 +207,6 @@ class Agent(base_agent.BaseAgent):
         self.threshold_learn = 10
 
 
-
     # Used for the case when base is at bottom right
     def transformDistance(self, x, x_distance, y, y_distance):
         if not self.base_top_left:
@@ -238,7 +239,7 @@ class Agent(base_agent.BaseAgent):
 
         # Checks that game has ended if so then get final reward
         if obs.last():
-            reward = obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
+            reward = 50*obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
 
             self.qlearn.remember(self.previous_state, self.previous_action, reward, next_s=[-1])
             self.qlearn.learn()
@@ -249,8 +250,8 @@ class Agent(base_agent.BaseAgent):
             self.move_number = 0
 
             # Save the model
-            with self.sess.as_default(): 
-                self.saver.save(self.sess, "agent_model.ckpt")
+            with self.qlearn.sess.as_default(): 
+                self.qlearn.saver.save(self.qlearn.sess, "./model/agent_model.ckpt")
 
             #self.sess.close()
             
