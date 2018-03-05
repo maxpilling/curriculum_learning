@@ -66,7 +66,7 @@ for mm_x in range(0, 64):
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.8):
+    def __init__(self, actions, learning_rate=0.1, reward_decay=0.9, e_greedy=0.85):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
@@ -124,7 +124,7 @@ class QLearning:
         # Need to initialize variabless or import variables from existing file
         self.sess = tf.Session(graph=self.graph)
         with self.sess.as_default():
-            if os.path.exists("agent_model.ckpt"):
+            if os.path.isfile("agent_model.ckpt"):
                 self.saver.restore(self.sess, "agent_model.ckpt")
             else:
                 self.sess.run(self.init)
@@ -138,7 +138,7 @@ class QLearning:
                 states = observation                                # Take states           
                 states_T = np.reshape(states, (-1, self.n_input) )  # Reshape to make 9 rows instead
 
-                output, allQ = self.sess.run( [ self.predict, self.W1 ], feed_dict={self.X: states_T }) # Run network and get value for action in state
+                output, allQ = self.sess.run( [ self.predict, self.Qout ], feed_dict={self.X: states_T }) # Run network and get value for action in state
 
             return output[0]       # Return index with max value action
 
@@ -168,7 +168,7 @@ class QLearning:
                     q_target = allQ_P
 
                     # If not a terminal state then look at next state action value for Q target
-                    if mem[3].any() != [-1] :
+                    if any(x in mem[3] for x in [-1]):
                         states_T = np.reshape(mem[3], (-1, self.n_input) )  # Reshape to make 8 rows instead
 
                         output, allQ = self.sess.run([self.predict, self.Qout], feed_dict={self.X: states_T })  # Get the next states max action value by running the network
@@ -246,8 +246,11 @@ class Agent(base_agent.BaseAgent):
             self.move_number = 0
 
             # Save the model
-            self.saver.save(self.sess, "agent_model.ckpt")
+            with self.sess.as_default(): 
+                self.saver.save(self.sess, "agent_model.ckpt")
 
+            #self.sess.close()
+            
             return actions.FunctionCall(_NO_OP, [])
 
         unit_type = obs.observation['screen'][_UNIT_TYPE]
