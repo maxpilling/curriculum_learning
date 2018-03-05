@@ -202,6 +202,9 @@ class Agent(base_agent.BaseAgent):
 
         # Step counter for learning every certain count
         self.turn_counter = 0
+        self.threshold_learn = 10
+
+
 
     # Used for the case when base is at bottom right
     def transformDistance(self, x, x_distance, y, y_distance):
@@ -431,9 +434,10 @@ class Agent(base_agent.BaseAgent):
                         return actions.FunctionCall(_HARVEST_GATHER, [_QUEUED, target]) # Send SCV to harvest. NOTICE it is queued so SCV will finish building first
         
         # Check counter to learn and reset every 20 steps
-        if self.turn_counter > 50:        
+        if self.turn_counter > self.threshold_learn:        
             self.qlearn.learn()
             self.turn_counter = 0
+            self.threshold_learn += 10
 
         return actions.FunctionCall(_NO_OP, [])
 
