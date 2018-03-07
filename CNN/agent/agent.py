@@ -4,12 +4,15 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from actorcritic.policy import FullyConvPolicy
+from policy import ConvPolicy
 from common.preprocess import ObsProcesser, FEATURE_KEYS, AgentInputTuple
 from common.util import weighted_random_sample, select_from_each_row, ravel_index_pairs
 from pysc2.lib import actions
 from tensorflow.contrib import layers
 from tensorflow.contrib.layers.python.layers.optimizers import OPTIMIZER_SUMMARIES
+
+# A named tuple to store the selected probabilities together.
+SelectedLogProbs = collections.namedtuple("SelectedLogProbs", ["action_id", "spatial", "total"])
 
 def get_default_values(spatial_dimensions):
     """get_default_values
@@ -83,9 +86,6 @@ def get_default_values(spatial_dimensions):
         **{name: tf.placeholder(dtype, shape, name) for name, dtype, shape in feature_list}
     )
 
-# A named tuple to store the selected probabilities together.
-SelectedLogProbs = collections.namedtuple("SelectedLogProbs", ["action_id", "spatial", "total"])
-
 class A3C:
 
     _scalar_summary_key = "scalar_summaries"
@@ -102,7 +102,6 @@ class A3C:
                  entropy_weight_action_id=1e-5,
                  max_gradient_norm=None,
                  optimiser_params=None,
-                 policy=FullyConvPolicy
                 ):
         """
         Convolutional Based Agent for learning PySC2 Mini-games
@@ -116,6 +115,8 @@ class A3C:
         :param entropy_weight_spatial: Spatial entropy for update step.
         :param entropy_weight_action_id: Action selection entropy for update step.
         :param max_gradient_norm: Max norm for gradients, if None then no limit.
+        :param optimiser_params: Parameters to be passed to the optimiser.
+        :param policy: The policy to be used.
         """
 
         # Setup the values passed over.
@@ -134,7 +135,7 @@ class A3C:
         self.all_summary_freq = all_summary_freq
         self.scalar_summary_freq = scalar_summary_freq
         self.max_gradient_norm = max_gradient_norm
-        self.policy = policy
+        self.policy = ConvPolicy
 
         self.train_step = 0
 
