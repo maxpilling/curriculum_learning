@@ -26,9 +26,12 @@ _PLAYER_RELATIVE = features.SCREEN_FEATURES.player_relative.index
 _UNIT_TYPE = features.SCREEN_FEATURES.unit_type.index
 _PLAYER_ID = features.SCREEN_FEATURES.player_id.index
 
+# State relative info
 _PLAYER_SELF = 1
+_PLAYER_NEUTRAL = 3
 _PLAYER_HOSTILE = 4
 _ARMY_SUPPLY = 5
+_SUPPLY_LIMIT = 4
 
 _TERRAN_COMMANDCENTER = 18
 _TERRAN_SCV = 45
@@ -66,17 +69,17 @@ for mm_x in range(0, 64):
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.6):
+    def __init__(self, actions, learning_rate=0.1, reward_decay=0.9, e_greedy=0.3):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
         self.epsilon = e_greedy
-        self.epsilon_decay = 0.99
+        self.epsilon_decay = 1
 
         self.memory = []    # Used to store the memory of each game step taken
 
         # ------ Setup NN ---------
-        self.n_input = 8           # Number of nodes on first layer (the input)
+        self.n_input = 13          # Number of nodes on first layer (the input)
         self.n_hidden1 = 20        # Number of nodes on hidden layer 1
         self.n_hidden2 = 10        # Number of nodes on hidden layer 2
         self.n_target = 8          # Number of nodes on final layer (the output)
@@ -146,7 +149,7 @@ class QLearning:
         else:
             # choose random action
             action = np.random.randint(low=0, high=7)  # Take a random action
-            self.epsilon *= self.epsilon_decay         # Reduces the value of epsilon everytime we take a random step
+            #self.epsilon *= self.epsilon_decay         # Reduces the value of epsilon everytime we take a random step
             return action
 
     """ Adds the state, action, reward recieved, and next state is terminal or normal state. """
@@ -159,8 +162,6 @@ class QLearning:
     def learn(self):
         # May not be able to use minibatch since we need to update the q target in every run
         
-        action_values = []
-
         with self.sess.as_default():
 
                 for mem in self.memory:
@@ -170,12 +171,11 @@ class QLearning:
                     q_target = allQ_P
 
                     # If not a terminal state then look at next state action value for Q target
-                    if any(x in mem[3] for x in [-1]):
+                    if not any(x in mem[3] for x in [-1]):
                         states_T = np.reshape(mem[3], (-1, self.n_input) )  # Reshape to make 8 rows instead
 
                         output, allQ = self.sess.run([self.predict, self.Qout], feed_dict={self.X: states_T })  # Get the next states max action value by running the network
                         # Q Learning update
-                        #allQ[0, output[0]] =  mem[2] + ( self.gamma * allQ[0, output[0]] )
                         q_target[0, output_P[0]] = mem[2] + ( self.gamma * allQ[0, output[0]] )
 
                     # If ternminal state
@@ -195,6 +195,9 @@ class Agent(base_agent.BaseAgent):
         self.previous_action = None
         self.previous_state = None
 
+        self.previous_killed_unit_score = 0
+        self.previous_killed_building_score = 0
+
         # Command Center location
         self.cc_y = None
         self.cc_x = None
@@ -204,7 +207,7 @@ class Agent(base_agent.BaseAgent):
 
         # Step counter for learning every certain count
         self.turn_counter = 0
-        self.threshold_learn = 10
+        self.threshold_learn = 30
 
 
     # Used for the case when base is at bottom right
@@ -239,9 +242,13 @@ class Agent(base_agent.BaseAgent):
 
         # Checks that game has ended if so then get final reward
         if obs.last():
+            # When using simple 64 map use this reward
             reward = 50*obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
 
-            self.qlearn.remember(self.previous_state, self.previous_action, reward, next_s=[-1])
+            # When using minigames use below reward
+            #reward = obs.observation['score_cumulative'][0]
+
+            self.qlearn.remember(self.previous_state, self.previous_action, reward, [-1])
             self.qlearn.learn()
 
             self.previous_action = None
@@ -283,11 +290,12 @@ class Agent(base_agent.BaseAgent):
             self.move_number += 1
 
             # Define running stats of the player. This is the state of of the game for the agent
-            current_state = np.zeros(8)
+            current_state = np.zeros(13)
             current_state[0] = cc_count                                 # Number of command centers
             current_state[1] = supply_depot_count                       # Number of supply depots
             current_state[2] = barracks_count                           # Number of barracks
             current_state[3] = obs.observation['player'][_ARMY_SUPPLY]  # Army supply 
+            current_state[4] = obs.observation['player'][_SUPPLY_LIMIT] # Supply limit
             
             # Hot squares defines location where enemies are. We divide map into 4 quadrants and mark each with 1 if enemy found
             hot_squares = np.zeros(4)
@@ -304,20 +312,50 @@ class Agent(base_agent.BaseAgent):
                 hot_squares = hot_squares[::-1]
 
             for i in range(0, 4):
-                current_state[i + 4] = hot_squares[i]
+                current_state[i + 5] = hot_squares[i]
+
+            # Get position of minereals
+            shards_y, shards_x = (obs.observation['minimap'][_PLAYER_RELATIVE] == _PLAYER_NEUTRAL).nonzero()
+            hot_squares = np.zeros(4)
+            # Get a list of hostile units locations
+
+            for i in range(0, len(shards_y)):
+                y = int(math.ceil((shards_y[i] + 1) / 32))
+                x = int(math.ceil((shards_x[i] + 1) / 32))
+
+                hot_squares[((y - 1) * 2) + (x - 1)] = 1
+
+            if not self.base_top_left:
+                hot_squares = hot_squares[::-1]
+
+            for i in range(0, 4):
+                current_state[i + 9] = hot_squares[i]   # +8 bec we already have 8 states before
 
             # Save to memory for learning later
             if self.previous_action is not None:
-                r = 0                                           # R is rewards for building and army
+                r = 0                                                   # R is rewards for building and army
+                
+                #if current_state[1] > self.previous_state[1]:           # Check for new supply depots built
+                 #   r += 10 /( current_state[4] - current_state[3] + 1 )    # Supply limit - current number of units in army. If values get close than more reward
 
-                if current_state[1] > self.previous_state[1]:   # Check for new supply depots built
-                    r += 5*current_state[1]
-                if current_state[2] > self.previous_state[2]:   # Check for new barracks built
-                    r += 5*current_state[2]
-                if current_state[3] > self.previous_state[3]:   # Check for new army units
-                    r += 6*current_state[3]
-                #if current_state[4] < self.previous_state[4] or current_state[5] < self.previous_state[5] or current_state[6] < self.previous_state[6] or current_state[7] < self.previous_state[7]:   # Check for any enemy kills
-                    #r += 15
+                if current_state[2] > self.previous_state[2]:           # Check for new barracks built
+                    r += 5
+                if current_state[3] > self.previous_state[3]:            # Check for new army units
+                    r += 2*current_state[3]
+                
+                # Using cumulative score we can tell if agent killed or destroyed a building
+                killed_unit_score = obs.observation['score_cumulative'][5]
+                killed_building_score = obs.observation['score_cumulative'][6]
+
+                if killed_unit_score > self.previous_killed_unit_score:
+                    r += 10
+                
+                if killed_building_score > self.previous_killed_building_score:
+                    r += 10
+
+                # Store new cumulative score
+                self.previous_killed_unit_score = killed_unit_score
+                self.previous_killed_building_score = killed_building_score
 
                 self.qlearn.remember(self.previous_state, self.previous_action, r, current_state)
             
@@ -341,9 +379,9 @@ class Agent(base_agent.BaseAgent):
 
                 if unit_y.any():
                     i = random.randint(0, len(unit_y) - 1)
-                    target = [unit_x[i], unit_y[i]]         # Pick a random one
+                    target = [unit_x[i], unit_y[i]]         # Pick a random SCV
 
-                    return actions.FunctionCall(_SELECT_POINT, [_NOT_QUEUED, target])   # Select the unit
+                    return actions.FunctionCall(_SELECT_POINT, [_NOT_QUEUED, target])   # Select the SCV unit
             
             # Build Marine
             elif smart_action == ACTION_BUILD_MARINE:
@@ -366,13 +404,9 @@ class Agent(base_agent.BaseAgent):
 
             # Build Supply Depot
             if smart_action == ACTION_BUILD_SUPPLY_DEPOT:
-                if supply_depot_count < 2 and _BUILD_SUPPLY_DEPOT in obs.observation['available_actions']:  # We want to build 2 depots
+                if _BUILD_SUPPLY_DEPOT in obs.observation['available_actions']:  # We want to build 2 depots
                     if self.cc_y.any():
-                        if supply_depot_count == 0:
-                            # Build them in fixed locations
-                            target = self.transformDistance(round(self.cc_x.mean()), -35, round(self.cc_y.mean()), 0)
-                        elif supply_depot_count == 1:
-                            target = self.transformDistance(round(self.cc_x.mean()), -25, round(self.cc_y.mean()), -25)
+                        target = self.transformDistance(round(self.cc_x.mean()), -25, round(self.cc_y.mean()), np.random.randint(-30, 30))
 
                         return actions.FunctionCall(_BUILD_SUPPLY_DEPOT, [_NOT_QUEUED, target])
 
@@ -438,7 +472,7 @@ class Agent(base_agent.BaseAgent):
         if self.turn_counter > self.threshold_learn:        
             self.qlearn.learn()
             self.turn_counter = 0
-            self.threshold_learn += 10
+        #    self.threshold_learn += 10
 
         return actions.FunctionCall(_NO_OP, [])
 
