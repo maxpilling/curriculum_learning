@@ -242,14 +242,20 @@ def convert_point_to_rectangle(point, delta, dim):
 
 
 def arg_names():
+    """arg_names
+
+    Return a list of all argument names from the actions list.
+
+    """
     x = [[a.name for a in k.args] for k in actions.FUNCTIONS]
     assert all("minimap2" not in k for k in x)
     return x
 
 
 def find_rect_function_id():
-    """
-    this is just a change-safe way to return 3
+    """find_rect_function_id
+
+    Fine the id of the rectangle function ID, used for selecting units.
     """
     x = [k.id for k, names in zip(actions.FUNCTIONS, arg_names()) if "screen2" in names]
     assert len(x) == 1
@@ -257,6 +263,12 @@ def find_rect_function_id():
 
 
 class ActionProcesser:
+    """ActionProcesser
+
+    Process a given action.
+
+    """
+
     def __init__(self, dim, rect_delta=5):
         self.default_args, is_spatial = zip(*[make_default_args(k) for k in arg_names()])
         self.is_spatial = np.array(is_spatial)
@@ -265,28 +277,49 @@ class ActionProcesser:
         self.dim = dim
 
     def make_one_action(self, action_id, spatial_coordinates):
+        """make_one_action
+
+        :param action_id: The action id to perform.
+        :param spatial_coordinates: The co-ordinates to perform the action at.
+        """
         args = list(self.default_args[action_id])
         assert all(s < self.dim for s in spatial_coordinates)
+
+        # If the action is a select action, then convert the point first, before performing it.
         if action_id == self.rect_select_action_id:
             args.extend(convert_point_to_rectangle(spatial_coordinates, self.rect_delta, self.dim))
         elif self.is_spatial[action_id]:
-            # NOTE: in pysc2 v 1.2 the action space (x,y) is flipped. Handling that conversion here
-            # in all other places we operate with the "non-flipped" coordinates
+            # Flip the co-ordinates from (x, y) to (y, x).
             args.append(spatial_coordinates[::-1])
 
         return actions.FunctionCall(action_id, args)
 
     def process(self, action_ids, spatial_action_2ds):
+        """process
+
+        Process a list of actions and co-ordinates to perform them at.
+
+        :param action_ids: The list of action IDs.
+        :param spatial_action_2ds: The co-ordinates to perform them all at.
+        """
         return [self.make_one_action(a_id, coord)
             for a_id, coord in zip(action_ids, spatial_action_2ds)]
 
     def combine_batch(self, mb_actions):
+        """combine_batch
+
+        Combine a batch of actions.
+
+        :param mb_actions: A list of actions and co-ordinates.
+        """
         d = {}
         d[FEATURE_KEYS.selected_action_id] = np.stack(k[0] for k in mb_actions)
         d[FEATURE_KEYS.selected_spatial_action] = np.stack(k[1] for k in mb_actions)
+
         d[FEATURE_KEYS.is_spatial_action_available] = self.is_spatial[
             d[FEATURE_KEYS.selected_action_id]
         ]
+
         return d
 
 
