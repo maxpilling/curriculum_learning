@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import tensorflow as tf
 
-from agent.agent import A3C
+from agent.agent import A2C
 from absl import flags
 from collections import namedtuple
 from common.preprocess import ObsProcesser, ActionProcesser, FEATURE_KEYS
@@ -20,7 +20,7 @@ class Runner(object):
     def __init__(
             self,
             envs,
-            agent: ActorCriticAgent,
+            agent: A2C,
             n_steps=5,
             discount=0.99,
             do_training=True,

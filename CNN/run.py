@@ -8,8 +8,8 @@ from datetime import datetime
 from functools import partial
 from absl import flags
 
-from actorcritic.agent import ActorCriticAgent, ACMode
-from actorcritic.runner import Runner, PPORunParams
+from agent.agent import A2C
+from agent.runner import Runner
 from common.multienv import SubprocVecEnv, make_sc2env
 
 # Flags taken from example code at https://github.com/xhujoy/pysc2-agents/blob/master/main.py
@@ -115,23 +115,23 @@ def main():
     )
 
     environment = SubprocVecEnv(
-        (partial(make_sc2env, **environment_arguments),) * FLAGS.n_envsdotfiles
+        (partial(make_sc2env, **environment_arguments),) * FLAGS.n_envs
     )
 
     # Setup the agent and its runner.
     tf.reset_default_graph()
     session = tf.Session()
 
-    agent = A3C(
-        mode=FLAGS.agent_mode,
-        sess=session,
+    agent = A2C(
+        session=session,
         spatial_dim=FLAGS.resolution,
         unit_type_emb_dim=5,
         loss_value_weight=FLAGS.loss_value_weight,
         entropy_weight_action_id=FLAGS.entropy_weight_action,
         entropy_weight_spatial=FLAGS.scalar_summary_freq,
-        scalar_summary_freq=FLAGS.all_summary_freq,
+        scalar_summary_freq=FLAGS.scalar_summary_freq,
         summary_path=FULL_SUMMARY_PATH,
+        all_summary_freq=FLAGS.all_summary_freq,
         max_gradient_norm=FLAGS.max_gradient_norm
     )
 
@@ -143,9 +143,15 @@ def main():
     else:
         agent.init()
 
+    # Check that number of steps per batch is defined.
+    if FLAGS.n_steps_per_batch is None:
+        n_steps_per_batch = 8
+    else:
+        n_steps_per_batch = FLAGS.n_steps_per_batch
+
     # Setup the runner.
     runner = Runner(
-        envs=environment_arguments,
+        envs=environment,
         agent=agent,
         discount=FLAGS.discount,
         n_steps=n_steps_per_batch,

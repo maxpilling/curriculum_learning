@@ -5,6 +5,9 @@ from pysc2.env.environment import TimeStep, StepType
 from pysc2.lib import actions
 from pysc2.lib.features import SCREEN_FEATURES, MINIMAP_FEATURES, FeatureType
 
+# All code taken from https://github.com/pekaalto/sc2aibot and then tidied
+# with comments and syntax changes.
+
 
 def log_transform(x, scale):
     """log_transform

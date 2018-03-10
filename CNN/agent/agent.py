@@ -4,7 +4,7 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from policy import ConvPolicy
+from agent.policy import ConvPolicy
 from common.preprocess import ObsProcesser, FEATURE_KEYS, AgentInputTuple
 from common.util import weighted_random_sample, select_from_each_row, ravel_index_pairs
 from pysc2.lib import actions
@@ -86,7 +86,7 @@ def get_default_values(spatial_dimensions):
         **{name: tf.placeholder(dtype, shape, name) for name, dtype, shape in feature_list}
     )
 
-class A3C:
+class A2C:
 
     _scalar_summary_key = "scalar_summaries"
 
@@ -151,6 +151,14 @@ class A3C:
             }
 
         self.optimiser = opt_class(**params)
+
+    def init(self):
+        """init
+
+        Start the session with the initial operation.
+
+        """
+        self.session.run(self.init_op)
 
     def get_scalar_summary(self, name, tensor):
         """get_scalar_summary
@@ -228,7 +236,7 @@ class A3C:
 
         negative_entropy_for_action_id = tf.reduce_mean(
             tf.reduce_sum(
-                theta.action_id.probs * theta.action_id_log_probs,
+                theta.action_id_probs * theta.action_id_log_probs,
                 axis=1
             )
         )
@@ -264,6 +272,7 @@ class A3C:
             optimizer=self.optimiser,
             clip_gradients=self.max_gradient_norm,
             summaries=OPTIMIZER_SUMMARIES,
+            learning_rate=None,
             name="train_operation"
         )
 
