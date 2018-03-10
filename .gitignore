@@ -324,3 +324,5 @@ TSWLatexianTemp*
 
 # Ignore Python Enviroment Folder
 .meng_env
+
+CNN/_files/
