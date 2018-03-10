@@ -134,10 +134,10 @@ class A2C:
         self.summary_writer = tf.summary.FileWriter(summary_path)
         self.all_summary_freq = all_summary_freq
         self.scalar_summary_freq = scalar_summary_freq
+        self.train_step = 0
         self.max_gradient_norm = max_gradient_norm
         self.policy = ConvPolicy
 
-        self.train_step = 0
 
         opt_class = tf.train.AdamOptimizer
 

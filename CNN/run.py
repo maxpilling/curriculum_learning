@@ -108,7 +108,7 @@ def main():
     environment_arguments = dict(
         map_name=FLAGS.map_name,
         step_mul=FLAGS.step_mul,
-        game_steps_per_episode=8,
+        game_steps_per_episode=0,
         screen_size_px=(FLAGS.resolution,) * 2,
         minimap_size_px=(FLAGS.resolution,) * 2,
         visualize=FLAGS.visualize
@@ -128,7 +128,7 @@ def main():
         unit_type_emb_dim=5,
         loss_value_weight=FLAGS.loss_value_weight,
         entropy_weight_action_id=FLAGS.entropy_weight_action,
-        entropy_weight_spatial=FLAGS.scalar_summary_freq,
+        entropy_weight_spatial=FLAGS.entropy_weight_spatial,
         scalar_summary_freq=FLAGS.scalar_summary_freq,
         summary_path=FULL_SUMMARY_PATH,
         all_summary_freq=FLAGS.all_summary_freq,
