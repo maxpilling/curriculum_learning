@@ -140,5 +140,3 @@ def make_sc2env(**kwargs):
     """
     env = sc2_env.SC2Env(**kwargs)
     return env
-
-

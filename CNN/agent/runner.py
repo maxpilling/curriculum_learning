@@ -7,8 +7,7 @@ from agent.agent import A2C
 from absl import flags
 from collections import namedtuple
 from common.preprocess import ObsProcesser, ActionProcesser, FEATURE_KEYS
-from common.util import calculate_n_step_reward, general_n_step_advantage, combine_first_dimensions, \
-    dict_of_lists_to_list_of_dicst
+from common.util import general_n_step_advantage, combine_first_dimensions
 
 
 class Runner(object):
@@ -94,22 +93,22 @@ class Runner(object):
 
         # For the number of steps, save the relevant data each step.
         # When finished, deal with the episode end.
-        for n in range(self.n_steps):
+        for n_step in range(self.n_steps):
             # Save the value estimate here, to make the n step reward calculation easier.
             action_ids, spatial_action_2ds, value_estimate = self.agent.step(latest_obs)
 
-            mb_values[:, n] = value_estimate
+            mb_values[:, n_step] = value_estimate
             mb_obs.append(latest_obs)
             mb_actions.append((action_ids, spatial_action_2ds))
 
             actions_pp = self.action_processer.process(action_ids, spatial_action_2ds)
             obs_raw = self.envs.step(actions_pp)
             latest_obs = self.obs_processer.process(obs_raw)
-            mb_rewards[:, n] = [t.reward for t in obs_raw]
+            mb_rewards[:, n_step] = [t.reward for t in obs_raw]
 
-            for t in obs_raw:
-                if t.last():
-                    self._handle_episode_end(t)
+            for timestep in obs_raw:
+                if timestep.last():
+                    self._handle_episode_end(timestep)
 
         mb_values[:, -1] = self.agent.get_value(latest_obs)
 

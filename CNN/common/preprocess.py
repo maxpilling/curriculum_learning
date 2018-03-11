@@ -103,12 +103,12 @@ class ObsProcesser:
         screen_flag_names = ["creep", "power", "selected"]
 
         self.screen_flag_idx = [k.index for k in SCREEN_FEATURES
-            if k.name in screen_flag_names]
+                                if k.name in screen_flag_names]
 
         minimap_flag_names = ["creep", "camera", "selected"]
 
         self.minimap_flag_idx = [k.index for k in MINIMAP_FEATURES
-            if k.name in minimap_flag_names]
+                                 if k.name in minimap_flag_names]
 
     def get_screen_numeric(self, obs):
         """get_screen_numeric
@@ -306,7 +306,7 @@ class ActionProcesser:
         :param spatial_action_2ds: The co-ordinates to perform them all at.
         """
         return [self.make_one_action(a_id, coord)
-            for a_id, coord in zip(action_ids, spatial_action_2ds)]
+                for a_id, coord in zip(action_ids, spatial_action_2ds)]
 
     def combine_batch(self, mb_actions):
         """combine_batch

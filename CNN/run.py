@@ -192,7 +192,7 @@ def main():
     print_and_log(current_iter)
     save(agent)
 
-    envs.close()
+    environment.close()
 
 
 if __name__ == "__main__":

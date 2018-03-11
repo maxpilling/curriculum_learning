@@ -102,8 +102,8 @@ def ravel_index_pairs(idx_pairs, n_col):
     return tf.reduce_sum(idx_pairs * np.array([n_col, 1])[np.newaxis, ...], axis=1)
 
 
-def dict_of_lists_to_list_of_dicst(x: dict):
-    """dict_of_lists_to_list_of_dicst
+def dict_of_lists_to_list_of_dicts(x: dict):
+    """dict_of_lists_to_list_of_dicts
 
     Given an input dict of lists, convert it to a list of
     dictionaries.
