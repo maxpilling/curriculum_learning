@@ -61,10 +61,10 @@ smart_actions = [
 # Since we are using the minimap we would have a 64x64 grid
 for mm_x in range(0, 64):
     for mm_y in range(0, 64):
-        if (mm_x + 1) % 32 == 0 and (mm_y + 1) % 32 == 0:
+        if (mm_x + 1) % 16 == 0 and (mm_y + 1) % 16 == 0:
             # Create every possible attack position. Will look like: "attack_5_10"
             smart_actions.append(ACTION_ATTACK + '_' +
-                                 str(mm_x - 16) + '_' + str(mm_y - 16)) # Subtract 16 bec we want to select the top left corner of grid
+                                 str(mm_x - 8) + '_' + str(mm_y - 8)) # Subtract 16 bec we want to select the middle vertex of grid
 
 
 
@@ -79,10 +79,12 @@ class QLearning:
         self.memory = []    # Used to store the memory of each game step taken
 
         # ------ Setup NN ---------
-        self.n_input = 13          # Number of nodes on first layer (the input)
-        self.n_hidden1 = 20        # Number of nodes on hidden layer 1
-        self.n_hidden2 = 10        # Number of nodes on hidden layer 2
-        self.n_target = 8          # Number of nodes on final layer (the output)
+        self.n_input = 25          # Number of nodes on first layer (the input)
+        self.n_hidden1 = 100       # Number of nodes on hidden layer 1
+        self.n_hidden2 = 50        # Number of nodes on hidden layer 2
+        self.n_hidden3 = 40        # Number of nodes on hidden layer 3
+        self.n_hidden4 = 30        # Number of nodes on hidden layer 4
+        self.n_target = 20          # Number of nodes on final layer (the output)
 
 
         """ 
@@ -103,18 +105,22 @@ class QLearning:
             self.W2 = tf.Variable(tf.random_normal(shape=[self.n_hidden1, self.n_hidden2], dtype=tf.float32), dtype=tf.float32)
             self.b2 = tf.Variable(tf.zeros([self.n_hidden2]), name='b2')
             
-            self.W_out = tf.Variable(tf.random_normal(shape=[self.n_hidden2, self.n_target], dtype=tf.float32), dtype=tf.float32)
+            self.W3 = tf.Variable(tf.random_normal(shape=[self.n_hidden2, self.n_hidden3], dtype=tf.float32), dtype=tf.float32)
+            self.b3 = tf.Variable(tf.zeros([self.n_hidden3]), name='b3')
+
+            self.W4 = tf.Variable(tf.random_normal(shape=[self.n_hidden3, self.n_hidden4], dtype=tf.float32), dtype=tf.float32)
+            self.b4 = tf.Variable(tf.zeros([self.n_hidden4]), name='b2')
+
+            self.W_out = tf.Variable(tf.random_normal(shape=[self.n_hidden4, self.n_target], dtype=tf.float32), dtype=tf.float32)
             self.b_out = tf.Variable(tf.zeros([self.n_target]), name='b_out')
 
             # Connect the nodes
             self.hidden_1 = tf.nn.relu(tf.add(tf.matmul(self.X, self.W1), self.b1))
             self.hidden_2 = tf.nn.relu(tf.add(tf.matmul(self.hidden_1, self.W2), self.b2))
+            self.hidden_3 = tf.nn.relu(tf.add(tf.matmul(self.hidden_2, self.W3), self.b3))
+            self.hidden_4 = tf.nn.relu(tf.add(tf.matmul(self.hidden_3, self.W4), self.b4))
 
-            #self.hidden_1 = tf.nn.relu(tf.matmul(self.X, self.W1))
-            #self.hidden_2 = tf.nn.relu(tf.matmul(self.hidden_1, self.W2))
-
-            self.Qout = tf.add( tf.matmul(self.hidden_2, self.W_out), self.b_out)   # Multiply weights by nodes
-            #self.Qout = tf.matmul(self.hidden_2, self.W_out)
+            self.Qout = tf.add( tf.matmul(self.hidden_4, self.W_out), self.b_out)   # Multiply weights by nodes
 
             self.loss = tf.reduce_sum(tf.square(self.y - self.Qout))    # Loss function
 
@@ -164,7 +170,7 @@ class QLearning:
         
         with self.sess.as_default():
 
-                for mem in self.memory:
+                for mem in np.random.shuffle(self.memory):
                     # Get prediction
                     states_P = np.reshape(mem[0], (-1, self.n_input) )  # Reshape to make 8 rows instead
                     output_P, allQ_P = self.sess.run([self.predict, self.Qout], feed_dict={self.X: states_P })
@@ -197,6 +203,7 @@ class Agent(base_agent.BaseAgent):
 
         self.previous_killed_unit_score = 0
         self.previous_killed_building_score = 0
+        self.previous_score = 0
 
         # Command Center location
         self.cc_y = None
@@ -243,10 +250,11 @@ class Agent(base_agent.BaseAgent):
         # Checks that game has ended if so then get final reward
         if obs.last():
             # When using simple 64 map use this reward
-            reward = 50*obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
+            #reward = 50*obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
 
             # When using minigames use below reward
             #reward = obs.observation['score_cumulative'][0]
+            reward = obs.observation['score_cumulative'][0] - self.previous_score
 
             self.qlearn.remember(self.previous_state, self.previous_action, reward, [-1])
             self.qlearn.learn()
@@ -290,7 +298,7 @@ class Agent(base_agent.BaseAgent):
             self.move_number += 1
 
             # Define running stats of the player. This is the state of of the game for the agent
-            current_state = np.zeros(13)
+            current_state = np.zeros(25)
             current_state[0] = cc_count                                 # Number of command centers
             current_state[1] = supply_depot_count                       # Number of supply depots
             current_state[2] = barracks_count                           # Number of barracks
@@ -298,20 +306,20 @@ class Agent(base_agent.BaseAgent):
             current_state[4] = obs.observation['player'][_SUPPLY_LIMIT] # Supply limit
             
             # Hot squares defines location where enemies are. We divide map into 4 quadrants and mark each with 1 if enemy found
-            hot_squares = np.zeros(4)
+            hot_squares = np.zeros(16)
             # Get a list of hostile units locations
             enemy_y, enemy_x = (obs.observation['minimap'][_PLAYER_RELATIVE] == _PLAYER_HOSTILE).nonzero()
 
             for i in range(0, len(enemy_y)):
-                y = int(math.ceil((enemy_y[i] + 1) / 32))
-                x = int(math.ceil((enemy_x[i] + 1) / 32))
+                y = int(math.ceil((enemy_y[i] + 1) / 16))
+                x = int(math.ceil((enemy_x[i] + 1) / 16))
 
-                hot_squares[((y - 1) * 2) + (x - 1)] = 1
+                hot_squares[((y - 1) * 4) + (x - 1)] = 1
 
             if not self.base_top_left:
                 hot_squares = hot_squares[::-1]
 
-            for i in range(0, 4):
+            for i in range(0, 16):
                 current_state[i + 5] = hot_squares[i]
 
             # Get position of minereals
@@ -323,13 +331,13 @@ class Agent(base_agent.BaseAgent):
                 y = int(math.ceil((shards_y[i] + 1) / 32))
                 x = int(math.ceil((shards_x[i] + 1) / 32))
 
-                hot_squares[((y - 1) * 2) + (x - 1)] = 1
+                hot_squares[((y - 1) * 2) + (x - 1)] = 1    # Center the attack to the middle coordinate so agent attacks surrounding
 
             if not self.base_top_left:
                 hot_squares = hot_squares[::-1]
 
             for i in range(0, 4):
-                current_state[i + 9] = hot_squares[i]   # +8 bec we already have 8 states before
+                current_state[i + 21] = hot_squares[i]       # +8 bec we already have 8 states before
 
             # Save to memory for learning later
             if self.previous_action is not None:
@@ -338,24 +346,29 @@ class Agent(base_agent.BaseAgent):
                 #if current_state[1] > self.previous_state[1]:           # Check for new supply depots built
                  #   r += 10 /( current_state[4] - current_state[3] + 1 )    # Supply limit - current number of units in army. If values get close than more reward
 
-                if current_state[2] > self.previous_state[2]:           # Check for new barracks built
-                    r += 5
-                if current_state[3] > self.previous_state[3]:            # Check for new army units
-                    r += 2*current_state[3]
+                #if current_state[2] > self.previous_state[2]:           # Check for new barracks built
+                #    r += 5
+                #if current_state[3] > self.previous_state[3]:            # Check for new army units
+                #    r += 2*current_state[3]
                 
                 # Using cumulative score we can tell if agent killed or destroyed a building
-                killed_unit_score = obs.observation['score_cumulative'][5]
-                killed_building_score = obs.observation['score_cumulative'][6]
+                #killed_unit_score = obs.observation['score_cumulative'][5]
+                #killed_building_score = obs.observation['score_cumulative'][6]
 
-                if killed_unit_score > self.previous_killed_unit_score:
-                    r += 10
+                #if killed_unit_score > self.previous_killed_unit_score:
+                #    r += 10
                 
-                if killed_building_score > self.previous_killed_building_score:
-                    r += 10
+                #if killed_building_score > self.previous_killed_building_score:
+                #    r += 10
 
                 # Store new cumulative score
-                self.previous_killed_unit_score = killed_unit_score
-                self.previous_killed_building_score = killed_building_score
+                #self.previous_killed_unit_score = killed_unit_score
+                #self.previous_killed_building_score = killed_building_score
+
+                # For mini game rewards
+                if obs.observation['score_cumulative'][0] > self.previous_score:
+                    r = obs.observation['score_cumulative'][0] - self.previous_score
+                    self.previous_score = obs.observation['score_cumulative'][0]
 
                 self.qlearn.remember(self.previous_state, self.previous_action, r, current_state)
             
@@ -440,10 +453,11 @@ class Agent(base_agent.BaseAgent):
 
                 # Find random quad to attack. REMEMBER that attacking a point attacks 4 surrounding quads. So we choose the center of a quad and this will attack surrounding area
                 if do_it and _ATTACK_MINIMAP in obs.observation["available_actions"]:
-                    x_offset = random.randint(-1, 1)
-                    y_offset = random.randint(-1, 1)
+                    #x_offset = random.randint(-1, 1)
+                    #y_offset = random.randint(-1, 1)
 
-                    return actions.FunctionCall(_ATTACK_MINIMAP, [_NOT_QUEUED, self.transformLocation(int(x) + (x_offset * 8), int(y) + (y_offset * 8))])
+                    #return actions.FunctionCall(_ATTACK_MINIMAP, [_NOT_QUEUED, self.transformLocation(int(x) + (x_offset * 8), int(y) + (y_offset * 8))])
+                    return actions.FunctionCall(_ATTACK_MINIMAP, [_NOT_QUEUED, self.transformLocation( int(x), int(y) )])
 
         # Increment mover counter. We know ensure SCV goes back to work after building 
         elif self.move_number == 2:
@@ -469,9 +483,9 @@ class Agent(base_agent.BaseAgent):
                         return actions.FunctionCall(_HARVEST_GATHER, [_QUEUED, target]) # Send SCV to harvest. NOTICE it is queued so SCV will finish building first
         
         # Check counter to learn and reset every 20 steps
-        if self.turn_counter > self.threshold_learn:        
-            self.qlearn.learn()
-            self.turn_counter = 0
+        #if self.turn_counter > self.threshold_learn:        
+        #    self.qlearn.learn()
+        #    self.turn_counter = 0
         #    self.threshold_learn += 10
 
         return actions.FunctionCall(_NO_OP, [])
