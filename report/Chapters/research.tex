@@ -104,6 +104,64 @@ is shown in Figure~\ref{fig:common_layout}.
 % Include the basics of neural networks here - The biological aspect
 % More explanation of the weights, and what their values can be.
 
+\subsection{How a neural network `learns'}
+
+For a neural network to function, it must go through a learning process, such
+that it is able to sufficiently model the function it is needed for. This process
+is by a set of functions $F$, where a solution $f' \in F$, and $f'$ solves
+the given function best of all available solutions.
+
+This leads to a need for a cost function, such that the best solution can be found.
+A cost function is defined as a mapping from the set of functions $F$ to the real
+numbers, such as:
+
+\begin{align}
+    C : F \rightarrow \mathbb{R}
+\end{align}
+
+where there exists some optional solution $f^*$, which is bound as follows
+
+\begin{align}
+    C(f^*) \le C(f) \forall f \in F
+\end{align}
+
+which means that the cost of the optimal solution is bound by the cost of
+all solutions in $F$.
+
+With this, the process of the neural network learning turns into an
+optimisation problem, that is, to choose the correct weights that sufficiently
+minimises the cost function $C$.
+
+The weights are picked randomly at first, before going through a tuning
+process as the network is ran. The specifics of this will depend on
+the style of network and if a supervised or unsupervised learning method
+is being used, which will be discussed later. Broadly, given these
+initial random weights, a training process is used to tune the weights
+into being suitable. An input is received, and propagates through the
+network to the final output layer. Once an output is given, it may be compared
+against some ground truth or metric, to evaluate if the given output was suitable.
+If the output is suitable, then the next input is received. However, if this
+is not the case then instead, the weights must be adjusted, such that
+given the same inputs again, a more desirable result is achieved.
+
+Commonly, this is achieved via Backpropagation. Backpropagation is the process
+of calculating the required gradient, needed to adjust the weights of the
+network~\cite{goodfellow2016deep}. However, this is mainly used
+in supervised learning techniques, where a known value is available.
+
+Backpropagation is achieved through repeated use of the chain rule,
+to go from the output layer back to the start of the network,
+using the derived gradient to update the weights in each layer,
+such that they are closer to a more optimal solution.
+
+%TODO: Expand on backprop with more refs.
+
+\subsection{Supervised and Unsupervised learning}
+
+%TODO: Add differences between supervised and unsupervised.
+%This subsection will need repeating down in the challenges too,
+%to explain why unsupervised is hard.
+
 \subsection{Deep Q Networks}
 
 The main issue with using a tabular approach for keeping track of state-action
