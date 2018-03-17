@@ -53,12 +53,53 @@ is updated using the Q-Learning equation.
 % Add more info about how q learning works and the equation it uses
 
 \subsection{Neural Networks}
-A neural network uses weights which are multiplied
-by the given value to represent an activation. This activation works by
-inputting the given value into an activation function that will return a value
-to be used as input for the next layer. The network is broken into nodes and
-layers. Each node represents a variable for input and each layer is a
-collection of nodes. Layers are connected through edges known as weights.
+
+Neural networks takes inspiration from the biological neurons that
+are present in the brain, similar to how genetic learning
+algorithms take inspiration from the physical process of evolution
+and mutation\cite{goldberg2006genetic}.
+
+Broadly, a Neural Network is a model that estimates a function $f$.
+It does this by using a set of weights, and input neurons. A neuron
+can be thought of some model that given a number of inputs, gives
+an output which is some weighted sum of the inputs.
+
+A given network can have any number of neurons, connected in a number
+of different ways. Normally, neurons are arranged into layers, which
+are sets of neurons who are all receiving from a given input, be
+that an outside source, or a different layer of neurons. An explanation of
+these layers will be given later. The communication
+between the neurons is done by using the aforementioned weights, where
+$w_{ij}$ denotes the weight between neurons $i$ and $j$. Depending on the
+style of the network, there may be restrictions on the values of these
+weights, and it is also possible that $w_{ij} \ne w_{ji}$.
+
+For a value to be passed through the network, it is given as input to an input
+layer, where it is then multiplied by the associated weights of the neuron the
+value entered on, perhaps with the use of an associated activation function.  A
+common activation function is the Rectified Linear Unit
+(RELU)\cite{Nair:2010:RLU:3104322.3104425}, which works by taking the maximum
+of two values as follows:
+
+\begin{align}
+    f(x) = \max(0, x)
+\end{align}
+
+where $x$ is the input value to the activation function.
+
+For an average network, the layout of the layers is an input layer,
+followed by a number of hidden layers, and finally an output layer. Usually
+these layers are fully-connected, which means there every neuron in each
+layer is connected to  every neuron in the following layer, but
+there is no connections between neurons of the layer. An example of this
+is shown in Figure~\ref{fig:common_layout}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{common_layout}
+    \caption{Common layout of a neural network.}%
+    \label{fig:common_layout}
+\end{figure}
 
 % Include the basics of neural networks here - The biological aspect
 % More explanation of the weights, and what their values can be.
