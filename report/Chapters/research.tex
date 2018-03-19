@@ -101,9 +101,6 @@ is shown in Figure~\ref{fig:common_layout}.
     \label{fig:common_layout}
 \end{figure}
 
-% Include the basics of neural networks here - The biological aspect
-% More explanation of the weights, and what their values can be.
-
 \subsection{How a neural network `learns'}
 
 For a neural network to function, it must go through a learning process, such
@@ -158,9 +155,33 @@ such that they are closer to a more optimal solution.
 
 \subsection{Supervised and Unsupervised learning}
 
-%TODO: Add differences between supervised and unsupervised.
-%This subsection will need repeating down in the challenges too,
-%to explain why unsupervised is hard.
+As mentioned previously, there is broadly two different styles of learning,
+supervised and unsupervised learning (though there is some area between,
+sometimes called semi-supervised~\cite{chapelle2009semi}).
+
+The main differences between these two are how training is conducted. In a
+supervised learning environment, there exists some dataset which has an
+associated set of labels, such that learning can be done and any result can
+instantly be checked against this ground truth, to help the process of
+backpropagation. Unsupervised learning differs to this, where a known truth
+does not exist, making the process of backpropagation much harder.
+
+Commonly, instead the result of the outcome is instead used to help the
+backpropagation process, but this can also be difficult. For example,
+in games the result of an action may not be seen for hundreds or thousands
+of time-steps, making the process much harder~\cite{sutton1984temporal}.
+This makes the learning process harder, since there is no ground truth
+that can be compared against, rather a metric that will change and adapt
+over a large period of time.
+
+This can be avoided by using final results of a process, for example using the
+end result of a game, rather than the score in a number of time-steps. But this
+has other issues, such as slowing the learning process and potentially rewarding
+unproductive behaviour that occurred as part of a game that eventually was won.
+The opposite is also true, that actions that give a local reward may still lead
+to failure to win the game. Because of this, it makes the learning process more
+nuanced than simply comparing against a ground truth. This can be experimented
+with to see how it affects learning.
 
 \subsection{Deep Q Networks}
 
