@@ -8,6 +8,7 @@ import os.path
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+from sklearn import preprocessing
 
 from pysc2.agents import base_agent
 from pysc2.lib import actions
@@ -43,7 +44,6 @@ _NOT_QUEUED = [0]
 _QUEUED = [1]
 _SELECT_ALL = [2]   # Allows the selecting of all units of a certain type
 
-#DATA_FILE = 'agent_data'     # NEED TO UPDATE FOR SAVING SESSION GRAPH
 
 ACTION_DO_NOTHING = 'donothing'
 ACTION_BUILD_SUPPLY_DEPOT = 'buildsupplydepot'
@@ -64,27 +64,27 @@ for mm_x in range(0, 64):
         if (mm_x + 1) % 16 == 0 and (mm_y + 1) % 16 == 0:
             # Create every possible attack position. Will look like: "attack_5_10"
             smart_actions.append(ACTION_ATTACK + '_' +
-                                 str(mm_x - 8) + '_' + str(mm_y - 8)) # Subtract 16 bec we want to select the middle vertex of grid
+                                 str(mm_x - 8) + '_' + str(mm_y - 8)) # Subtract 8 bec we want to select the middle vertex of grid
 
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.1, reward_decay=0.9, e_greedy=0.3):
+    def __init__(self, actions, learning_rate=0.001, reward_decay=0.9, e_greedy=0.1):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
         self.epsilon = e_greedy
-        self.epsilon_decay = 1
+        self.epsilon_decay = 0.99
 
         self.memory = []    # Used to store the memory of each game step taken
 
         # ------ Setup NN ---------
         self.n_input = 25          # Number of nodes on first layer (the input)
-        self.n_hidden1 = 100       # Number of nodes on hidden layer 1
-        self.n_hidden2 = 50        # Number of nodes on hidden layer 2
-        self.n_hidden3 = 40        # Number of nodes on hidden layer 3
-        self.n_hidden4 = 30        # Number of nodes on hidden layer 4
-        self.n_target = 20          # Number of nodes on final layer (the output)
+        self.n_hidden1 = 50        # Number of nodes on hidden layer 1
+        self.n_hidden2 = 30        # Number of nodes on hidden layer 2
+        self.n_hidden3 = 30        # Number of nodes on hidden layer 3
+        self.n_hidden4 = 20        # Number of nodes on hidden layer 4
+        self.n_target = 20         # Number of nodes on final layer (the output)
 
 
         """ 
@@ -98,7 +98,6 @@ class QLearning:
             self.y = tf.placeholder(tf.float32, shape=[None, self.n_target], name='output')                           # Create output node which is a single value
 
             # Create Weights
-            #self.W1 = tf.Variable(tf.random_uniform(shape=[self.n_input, self.n_hidden1], minval=0, seed=None, dtype=tf.float32), dtype=tf.float32)    # 8 inputs and 1 output
             self.W1 = tf.Variable(tf.random_normal(shape=[self.n_input, self.n_hidden1], dtype=tf.float32), dtype=tf.float32)       # Weights for first hidden layer
             self.b1 = tf.Variable(tf.zeros([self.n_hidden1]), name='b1') 
 
@@ -122,7 +121,7 @@ class QLearning:
 
             self.Qout = tf.add( tf.matmul(self.hidden_4, self.W_out), self.b_out)   # Multiply weights by nodes
 
-            self.loss = tf.reduce_sum(tf.square(self.y - self.Qout))    # Loss function
+            self.loss = tf.reduce_sum(tf.abs(self.y - self.Qout))    # Loss function
 
             self.trainer = tf.train.GradientDescentOptimizer(self.lr)   # Update the network
             self.updateModel = self.trainer.minimize(self.loss)         # Minimize loss
@@ -154,7 +153,7 @@ class QLearning:
 
         else:
             # choose random action
-            action = np.random.randint(low=0, high=7)  # Take a random action
+            action = np.random.randint(low=0, high=self.n_target-1)  # Take a random action
             #self.epsilon *= self.epsilon_decay         # Reduces the value of epsilon everytime we take a random step
             return action
 
@@ -169,27 +168,29 @@ class QLearning:
         # May not be able to use minibatch since we need to update the q target in every run
         
         with self.sess.as_default():
+            
+            sample_memory = np.random.permutation(self.memory)
+            #sample_memory = np.random.choice(self.memory, int(0.7*len(self.memory)), replace=False)
+            for mem in sample_memory:
+                # Get prediction
+                states_P = np.reshape(mem[0], (-1, self.n_input) )  # Reshape to make 8 rows instead
+                output_P, allQ_P = self.sess.run([self.predict, self.Qout], feed_dict={self.X: states_P })
+                q_target = allQ_P
 
-                for mem in np.random.shuffle(self.memory):
-                    # Get prediction
-                    states_P = np.reshape(mem[0], (-1, self.n_input) )  # Reshape to make 8 rows instead
-                    output_P, allQ_P = self.sess.run([self.predict, self.Qout], feed_dict={self.X: states_P })
-                    q_target = allQ_P
+                # If not a terminal state then look at next state action value for Q target
+                if not any(x in mem[3] for x in [-1]):
+                    states_T = np.reshape(mem[3], (-1, self.n_input) )  # Reshape to make 8 rows instead
 
-                    # If not a terminal state then look at next state action value for Q target
-                    if not any(x in mem[3] for x in [-1]):
-                        states_T = np.reshape(mem[3], (-1, self.n_input) )  # Reshape to make 8 rows instead
+                    output, allQ = self.sess.run([self.predict, self.Qout], feed_dict={self.X: states_T })  # Get the next states max action value by running the network
+                    # Q Learning update
+                    q_target[0, mem[1]] = mem[2] + ( self.gamma * allQ[0, output[0]] )
 
-                        output, allQ = self.sess.run([self.predict, self.Qout], feed_dict={self.X: states_T })  # Get the next states max action value by running the network
-                        # Q Learning update
-                        q_target[0, output_P[0]] = mem[2] + ( self.gamma * allQ[0, output[0]] )
+                # If ternminal state
+                else:
+                    # Assign reward since there is no next state in terminal
+                    q_target[0, mem[1]] = mem[2]
 
-                    # If ternminal state
-                    else:
-                        # Assign reward since there is no next state in terminal
-                        q_target[0, output_P[0]] = mem[2]
-
-                    updateM, updateL = self.sess.run( [self.updateModel, self.loss] , feed_dict={self.X: states_P, self.y: q_target })
+                updateM, updateL = self.sess.run( [self.updateModel, self.loss] , feed_dict={self.X: states_P, self.y: q_target })
         self.memory = []
 
 class Agent(base_agent.BaseAgent):
@@ -250,19 +251,21 @@ class Agent(base_agent.BaseAgent):
         # Checks that game has ended if so then get final reward
         if obs.last():
             # When using simple 64 map use this reward
-            #reward = 50*obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
+            #reward = 10*obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
 
             # When using minigames use below reward
-            #reward = obs.observation['score_cumulative'][0]
-            reward = obs.observation['score_cumulative'][0] - self.previous_score
+            #reward = obs.observation['score_cumulative'][0] - self.previous_score
+            reward = obs.observation['score_cumulative'][0] - 15
 
             self.qlearn.remember(self.previous_state, self.previous_action, reward, [-1])
             self.qlearn.learn()
 
+            # Reset values
             self.previous_action = None
             self.previous_state = None
 
             self.move_number = 0
+            self.previous_score = 0
 
             # Save the model
             with self.qlearn.sess.as_default(): 
@@ -280,7 +283,8 @@ class Agent(base_agent.BaseAgent):
             player_y, player_x = (obs.observation['minimap'][_PLAYER_RELATIVE] == _PLAYER_SELF).nonzero()
 
             # Take from list the mean value and check position. If mean is greater than 31 chances are the units are on bottom right
-            self.base_top_left = 1 if player_y.any() and player_y.mean() <= 31 else 0
+            #self.base_top_left = 1 if player_y.any() and player_y.mean() <= 31 else 0
+            self.base_top_left = 1 # Make the agent always play minigames with base top left
 
             self.cc_y, self.cc_x = (unit_type == _TERRAN_COMMANDCENTER).nonzero()
 
@@ -299,18 +303,18 @@ class Agent(base_agent.BaseAgent):
 
             # Define running stats of the player. This is the state of of the game for the agent
             current_state = np.zeros(25)
-            current_state[0] = cc_count                                 # Number of command centers
-            current_state[1] = supply_depot_count                       # Number of supply depots
-            current_state[2] = barracks_count                           # Number of barracks
-            current_state[3] = obs.observation['player'][_ARMY_SUPPLY]  # Army supply 
-            current_state[4] = obs.observation['player'][_SUPPLY_LIMIT] # Supply limit
+            current_state[0] = cc_count*0.1                                 # Number of command centers
+            current_state[1] = supply_depot_count*0.1                       # Number of supply depots
+            current_state[2] = barracks_count*0.1                           # Number of barracks
+            current_state[3] = obs.observation['player'][_ARMY_SUPPLY]*0.1  # Army supply 
+            current_state[4] = obs.observation['player'][_SUPPLY_LIMIT]*0.1 # Supply limit
             
             # Hot squares defines location where enemies are. We divide map into 4 quadrants and mark each with 1 if enemy found
             hot_squares = np.zeros(16)
             # Get a list of hostile units locations
             enemy_y, enemy_x = (obs.observation['minimap'][_PLAYER_RELATIVE] == _PLAYER_HOSTILE).nonzero()
 
-            for i in range(0, len(enemy_y)):
+            for i in range(0, len(enemy_y)): 
                 y = int(math.ceil((enemy_y[i] + 1) / 16))
                 x = int(math.ceil((enemy_x[i] + 1) / 16))
 
@@ -325,7 +329,6 @@ class Agent(base_agent.BaseAgent):
             # Get position of minereals
             shards_y, shards_x = (obs.observation['minimap'][_PLAYER_RELATIVE] == _PLAYER_NEUTRAL).nonzero()
             hot_squares = np.zeros(4)
-            # Get a list of hostile units locations
 
             for i in range(0, len(shards_y)):
                 y = int(math.ceil((shards_y[i] + 1) / 32))
@@ -356,19 +359,19 @@ class Agent(base_agent.BaseAgent):
                 #killed_building_score = obs.observation['score_cumulative'][6]
 
                 #if killed_unit_score > self.previous_killed_unit_score:
-                #    r += 10
+                #    r += 0.5
                 
                 #if killed_building_score > self.previous_killed_building_score:
-                #    r += 10
+                #    r += 0.5
 
                 # Store new cumulative score
                 #self.previous_killed_unit_score = killed_unit_score
                 #self.previous_killed_building_score = killed_building_score
 
                 # For mini game rewards
-                if obs.observation['score_cumulative'][0] > self.previous_score:
-                    r = obs.observation['score_cumulative'][0] - self.previous_score
-                    self.previous_score = obs.observation['score_cumulative'][0]
+                #if obs.observation['score_cumulative'][0] > self.previous_score:
+                #    r = obs.observation['score_cumulative'][0] - self.previous_score
+                #    self.previous_score = obs.observation['score_cumulative'][0]
 
                 self.qlearn.remember(self.previous_state, self.previous_action, r, current_state)
             
@@ -453,13 +456,10 @@ class Agent(base_agent.BaseAgent):
 
                 # Find random quad to attack. REMEMBER that attacking a point attacks 4 surrounding quads. So we choose the center of a quad and this will attack surrounding area
                 if do_it and _ATTACK_MINIMAP in obs.observation["available_actions"]:
-                    #x_offset = random.randint(-1, 1)
-                    #y_offset = random.randint(-1, 1)
 
-                    #return actions.FunctionCall(_ATTACK_MINIMAP, [_NOT_QUEUED, self.transformLocation(int(x) + (x_offset * 8), int(y) + (y_offset * 8))])
                     return actions.FunctionCall(_ATTACK_MINIMAP, [_NOT_QUEUED, self.transformLocation( int(x), int(y) )])
 
-        # Increment mover counter. We know ensure SCV goes back to work after building 
+        # Increment mover counter. We ensure SCV goes back to work after building 
         elif self.move_number == 2:
             self.move_number = 0
 
@@ -482,7 +482,7 @@ class Agent(base_agent.BaseAgent):
 
                         return actions.FunctionCall(_HARVEST_GATHER, [_QUEUED, target]) # Send SCV to harvest. NOTICE it is queued so SCV will finish building first
         
-        # Check counter to learn and reset every 20 steps
+        # Uncomment below for live learning during gameplay
         #if self.turn_counter > self.threshold_learn:        
         #    self.qlearn.learn()
         #    self.turn_counter = 0
