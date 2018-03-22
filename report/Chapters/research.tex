@@ -289,7 +289,41 @@ input image, rather than the entire input like in a fully-connected network.
 Broadly, it can be said that a convolutional layer takes a 3D input and
 transforms it to some 3D output. In the context of the MNIST dataset, this
 would be the classification. An example of this 3D network can be seen in
-Figure~\ref{fig:cnn}.
+Figure~\ref{fig:cnn}. It can be seen that the image is given and is transformed
+into a second 3D volume of the same size, but with additional channels.
+
+The additional channels once the convolutional layer has been processed is due
+to the number of filters in that layer. These are defined as the area the
+neuron in a given layer connects to. For example a neuron in the first layer
+may look at a $3 \times 3$ section of the input, extending across all channels
+of the input. This filter is applied to the entire image by moving it over every
+pixel combination it fits on, and at each location the dot product on the input
+and the values in the filter is computed. For the whole image $I$ and a filter
+$F$, this is defined as follows:
+
+\begin{align}
+    {(I*F)}_{xy} = \sum^{h}_{i=1} \sum^{w}_{j=1} F_{ij} \cdot I_{x+i-1, y+j-1}
+\end{align}
+
+which means that for a given a $(x,y)$ position, the value of the filter at that
+point for a given filter is the dot product of each value in the input and the
+value in the filter.
+
+These filters are stacked, which then increases the receptive field of the later
+layers. This process was mirrored on features found in
+biology~\cite{hubel1968receptive}. The receptive field refers to the area that a
+given neuron is receiving input from. For the first layer, this is simply the
+size of the filter, for example the $3 \times 3$ grid. However, this layer is
+then used as input for the next layer. It can be said that the second layer's
+receptive field relative to the image is now 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{cnn}
+    \caption{Common layout of a convolutional neural network, from
+    Cambridge Spark\cite{cnn-layout}.}%
+    \label{fig:cnn}
+\end{figure}
 
 \section{Challenges}
 % Add more info here about the tech and the challenges it faces
