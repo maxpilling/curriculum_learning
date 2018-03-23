@@ -1,5 +1,6 @@
 import os
 import shutil
+import signal
 import sys
 
 import tensorflow as tf
@@ -42,11 +43,23 @@ flags.DEFINE_float("entropy_weight_action", 1e-6, "Entropy of action-id distribu
 FLAGS(sys.argv)
 
 FULL_CHECKPOINT_PATH = os.path.join(FLAGS.checkpoint_path, FLAGS.model_name)
+HAVE_BEEN_KILLED = False
 
 if FLAGS.training:
     FULL_SUMMARY_PATH = os.path.join(FLAGS.summary_path, FLAGS.model_name)
 else:
     FULL_SUMMARY_PATH = os.path.join(FLAGS.summary_path, "no_training", FLAGS.model_name)
+
+def signal_term_handler(signal, frame):
+    """signal_term_handler
+
+    Process the SIGTERM event by setting a global var to gracefully save and close
+    """
+    HAVE_BEEN_KILLED = True
+
+
+signal.signal(signal.SIGTERM, signal_term_handler)
+
 
 def check_existing_folder(folder):
     """check_existing_folder
@@ -173,10 +186,12 @@ def main():
     # and save every 2000.
     try:
         while True:
+
+            if HAVE_BEEN_KILLED:
+                break
+
             if current_iter % 500 == 0:
                 print_and_log(current_iter)
-
-            if current_iter % 2000 == 0:
                 save(agent)
 
             runner.run_batch()
