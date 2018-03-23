@@ -55,6 +55,7 @@ def signal_term_handler(signal, frame):
 
     Process the SIGTERM event by setting a global var to gracefully save and close
     """
+    print("Received a SIGTERM command, closing!"
     HAVE_BEEN_KILLED = True
 
 
@@ -206,6 +207,8 @@ def main():
     # Save, clean up and quit.
     print_and_log(current_iter)
     save(agent)
+
+    print("Finished saving")
 
     environment.close()
 
