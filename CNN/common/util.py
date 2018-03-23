@@ -19,7 +19,7 @@ def select_from_each_row(params, indices):
 
     Given a 2D tensor an accompanying 1D tensor, return
     a 1D tensor where each value is the associated
-    value from that row, as pointed to by the indicies tensor.
+    value from that row, as pointed to by the indices tensor.
 
     :param params: 2D tensor of shape [d1,d2].
     :param indices: 1D tensor of shape [d1] with values in [d1, d2].
@@ -34,7 +34,7 @@ def calculate_n_step_reward(
         last_state_values: np.ndarray):
     """calculate_n_step_reward
 
-    Given the one step rewards, the dicount and the last values,
+    Given the one step rewards, the discount and the last values,
     return the cumulative sum of the full rewards, with discount
     applied.
 

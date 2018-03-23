@@ -73,14 +73,14 @@ def get_available_actions_flags(obs):
     :param obs: The StarCraft II Observation object.
     """
     # Return only the available actions from the Observation object.
-    avilable_actions_dense = np.zeros(len(actions.FUNCTIONS), dtype=np.float32)
-    avilable_actions_dense[obs['available_actions']] = 1
+    available_actions_dense = np.zeros(len(actions.FUNCTIONS), dtype=np.float32)
+    available_actions_dense[obs['available_actions']] = 1
 
-    return avilable_actions_dense
+    return available_actions_dense
 
 
-class ObsProcesser:
-    """ObsProcesser
+class ObsProcessor:
+    """ObsProcessor
 
     A class dedicated to processing and making interfacing with the
     StarCraft II obs object easier.
@@ -265,8 +265,8 @@ def find_rect_function_id():
     return x[0]
 
 
-class ActionProcesser:
-    """ActionProcesser
+class ActionProcessor:
+    """ActionProcessor
 
     Process a given action.
 

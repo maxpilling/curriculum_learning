@@ -6,7 +6,7 @@ import tensorflow as tf
 from agent.agent import A2C
 from absl import flags
 from collections import namedtuple
-from common.preprocess import ObsProcesser, ActionProcesser, FEATURE_KEYS
+from common.preprocess import ObsProcessor, ActionProcessor, FEATURE_KEYS
 from common.util import general_n_step_advantage, combine_first_dimensions
 
 
@@ -26,8 +26,8 @@ class Runner(object):
     ):
         self.envs = envs
         self.agent = agent
-        self.obs_processer = ObsProcesser()
-        self.action_processer = ActionProcesser(dim=flags.FLAGS.resolution)
+        self.obs_processor = ObsProcessor()
+        self.action_processor = ActionProcessor(dim=flags.FLAGS.resolution)
         self.n_steps = n_steps
         self.discount = discount
         self.do_training = do_training
@@ -42,7 +42,7 @@ class Runner(object):
 
         """
         obs = self.envs.reset()
-        self.latest_obs = self.obs_processer.process(obs)
+        self.latest_obs = self.obs_processor.process(obs)
 
     def _log_score_to_tb(self, score):
         """_log_score_to_tb
@@ -79,7 +79,7 @@ class Runner(object):
     def run_batch(self):
         """run_batch
 
-        Run a batch of the training, building up a list of actions, obersvations,
+        Run a batch of the training, building up a list of actions, observations,
         values of those actions and the rewards given.
 
         """
@@ -101,9 +101,9 @@ class Runner(object):
             mb_obs.append(latest_obs)
             mb_actions.append((action_ids, spatial_action_2ds))
 
-            actions_pp = self.action_processer.process(action_ids, spatial_action_2ds)
+            actions_pp = self.action_processor.process(action_ids, spatial_action_2ds)
             obs_raw = self.envs.step(actions_pp)
-            latest_obs = self.obs_processer.process(obs_raw)
+            latest_obs = self.obs_processor.process(obs_raw)
             mb_rewards[:, n_step] = [t.reward for t in obs_raw]
 
             for timestep in obs_raw:
@@ -121,13 +121,13 @@ class Runner(object):
 
         full_input = {
             # These are transposed because action/obs
-            # processers return [time, env, ...] shaped arrays.
+            # processors return [time, env, ...] shaped arrays.
             FEATURE_KEYS.advantage: n_step_advantage.transpose(),
             FEATURE_KEYS.value_target: (n_step_advantage + mb_values[:, :-1]).transpose()
         }
 
-        full_input.update(self.action_processer.combine_batch(mb_actions))
-        full_input.update(self.obs_processer.combine_batch(mb_obs))
+        full_input.update(self.action_processor.combine_batch(mb_actions))
+        full_input.update(self.obs_processor.combine_batch(mb_obs))
         full_input = {k: combine_first_dimensions(v) for k, v in full_input.items()}
 
         if not self.do_training:

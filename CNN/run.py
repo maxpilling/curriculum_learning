@@ -32,7 +32,7 @@ flags.DEFINE_string("model_name", "temp_testing", "Name for checkpoints and tens
 flags.DEFINE_string("map_name", "MoveToBeacon", "Map to use.")
 
 flags.DEFINE_enum("if_output_exists", "fail", ["fail", "overwrite", "continue"],
-                  "What to do if summary and model output exists, only for training, is ignored if not training.")
+                  "What to do if output exists, only for training, is ignored if not training.")
 
 flags.DEFINE_float("discount", 0.95, "Reward-discount for the agent.")
 flags.DEFINE_float("max_gradient_norm", 500.0, "The maximum gradient norm.")

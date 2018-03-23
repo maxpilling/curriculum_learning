@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 
 from agent.policy import ConvPolicy
-from common.preprocess import ObsProcesser, FEATURE_KEYS, AgentInputTuple
+from common.preprocess import ObsProcessor, FEATURE_KEYS, AgentInputTuple
 from common.util import weighted_random_sample, select_from_each_row, ravel_index_pairs
 from pysc2.lib import actions
 from tensorflow.contrib import layers
@@ -28,12 +28,12 @@ def get_default_values(spatial_dimensions):
         (
             FEATURE_KEYS.minimap_numeric,
             tf.float32,
-            [None, s_d, s_d, ObsProcesser.N_MINIMAP_CHANNELS]
+            [None, s_d, s_d, ObsProcessor.N_MINIMAP_CHANNELS]
         ),
         (
             FEATURE_KEYS.screen_numeric,
             tf.float32,
-            [None, s_d, s_d, ObsProcesser.N_SCREEN_CHANNELS]
+            [None, s_d, s_d, ObsProcessor.N_SCREEN_CHANNELS]
         ),
         (
             FEATURE_KEYS.screen_unit_type,
@@ -412,7 +412,7 @@ class A2C:
     def get_value(self, obs):
         """get_value
 
-        Helper functoin to get the value for a given
+        Helper function to get the value for a given
         state of observations.
 
         :param obs: The observation object, passed from the SC2LE.
