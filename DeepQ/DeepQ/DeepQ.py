@@ -69,7 +69,7 @@ for mm_x in range(0, 64):
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.001, reward_decay=0.9, e_greedy=0.1):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.2):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
@@ -79,11 +79,11 @@ class QLearning:
         self.memory = []    # Used to store the memory of each game step taken
 
         # ------ Setup NN ---------
-        self.n_input = 25          # Number of nodes on first layer (the input)
-        self.n_hidden1 = 50        # Number of nodes on hidden layer 1
+        self.n_input = 37          # Number of nodes on first layer (the input)
+        self.n_hidden1 = 40        # Number of nodes on hidden layer 1
         self.n_hidden2 = 30        # Number of nodes on hidden layer 2
-        self.n_hidden3 = 30        # Number of nodes on hidden layer 3
-        self.n_hidden4 = 20        # Number of nodes on hidden layer 4
+        self.n_hidden3 = 25        # Number of nodes on hidden layer 3
+        self.n_hidden4 = 25        # Number of nodes on hidden layer 4
         self.n_target = 20         # Number of nodes on final layer (the output)
 
 
@@ -98,19 +98,19 @@ class QLearning:
             self.y = tf.placeholder(tf.float32, shape=[None, self.n_target], name='output')                           # Create output node which is a single value
 
             # Create Weights
-            self.W1 = tf.Variable(tf.random_normal(shape=[self.n_input, self.n_hidden1], dtype=tf.float32), dtype=tf.float32)       # Weights for first hidden layer
+            self.W1 = tf.Variable(tf.random_normal(shape=[self.n_input, self.n_hidden1], dtype=tf.float32, stddev=0.5), dtype=tf.float32)       # Weights for first hidden layer
             self.b1 = tf.Variable(tf.zeros([self.n_hidden1]), name='b1') 
 
-            self.W2 = tf.Variable(tf.random_normal(shape=[self.n_hidden1, self.n_hidden2], dtype=tf.float32), dtype=tf.float32)
+            self.W2 = tf.Variable(tf.random_normal(shape=[self.n_hidden1, self.n_hidden2], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
             self.b2 = tf.Variable(tf.zeros([self.n_hidden2]), name='b2')
             
-            self.W3 = tf.Variable(tf.random_normal(shape=[self.n_hidden2, self.n_hidden3], dtype=tf.float32), dtype=tf.float32)
+            self.W3 = tf.Variable(tf.random_normal(shape=[self.n_hidden2, self.n_hidden3], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
             self.b3 = tf.Variable(tf.zeros([self.n_hidden3]), name='b3')
 
-            self.W4 = tf.Variable(tf.random_normal(shape=[self.n_hidden3, self.n_hidden4], dtype=tf.float32), dtype=tf.float32)
+            self.W4 = tf.Variable(tf.random_normal(shape=[self.n_hidden3, self.n_hidden4], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
             self.b4 = tf.Variable(tf.zeros([self.n_hidden4]), name='b2')
 
-            self.W_out = tf.Variable(tf.random_normal(shape=[self.n_hidden4, self.n_target], dtype=tf.float32), dtype=tf.float32)
+            self.W_out = tf.Variable(tf.random_normal(shape=[self.n_hidden4, self.n_target], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
             self.b_out = tf.Variable(tf.zeros([self.n_target]), name='b_out')
 
             # Connect the nodes
@@ -145,7 +145,7 @@ class QLearning:
             with self.sess.as_default():
                 #choose best action
                 states = observation                                # Take states           
-                states_T = np.reshape(states, (-1, self.n_input) )  # Reshape to make 9 rows instead
+                states_T = np.reshape(states, (-1, self.n_input) )  # Reshape to make rows instead
 
                 output, allQ = self.sess.run( [ self.predict, self.Qout ], feed_dict={self.X: states_T }) # Run network and get value for action in state
 
@@ -255,7 +255,7 @@ class Agent(base_agent.BaseAgent):
 
             # When using minigames use below reward
             #reward = obs.observation['score_cumulative'][0] - self.previous_score
-            reward = obs.observation['score_cumulative'][0] - 15
+            reward = obs.observation['score_cumulative'][0]
 
             self.qlearn.remember(self.previous_state, self.previous_action, reward, [-1])
             self.qlearn.learn()
@@ -302,12 +302,12 @@ class Agent(base_agent.BaseAgent):
             self.move_number += 1
 
             # Define running stats of the player. This is the state of of the game for the agent
-            current_state = np.zeros(25)
-            current_state[0] = cc_count*0.1                                 # Number of command centers
-            current_state[1] = supply_depot_count*0.1                       # Number of supply depots
-            current_state[2] = barracks_count*0.1                           # Number of barracks
-            current_state[3] = obs.observation['player'][_ARMY_SUPPLY]*0.1  # Army supply 
-            current_state[4] = obs.observation['player'][_SUPPLY_LIMIT]*0.1 # Supply limit
+            current_state = np.zeros(37)
+            current_state[0] = cc_count*0.01                                 # Number of command centers
+            current_state[1] = supply_depot_count*0.01                       # Number of supply depots
+            current_state[2] = barracks_count*0.01                           # Number of barracks
+            current_state[3] = obs.observation['player'][_ARMY_SUPPLY]*0.01  # Army supply 
+            current_state[4] = obs.observation['player'][_SUPPLY_LIMIT]*0.01 # Supply limit
             
             # Hot squares defines location where enemies are. We divide map into 4 quadrants and mark each with 1 if enemy found
             hot_squares = np.zeros(16)
@@ -328,18 +328,18 @@ class Agent(base_agent.BaseAgent):
 
             # Get position of minereals
             shards_y, shards_x = (obs.observation['minimap'][_PLAYER_RELATIVE] == _PLAYER_NEUTRAL).nonzero()
-            hot_squares = np.zeros(4)
+            hot_squares = np.zeros(16)
 
             for i in range(0, len(shards_y)):
-                y = int(math.ceil((shards_y[i] + 1) / 32))
-                x = int(math.ceil((shards_x[i] + 1) / 32))
+                y = int(math.ceil((shards_y[i] + 1) / 16))
+                x = int(math.ceil((shards_x[i] + 1) / 16))
 
-                hot_squares[((y - 1) * 2) + (x - 1)] = 1    # Center the attack to the middle coordinate so agent attacks surrounding
+                hot_squares[((y - 1) * 4) + (x - 1)] = 1    # Center the attack to the middle coordinate so agent attacks surrounding
 
             if not self.base_top_left:
                 hot_squares = hot_squares[::-1]
 
-            for i in range(0, 4):
+            for i in range(0, 16):
                 current_state[i + 21] = hot_squares[i]       # +8 bec we already have 8 states before
 
             # Save to memory for learning later
