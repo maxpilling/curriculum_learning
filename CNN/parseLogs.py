@@ -8,6 +8,7 @@ import numpy as np
 DIGITS = r'\d+'
 TARGET_STRING = "Episode * ended. Score *"
 
+
 def main():
 
     if len(sys.argv) == 1:
@@ -15,8 +16,6 @@ def main():
         return
 
     input_files = sys.argv[1:]
-
-    output_results = []
 
     for file in input_files:
         print(f"Parsing scores for {file}...")
@@ -31,6 +30,7 @@ def main():
     print("Done!")
 
     return
+
 
 def parse_log_file(input_file):
 
