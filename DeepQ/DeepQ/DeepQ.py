@@ -4,6 +4,7 @@
 import random
 import math
 import os.path
+import time
 
 import numpy as np
 import pandas as pd
@@ -69,7 +70,7 @@ for mm_x in range(0, 64):
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.2):
+    def __init__(self, actions, learning_rate=0.001, reward_decay=0.9, e_greedy=0.3):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
@@ -246,12 +247,10 @@ class Agent(base_agent.BaseAgent):
     def step(self, obs):
         super(Agent, self).step(obs)
 
-        self.turn_counter += 1
-
         # Checks that game has ended if so then get final reward
         if obs.last():
             # When using simple 64 map use this reward
-            #reward = 10*obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
+            #reward = obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
 
             # When using minigames use below reward
             #reward = obs.observation['score_cumulative'][0] - self.previous_score
@@ -266,6 +265,8 @@ class Agent(base_agent.BaseAgent):
 
             self.move_number = 0
             self.previous_score = 0
+
+            self.turn_counter = 0
 
             # Save the model
             with self.qlearn.sess.as_default(): 
@@ -288,205 +289,208 @@ class Agent(base_agent.BaseAgent):
 
             self.cc_y, self.cc_x = (unit_type == _TERRAN_COMMANDCENTER).nonzero()
 
-        cc_y, cc_x = (unit_type == _TERRAN_COMMANDCENTER).nonzero()
-        cc_count = 1 if cc_y.any() else 0
+        if self.turn_counter%5 == 0:
 
-        # We need to count how many of each we have. In this case we get the length of the pixels covered by the unit and divide by its pixel size
-        depot_y, depot_x = (unit_type == _TERRAN_SUPPLY_DEPOT).nonzero()
-        supply_depot_count = int(round(len(depot_y) / 69))                  # Divide by the number of pixels a depot usually covers "69" in this case
+            cc_y, cc_x = (unit_type == _TERRAN_COMMANDCENTER).nonzero()
+            cc_count = 1 if cc_y.any() else 0
 
-        barracks_y, barracks_x = (unit_type == _TERRAN_BARRACKS).nonzero()
-        barracks_count = int(round(len(barracks_y) / 137))                  # Divide by the number of pixels a command center usually takes "137" in this case
+            # We need to count how many of each we have. In this case we get the length of the pixels covered by the unit and divide by its pixel size
+            depot_y, depot_x = (unit_type == _TERRAN_SUPPLY_DEPOT).nonzero()
+            supply_depot_count = int(round(len(depot_y) / 69))                  # Divide by the number of pixels a depot usually covers "69" in this case
 
-        if self.move_number == 0:
-            self.move_number += 1
+            barracks_y, barracks_x = (unit_type == _TERRAN_BARRACKS).nonzero()
+            barracks_count = int(round(len(barracks_y) / 137))                  # Divide by the number of pixels a command center usually takes "137" in this case
 
-            # Define running stats of the player. This is the state of of the game for the agent
-            current_state = np.zeros(37)
-            current_state[0] = cc_count*0.01                                 # Number of command centers
-            current_state[1] = supply_depot_count*0.01                       # Number of supply depots
-            current_state[2] = barracks_count*0.01                           # Number of barracks
-            current_state[3] = obs.observation['player'][_ARMY_SUPPLY]*0.01  # Army supply 
-            current_state[4] = obs.observation['player'][_SUPPLY_LIMIT]*0.01 # Supply limit
+            if self.move_number == 0:
+                self.move_number += 1
+
+                # Define running stats of the player. This is the state of of the game for the agent
+                current_state = np.zeros(37)
+                current_state[0] = cc_count*0.01                                 # Number of command centers
+                current_state[1] = supply_depot_count*0.01                       # Number of supply depots
+                current_state[2] = barracks_count*0.01                           # Number of barracks
+                current_state[3] = obs.observation['player'][_ARMY_SUPPLY]*0.01  # Army supply 
+                current_state[4] = obs.observation['player'][_SUPPLY_LIMIT]*0.01 # Supply limit
             
-            # Hot squares defines location where enemies are. We divide map into 4 quadrants and mark each with 1 if enemy found
-            hot_squares = np.zeros(16)
-            # Get a list of hostile units locations
-            enemy_y, enemy_x = (obs.observation['minimap'][_PLAYER_RELATIVE] == _PLAYER_HOSTILE).nonzero()
+                # Hot squares defines location where enemies are. We divide map into 4 quadrants and mark each with 1 if enemy found
+                hot_squares = np.zeros(16)
+                # Get a list of hostile units locations
+                enemy_y, enemy_x = (obs.observation['minimap'][_PLAYER_RELATIVE] == _PLAYER_HOSTILE).nonzero()
 
-            for i in range(0, len(enemy_y)): 
-                y = int(math.ceil((enemy_y[i] + 1) / 16))
-                x = int(math.ceil((enemy_x[i] + 1) / 16))
+                for i in range(0, len(enemy_y)): 
+                    y = int(math.ceil((enemy_y[i] + 1) / 16))
+                    x = int(math.ceil((enemy_x[i] + 1) / 16))
 
-                hot_squares[((y - 1) * 4) + (x - 1)] = 1
+                    hot_squares[((y - 1) * 4) + (x - 1)] = 1
 
-            if not self.base_top_left:
-                hot_squares = hot_squares[::-1]
+                if not self.base_top_left:
+                    hot_squares = hot_squares[::-1]
 
-            for i in range(0, 16):
-                current_state[i + 5] = hot_squares[i]
+                for i in range(0, 16):
+                    current_state[i + 5] = hot_squares[i]
 
-            # Get position of minereals
-            shards_y, shards_x = (obs.observation['minimap'][_PLAYER_RELATIVE] == _PLAYER_NEUTRAL).nonzero()
-            hot_squares = np.zeros(16)
+                # Get position of minereals
+                shards_y, shards_x = (obs.observation['minimap'][_PLAYER_RELATIVE] == _PLAYER_NEUTRAL).nonzero()
+                hot_squares = np.zeros(16)
 
-            for i in range(0, len(shards_y)):
-                y = int(math.ceil((shards_y[i] + 1) / 16))
-                x = int(math.ceil((shards_x[i] + 1) / 16))
+                for i in range(0, len(shards_y)):
+                    y = int(math.ceil((shards_y[i] + 1) / 16))
+                    x = int(math.ceil((shards_x[i] + 1) / 16))
 
-                hot_squares[((y - 1) * 4) + (x - 1)] = 1    # Center the attack to the middle coordinate so agent attacks surrounding
+                    hot_squares[((y - 1) * 4) + (x - 1)] = 1    # Center the attack to the middle coordinate so agent attacks surrounding
 
-            if not self.base_top_left:
-                hot_squares = hot_squares[::-1]
+                if not self.base_top_left:
+                    hot_squares = hot_squares[::-1]
 
-            for i in range(0, 16):
-                current_state[i + 21] = hot_squares[i]       # +8 bec we already have 8 states before
+                for i in range(0, 16):
+                    current_state[i + 21] = hot_squares[i]       # +8 bec we already have 8 states before
 
-            # Save to memory for learning later
-            if self.previous_action is not None:
-                r = 0                                                   # R is rewards for building and army
+                # Save to memory for learning later
+                if self.previous_action is not None:
+                    r = 0                                                   # R is rewards for building and army
                 
-                #if current_state[1] > self.previous_state[1]:           # Check for new supply depots built
-                 #   r += 10 /( current_state[4] - current_state[3] + 1 )    # Supply limit - current number of units in army. If values get close than more reward
+                    #if current_state[1] > self.previous_state[1]:           # Check for new supply depots built
+                     #   r += 10 /( current_state[4] - current_state[3] + 1 )    # Supply limit - current number of units in army. If values get close than more reward
 
-                #if current_state[2] > self.previous_state[2]:           # Check for new barracks built
-                #    r += 5
-                #if current_state[3] > self.previous_state[3]:            # Check for new army units
-                #    r += 2*current_state[3]
+                    #if current_state[2] > self.previous_state[2]:           # Check for new barracks built
+                    #    r += 5
+                    #if current_state[3] > self.previous_state[3]:            # Check for new army units
+                    #    r += 2*current_state[3]
                 
-                # Using cumulative score we can tell if agent killed or destroyed a building
-                #killed_unit_score = obs.observation['score_cumulative'][5]
-                #killed_building_score = obs.observation['score_cumulative'][6]
+                    # Using cumulative score we can tell if agent killed or destroyed a building
+                    #killed_unit_score = obs.observation['score_cumulative'][5]
+                    #killed_building_score = obs.observation['score_cumulative'][6]
 
-                #if killed_unit_score > self.previous_killed_unit_score:
-                #    r += 0.5
+                    #if killed_unit_score > self.previous_killed_unit_score:
+                    #    r += 0.5
                 
-                #if killed_building_score > self.previous_killed_building_score:
-                #    r += 0.5
+                    #if killed_building_score > self.previous_killed_building_score:
+                    #    r += 0.5
 
-                # Store new cumulative score
-                #self.previous_killed_unit_score = killed_unit_score
-                #self.previous_killed_building_score = killed_building_score
+                    # Store new cumulative score
+                    #self.previous_killed_unit_score = killed_unit_score
+                    #self.previous_killed_building_score = killed_building_score
 
-                # For mini game rewards
-                #if obs.observation['score_cumulative'][0] > self.previous_score:
-                #    r = obs.observation['score_cumulative'][0] - self.previous_score
-                #    self.previous_score = obs.observation['score_cumulative'][0]
+                    # For mini game rewards
+                    #if obs.observation['score_cumulative'][0] > self.previous_score:
+                    #    r = obs.observation['score_cumulative'][0] - self.previous_score
+                    #    self.previous_score = obs.observation['score_cumulative'][0]
 
-                self.qlearn.remember(self.previous_state, self.previous_action, r, current_state)
+                    self.qlearn.remember(self.previous_state, self.previous_action, r, current_state)
             
-            # Get action to do
-            rl_action = self.qlearn.choose_action(current_state)
+                # Get action to do
+                rl_action = self.qlearn.choose_action(current_state)
 
-            self.previous_state = current_state
-            self.previous_action = rl_action
+                self.previous_state = current_state
+                self.previous_action = rl_action
 
-            smart_action, x, y = self.splitAction(self.previous_action)
+                smart_action, x, y = self.splitAction(self.previous_action)
 
-            """ All actions will be 3 game steps: 
-                - The selection of a unit
-                - The action to take
-                - A follow up action
-            """
+                """ All actions will be 3 game steps: 
+                    - The selection of a unit
+                    - The action to take
+                    - A follow up action
+                """
 
-            # Build Barracks
-            if smart_action == ACTION_BUILD_BARRACKS or smart_action == ACTION_BUILD_SUPPLY_DEPOT:
-                unit_y, unit_x = (unit_type == _TERRAN_SCV).nonzero()   # Get list of scv units
-
-                if unit_y.any():
-                    i = random.randint(0, len(unit_y) - 1)
-                    target = [unit_x[i], unit_y[i]]         # Pick a random SCV
-
-                    return actions.FunctionCall(_SELECT_POINT, [_NOT_QUEUED, target])   # Select the SCV unit
-            
-            # Build Marine
-            elif smart_action == ACTION_BUILD_MARINE:
-                if barracks_y.any():
-                    i = random.randint(0, len(barracks_y) - 1)
-                    target = [barracks_x[i], barracks_y[i]]
-
-                    return actions.FunctionCall(_SELECT_POINT, [_SELECT_ALL, target]) # Use select all to choose all barracks. The game auto chooses empty barracks to build units in to balance workload
-            
-            # Select the army
-            elif smart_action == ACTION_ATTACK:
-                if _SELECT_ARMY in obs.observation['available_actions']:
-                    return actions.FunctionCall(_SELECT_ARMY, [_NOT_QUEUED])
-
-        # Increment into next move stage
-        elif self.move_number == 1:
-            self.move_number += 1
-
-            smart_action, x, y = self.splitAction(self.previous_action) # Get next move
-
-            # Build Supply Depot
-            if smart_action == ACTION_BUILD_SUPPLY_DEPOT:
-                if _BUILD_SUPPLY_DEPOT in obs.observation['available_actions']:  # We want to build 2 depots
-                    if self.cc_y.any():
-                        target = self.transformDistance(round(self.cc_x.mean()), -25, round(self.cc_y.mean()), np.random.randint(-30, 30))
-
-                        return actions.FunctionCall(_BUILD_SUPPLY_DEPOT, [_NOT_QUEUED, target])
-
-            # Build Barracks
-            elif smart_action == ACTION_BUILD_BARRACKS:
-                if barracks_count < 2 and _BUILD_BARRACKS in obs.observation['available_actions']:  # Build only 2
-                    if self.cc_y.any():
-                        # Build them in fixed locations
-                        if barracks_count == 0:
-                            target = self.transformDistance(round(self.cc_x.mean()), 15, round(self.cc_y.mean()), -9) 
-                        elif barracks_count == 1:
-                            target = self.transformDistance(round(self.cc_x.mean()), 15, round(self.cc_y.mean()), 12)
-
-                        return actions.FunctionCall(_BUILD_BARRACKS, [_NOT_QUEUED, target])
-            
-            # Build Marine
-            elif smart_action == ACTION_BUILD_MARINE:
-                if _TRAIN_MARINE in obs.observation['available_actions']:
-                    return actions.FunctionCall(_TRAIN_MARINE, [_QUEUED])
-
-            # Attack with marines
-            elif smart_action == ACTION_ATTACK:
-                do_it = True
-
-                # Make sure no SCV selected
-                if len(obs.observation['single_select']) > 0 and obs.observation['single_select'][0][0] == _TERRAN_SCV:
-                    do_it = False
-                # Make sure no SCV selected with army
-                if len(obs.observation['multi_select']) > 0 and obs.observation['multi_select'][0][0] == _TERRAN_SCV:
-                    do_it = False
-
-                # Find random quad to attack. REMEMBER that attacking a point attacks 4 surrounding quads. So we choose the center of a quad and this will attack surrounding area
-                if do_it and _ATTACK_MINIMAP in obs.observation["available_actions"]:
-
-                    return actions.FunctionCall(_ATTACK_MINIMAP, [_NOT_QUEUED, self.transformLocation( int(x), int(y) )])
-
-        # Increment mover counter. We ensure SCV goes back to work after building 
-        elif self.move_number == 2:
-            self.move_number = 0
-
-            smart_action, x, y = self.splitAction(self.previous_action)
-
-            # We check that we had sent an SCV to do the building
-            if smart_action == ACTION_BUILD_BARRACKS or smart_action == ACTION_BUILD_SUPPLY_DEPOT:
-                # Check it can harvest
-                if _HARVEST_GATHER in obs.observation['available_actions']:
-                    unit_y, unit_x = (unit_type == _NEUTRAL_MINERAL_FIELD).nonzero()
+                # Build Barracks
+                if smart_action == ACTION_BUILD_BARRACKS or smart_action == ACTION_BUILD_SUPPLY_DEPOT:
+                    unit_y, unit_x = (unit_type == _TERRAN_SCV).nonzero()   # Get list of scv units
 
                     if unit_y.any():
                         i = random.randint(0, len(unit_y) - 1)
+                        target = [unit_x[i], unit_y[i]]         # Pick a random SCV
 
-                        # Get random harvest location
-                        m_x = unit_x[i]
-                        m_y = unit_y[i]
+                        return actions.FunctionCall(_SELECT_POINT, [_NOT_QUEUED, target])   # Select the SCV unit
+            
+                # Build Marine
+                elif smart_action == ACTION_BUILD_MARINE:
+                    if barracks_y.any():
+                        i = random.randint(0, len(barracks_y) - 1)
+                        target = [barracks_x[i], barracks_y[i]]
 
-                        target = [int(m_x), int(m_y)]
+                        return actions.FunctionCall(_SELECT_POINT, [_SELECT_ALL, target]) # Use select all to choose all barracks. The game auto chooses empty barracks to build units in to balance workload
+            
+                # Select the army
+                elif smart_action == ACTION_ATTACK:
+                    if _SELECT_ARMY in obs.observation['available_actions']:
+                        return actions.FunctionCall(_SELECT_ARMY, [_NOT_QUEUED])
 
-                        return actions.FunctionCall(_HARVEST_GATHER, [_QUEUED, target]) # Send SCV to harvest. NOTICE it is queued so SCV will finish building first
+            # Increment into next move stage
+            elif self.move_number == 1:
+                self.move_number += 1
+
+                smart_action, x, y = self.splitAction(self.previous_action) # Get next move
+
+                # Build Supply Depot
+                if smart_action == ACTION_BUILD_SUPPLY_DEPOT:
+                    if _BUILD_SUPPLY_DEPOT in obs.observation['available_actions']:  # We want to build 2 depots
+                        if self.cc_y.any():
+                            target = self.transformDistance(round(self.cc_x.mean()), -25, round(self.cc_y.mean()), np.random.randint(-30, 30))
+
+                            return actions.FunctionCall(_BUILD_SUPPLY_DEPOT, [_NOT_QUEUED, target])
+
+                # Build Barracks
+                elif smart_action == ACTION_BUILD_BARRACKS:
+                    if barracks_count < 2 and _BUILD_BARRACKS in obs.observation['available_actions']:  # Build only 2
+                        if self.cc_y.any():
+                            # Build them in fixed locations
+                            if barracks_count == 0:
+                                target = self.transformDistance(round(self.cc_x.mean()), 15, round(self.cc_y.mean()), -9) 
+                            elif barracks_count == 1:
+                                target = self.transformDistance(round(self.cc_x.mean()), 15, round(self.cc_y.mean()), 12)
+
+                            return actions.FunctionCall(_BUILD_BARRACKS, [_NOT_QUEUED, target])
+            
+                # Build Marine
+                elif smart_action == ACTION_BUILD_MARINE:
+                    if _TRAIN_MARINE in obs.observation['available_actions']:
+                        return actions.FunctionCall(_TRAIN_MARINE, [_QUEUED])
+
+                # Attack with marines
+                elif smart_action == ACTION_ATTACK:
+                    do_it = True
+
+                    # Make sure no SCV selected
+                    if len(obs.observation['single_select']) > 0 and obs.observation['single_select'][0][0] == _TERRAN_SCV:
+                        do_it = False
+                    # Make sure no SCV selected with army
+                    if len(obs.observation['multi_select']) > 0 and obs.observation['multi_select'][0][0] == _TERRAN_SCV:
+                        do_it = False
+
+                    # Find random quad to attack. REMEMBER that attacking a point attacks 4 surrounding quads. So we choose the center of a quad and this will attack surrounding area
+                    if do_it and _ATTACK_MINIMAP in obs.observation["available_actions"]:
+
+                        return actions.FunctionCall(_ATTACK_MINIMAP, [_NOT_QUEUED, self.transformLocation( int(x), int(y) )])
+
+            # Increment mover counter. We ensure SCV goes back to work after building 
+            elif self.move_number == 2:
+                self.move_number = 0
+
+                smart_action, x, y = self.splitAction(self.previous_action)
+
+                # We check that we had sent an SCV to do the building
+                if smart_action == ACTION_BUILD_BARRACKS or smart_action == ACTION_BUILD_SUPPLY_DEPOT:
+                    # Check it can harvest
+                    if _HARVEST_GATHER in obs.observation['available_actions']:
+                        unit_y, unit_x = (unit_type == _NEUTRAL_MINERAL_FIELD).nonzero()
+
+                        if unit_y.any():
+                            i = random.randint(0, len(unit_y) - 1)
+
+                            # Get random harvest location
+                            m_x = unit_x[i]
+                            m_y = unit_y[i]
+
+                            target = [int(m_x), int(m_y)]
+
+                            return actions.FunctionCall(_HARVEST_GATHER, [_QUEUED, target]) # Send SCV to harvest. NOTICE it is queued so SCV will finish building first
         
-        # Uncomment below for live learning during gameplay
-        #if self.turn_counter > self.threshold_learn:        
-        #    self.qlearn.learn()
-        #    self.turn_counter = 0
-        #    self.threshold_learn += 10
+            # Uncomment below for live learning during gameplay
+            #if self.turn_counter > self.threshold_learn:        
+            #    self.qlearn.learn()
+            #    self.turn_counter = 0
+            #    self.threshold_learn += 10
+        self.turn_counter += 1
 
         return actions.FunctionCall(_NO_OP, [])
 
