@@ -201,9 +201,11 @@ taken by the agent. The steps for running the network:
     \item A state is given as input into the network.
     \item The input is multiplied by the respective connected weights.
     \item The next layer is then given the input from the previous layer.
-    \item The final output layer will return different values for each node in the layer.
+    \item The final output layer will return different values for each node in
+        the layer.
     \item The node with the highest value represents the action to be taken.
-    \item Once the action is taken, a reward value is recorded and used to update the network.
+    \item Once the action is taken, a reward value is recorded and used to
+        update the network.
 \end{enumerate}
 
 The main difference between a Deep Q Network and a normal neural network is the
@@ -217,13 +219,13 @@ action next time the agent is in that state again. This is known as the TD
 error:
 
 \begin{align}
-    TD Error = \sqrt{(Q(s',a) - Q(s,a))^{2}}
+    TD Error = \sqrt{{(Q(s',a) - Q(s,a))}^{2}}
 \end{align}
 
 The error is the value difference between the next state reward and the current
 expected reward. This tells the network whether the expected reward was correct
 or far. The value is then updated by increasing or decreasing based on the
-returned reward. \cite{pandey2010reinforcement}
+returned reward~\cite{pandey2010reinforcement}.
 
 The update could be applied in real-time or at the end of every episode.
 
@@ -325,7 +327,22 @@ biology~\cite{hubel1968receptive}. The receptive field refers to the area that a
 given neuron is receiving input from. For the first layer, this is simply the
 size of the filter, for example the $3 \times 3$ grid. However, this layer is
 then used as input for the next layer. It can be said that the second layer's
-receptive field relative to the image is now 
+receptive field relative to the image for a filter of size $3 \times 3$ is
+5. This increases throughout the network, building up evermore complex and
+abstracted representations of the image, that are increasingly global across the
+image. This can be seen in the filters that are calculated in the network,
+where the earlier layers contain somewhat recognisable features, where the later
+ones become more abstract, as shown in Figure~\ref{fig:filter_example}.
+
+In general, the formula a given layer $l_k$, the receptive field can be
+calculated as follows:
+
+\begin{align}
+    l_k = l_{k-1} + ((f_k - 1) * \prod_{i=1}^{k-1}s_i)
+\end{align}
+
+where $f_k$ is the filter size of layer $k$ and $s_i$ is the stride for the
+$i^{th}$ layer.
 
 %TODO: Finish.
 
@@ -336,6 +353,18 @@ receptive field relative to the image is now
     Cambridge Spark\cite{cnn-layout}.}%
     \label{fig:cnn}
 \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{filter_example}
+    \caption{Examples of filters from various layers, from
+    NIPS'2015 Tutorial\cite{filterexample}.}%
+    \label{fig:filter_example}
+\end{figure}
+
+\subsection{Other required techniques}
+
+% Maxpooling, Striding etc
 
 \section{Challenges}
 % Add more info here about the tech and the challenges it faces
