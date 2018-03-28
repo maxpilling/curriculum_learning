@@ -331,8 +331,9 @@ receptive field relative to the image for a filter of size $3 \times 3$ is
 5. This increases throughout the network, building up evermore complex and
 abstracted representations of the image, that are increasingly global across the
 image. This can be seen in the filters that are calculated in the network,
-where the earlier layers contain somewhat recognisable features, where the later
-ones become more abstract, as shown in Figure~\ref{fig:filter_example}.
+where the earlier layers contain low-level features, where the later
+ones become more abstract and cover larger parts of the image,
+as shown in Figure~\ref{fig:filter_example}.
 
 In general, the formula a given layer $l_k$, the receptive field can be
 calculated as follows:
@@ -344,7 +345,7 @@ calculated as follows:
 where $f_k$ is the filter size of layer $k$ and $s_i$ is the stride for the
 $i^{th}$ layer.
 
-%TODO: Finish.
+%TODO: Read over and check, but should be done now.
 
 \begin{figure}
     \centering
@@ -362,9 +363,37 @@ $i^{th}$ layer.
     \label{fig:filter_example}
 \end{figure}
 
-\subsection{Other required techniques}
+\subsubsection{Other required techniques}
 
-% Maxpooling, Striding etc
+There are other techniques that go alongside a CNN by default, and have been
+mentioned previously. This includes both pooling layers and the concept of
+striding which is used both in the pooling layer and also the convolutional
+layer.
+
+When a filter uses a stride, the filter is moved by more than a single pixel
+each time. By default a stride is 1, that is it is applied to every single pixel
+on the input. However, it is also common to have a stride of two, or in some
+rare cases, a stride of greater than 2. When this is the case, the filter
+is moved two pixels at a time, rather than 1. This leads to less overlap in the
+receptive fields, but does have the potential downside of reducing the
+resolution of the input.
+
+A pooling layer is a form of down-sampling. Given an input the pooling layer
+will reduce the resolution of it in some fashion. The most common pooling layer
+used is the max-pooling layer. This layer takes the maximum value in a filter
+and uses that as the value for that filter. This is commonly done with a filter
+of size $2 \times 2$ and a stride of 2. This results in an image that is halved
+in both the width and height dimension. This is useful to help reduce the number
+of parameters in a given network, so is commonly applied after each
+convolutional layer. An example of a max-pooling layer can be seen in
+Figure~\ref{max_pool}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{max_pool}
+    \caption{Example of max-pooling, from Computer Science Wiki\cite{max_pool}.}%
+    \label{fig:max_pool}
+\end{figure}
 
 \section{Challenges}
 % Add more info here about the tech and the challenges it faces
