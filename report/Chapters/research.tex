@@ -76,6 +76,68 @@ Q(s,a) = Q(s,a) + \alpha (TDError)
 The equation above is the same equation used in the Q-Learning algorithm. But is implemented through the network with a gradient descent optimizer. The network evaluates the loss function using the TD Error and then updates the relevant weights. The learning rate $\alpha$ must be tested with multiple values. If $\alpha$ is increased then the network may converge to an optimal value quicker but may also tend to overshoot the local minimal and diverge from the optimal value. This makes $\alpha$ an important hyper-parameter based on the amount of training the agent may have. If the $\alpha$ is set to a lower value then the agent will require more training to achieve an accurate estimate of the expected reward for a given state action pair. 
 
 \subsection{Convolutional Neural Networks}
+A Convolutional Neural Network (CNN) is a type of Artificial Neural Network
+(ANN). Broadly, a CNN is similar to that of an ANN, in that it consists of a
+number of neurons that have associated weights and receive some input, be that
+from an input layer or another layer of neurons. Where they differ though is
+that with a CNN it is assumed that the input is an image, and then because of
+this, the learning procedure and design principles changes.
+
+To give an example of why this style of network is needed, the size of a non-CNN
+network must be considered. For the MNIST~\cite{lecun2010mnist} dataset, the
+supplied images are $28 \times 28$. For a fully connected architecture, this
+leads to $28 * 28 = 784$ weights. If an RGB image is used, this number is
+multiplied by 3 to get the number of pixels in each of the 3 channels. $784 * 3$
+weights is reasonable, but once moving to an image of a more reasonable size,
+say $(250, 250, 3)$, the number of weights becomes very large, without even
+considering the rest of the neurons in the network.
+
+A CNN work differently however. Since it is able to assume the input is an
+image, the network architecture may be built in a more specific way. That is,
+instead of input consisting on a flat vector of numbers, the input may be
+considered in 3D, where the images vertical and horizontal resolution make up
+the width and height of the input, and the depth is made up by the channels the
+image is made up of, traditionally 3. This is then helped further since the
+neurons in this 3D layer are only connected to a small receptive field from the
+input image, rather than the entire input like in a fully-connected network.
+Broadly, it can be said that a convolutional layer takes a 3D input and
+transforms it to some 3D output. In the context of the MNIST dataset, this
+would be the classification. An example of this 3D network can be seen in
+Figure~\ref{fig:cnn}. It can be seen that the image is given and is transformed
+into a second 3D volume of the same size, but with additional channels.
+
+The additional channels once the convolutional layer has been processed is due
+to the number of filters in that layer. These are defined as the area the
+neuron in a given layer connects to. For example a neuron in the first layer
+may look at a $3 \times 3$ section of the input, extending across all channels
+of the input. This filter is applied to the entire image by moving it over every
+pixel combination it fits on, and at each location the dot product on the input
+and the values in the filter is computed. For the whole image $I$ and a filter
+$F$, this is defined as follows:
+
+\begin{align}
+    {(I*F)}_{xy} = \sum^{h}_{i=1} \sum^{w}_{j=1} F_{ij} \cdot I_{x+i-1, y+j-1}
+\end{align}
+
+which means that for a given a $(x,y)$ position, the value of the filter at that
+point for a given filter is the dot product of each value in the input and the
+value in the filter.
+
+These filters are stacked, which then increases the receptive field of the later
+layers. This process was mirrored on features found in
+biology~\cite{hubel1968receptive}. The receptive field refers to the area that a
+given neuron is receiving input from. For the first layer, this is simply the
+size of the filter, for example the $3 \times 3$ grid. However, this layer is
+then used as input for the next layer. It can be said that the second layer's
+receptive field relative to the image is now 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{cnn}
+    \caption{Common layout of a convolutional neural network, from
+    Cambridge Spark\cite{cnn-layout}.}%
+    \label{fig:cnn}
+\end{figure}
 
 \section{Challenges}
 % Add more info here about the tech and the challenges it faces
