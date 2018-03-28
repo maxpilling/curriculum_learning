@@ -75,7 +75,7 @@ weights, and it is also possible that $w_{ij} \ne w_{ji}$.
 
 For a value to be passed through the network, it is given as input to an input
 layer, where it is then multiplied by the associated weights of the neuron the
-value entered on, perhaps with the use of an associated activation function.  A
+value entered on, perhaps with the use of an associated activation function. A
 common activation function is the Rectified Linear Unit
 (RELU)\cite{Nair:2010:RLU:3104322.3104425}, which works by taking the maximum
 of two values as follows:
@@ -89,7 +89,7 @@ where $x$ is the input value to the activation function.
 For an average network, the layout of the layers is an input layer,
 followed by a number of hidden layers, and finally an output layer. Usually
 these layers are fully-connected, which means there every neuron in each
-layer is connected to  every neuron in the following layer, but
+layer is connected to every neuron in the following layer, but
 there is no connections between neurons of the layer. An example of this
 is shown in Figure~\ref{fig:common_layout}.
 
@@ -183,39 +183,91 @@ nuanced than simply comparing against a ground truth. This can be experimented
 with to see how it affects learning.
 
 \subsection{Deep Q Networks}
-The main issue with using a tabular approach for keeping track of state-action values is the number of required entries. As a more complex space needs to be represented, the number of entries in the table would increase for every possible combination of values. The newest approach to tackling the issue of complex space environments is to use a neural network. The weights represent what an expected value for a given state could be. The state is given as input into the network and then the highest value output is chosen as an action to be taken by the agent. The steps for running the network:
+
+The main issue with using a tabular approach for keeping track of state-action
+values is the number of required entries. As a more complex space needs to be
+represented, the number of entries in the table would increase for every
+possible combination of values. The newest approach to tackling the issue of
+complex space environments is to use a neural network. The weights represent
+what an expected value for a given state could be. The state is given as input
+into the network and then the highest value output is chosen as an action to be
+taken by the agent. The steps for running the network:
+
 \begin{enumerate}
-\item A state is inputted into the network.
-\item Input is multiplied by the respective connected weights.
-\item The next layer is then given the input from the previous layer.
-\item The final output layer will return different values for each node in the layer.
-\item The node with the highest value represents the action to be taken.
-\item Once the action is taken, a reward value is recorded and used to update the network.
+    \item A state is given as input into the network.
+    \item The input is multiplied by the respective connected weights.
+    \item The next layer is then given the input from the previous layer.
+    \item The final output layer will return different values for each node in the layer.
+    \item The node with the highest value represents the action to be taken.
+    \item Once the action is taken, a reward value is recorded and used to update the network.
 \end{enumerate}
-The main difference between a Deep Q Network and a normal neural network is the update function used. 
-A Deep Q Network uses the loss function from the Q-Learning algorithm to update the weights of the network. The loss function provides a value of the target return and the predicted return. For example, the agent could choose that in a certain state the best action would be the third action with a value of 20. The agent takes the action and gets a returned reward that is less. The network is then updated to return a lesser value for that action next time the agent is in that state again. This is known as the TD error:
+
+The main difference between a Deep Q Network and a normal neural network is the
+update function used. A Deep Q Network uses the loss function from the
+Q-Learning algorithm to update the weights of the network. The loss function
+provides a value of the target return and the predicted return. For example, the
+agent could choose that in a certain state the best action would be the third
+action with a value of 20. The agent takes the action and gets a returned reward
+that is less. The network is then updated to return a lesser value for that
+action next time the agent is in that state again. This is known as the TD
+error:
+
 \begin{align}
-TD Error = \sqrt{(Q(s',a) - Q(s,a))^{2}}
+    TD Error = \sqrt{(Q(s',a) - Q(s,a))^{2}}
 \end{align}
-The error is the value difference between the next state reward and the current expected reward. This tells the network whether the expected reward was correct or far. The value is then updated by increasing or decreasing based on the returned reward. \cite{pandey2010reinforcement}
+
+The error is the value difference between the next state reward and the current
+expected reward. This tells the network whether the expected reward was correct
+or far. The value is then updated by increasing or decreasing based on the
+returned reward. \cite{pandey2010reinforcement}
 
 The update could be applied in real-time or at the end of every episode.
-When using a real-time learning environment the agent is more likely to mistake an action for being optimal from the first reward it gets. This makes the agent tend to be more bias towards actions that get an immediate return and will not allow the agent to see the possibilities of foreshadowing what could be a better action in the long run. To avoid over fitting for a single environment, the agent needs to be exposed to differing maps and states. Updating the network at the end of each episode, may make the agent learn action pairs that are incorrect and do not impact the reward factor. For example, the agent can move left, which lets assume is correct, then go right and then left again. This introduces a loop that the agent can get stuck in or an extra action step that is unnecessary. 
 
-In order to avoid such an outcome, a discount factor $\gamma$ is used to reduce the reward value for an incoming state. So the more steps an agent may take to the reward, the lesser the reward value is. 
-Once the agent takes an action, based on the state given to the network, the reward is observed and used to update the Q-Target. The Q-Target looks at the next state s' and checks which action yields the highest value return. That value is then used to update the current state in the network by using the TD Error.
+When using a real-time learning environment the agent is more likely to mistake
+an action for being optimal from the first reward it gets. This makes the agent
+tend to be more bias towards actions that get an immediate return and will not
+allow the agent to see the possibilities of foreshadowing what could be a better
+action in the long run. To avoid over fitting for a single environment, the
+agent needs to be exposed to differing maps and states. Updating the network at
+the end of each episode, may make the agent learn action pairs that are
+incorrect and do not impact the reward factor. For example, the agent can move
+left, which lets assume is correct, then go right and then left again. This
+introduces a loop that the agent can get stuck in or an extra action step that
+is unnecessary.
+
+In order to avoid such an outcome, a discount factor $\gamma$ is used to reduce
+the reward value for an incoming state. So the more steps an agent may take to
+the reward, the lesser the reward value is. Once the agent takes an action,
+based on the state given to the network, the reward is observed and used to
+update the Q-Target. The Q-Target looks at the next state s' and checks which
+action yields the highest value return. That value is then used to update the
+current state in the network by using the TD Error.
+
 \begin{align}
-QTarget = r + \gamma*Q(s',a)
-\end{align}
-The prediction made by the network is then subtracted according to the TD Error equation. A learning rate is then multiplied to the value.
-Final update value is:
-\begin{align}
-Q(s,a) = Q(s,a) + \alpha (TDError)
+    QTarget = r + \gamma*Q(s',a)
 \end{align}
 
-The equation above is the same equation used in the Q-Learning algorithm. But is implemented through the network with a gradient descent optimizer. The network evaluates the loss function using the TD Error and then updates the relevant weights. The learning rate $\alpha$ must be tested with multiple values. If $\alpha$ is increased then the network may converge to an optimal value quicker but may also tend to overshoot the local minimal and diverge from the optimal value. This makes $\alpha$ an important hyper-parameter based on the amount of training the agent may have. If the $\alpha$ is set to a lower value then the agent will require more training to achieve an accurate estimate of the expected reward for a given state action pair. 
+The prediction made by the network is then subtracted according to the TD Error
+equation. A learning rate is then multiplied to the value. Final update value
+is:
+
+\begin{align}
+    Q(s,a) = Q(s,a) + \alpha (TDError)
+\end{align}
+
+The equation above is the same equation used in the Q-Learning algorithm. But is
+implemented through the network with a gradient descent optimizer. The network
+evaluates the loss function using the TD Error and then updates the relevant
+weights. The learning rate $\alpha$ must be tested with multiple values. If
+$\alpha$ is increased then the network may converge to an optimal value quicker
+but may also tend to overshoot the local minimal and diverge from the optimal
+value. This makes $\alpha$ an important hyper-parameter based on the amount of
+training the agent may have. If the $\alpha$ is set to a lower value then the
+agent will require more training to achieve an accurate estimate of the expected
+reward for a given state action pair.
 
 \subsection{Convolutional Neural Networks}
+
 A Convolutional Neural Network (CNN) is a type of Artificial Neural Network
 (ANN). Broadly, a CNN is similar to that of an ANN, in that it consists of a
 number of neurons that have associated weights and receive some input, be that
@@ -271,6 +323,8 @@ size of the filter, for example the $3 \times 3$ grid. However, this layer is
 then used as input for the next layer. It can be said that the second layer's
 receptive field relative to the image is now 
 
+%TODO: Finish.
+
 \begin{figure}
     \centering
     \includegraphics[width=0.9\textwidth]{cnn}
@@ -288,9 +342,13 @@ receptive field relative to the image is now
 % whereas this section will talk about it applied to games
 % and the unique problems that raises.
 
+%TODO: Add differences between supervised and unsupervised.
+%Include about using replays.
+
 \section{Existing Methods}
 % This should then move on from the previous section
 % to show how the outlined challenges are dealt with.
 
 \section{Conclusion}
-
+% Conclusion of the research and what it means moving into the
+% implementation and evaluation.
