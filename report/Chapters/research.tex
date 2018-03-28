@@ -18,29 +18,47 @@ important information for the player. In order for the agent to be able to act,
 it must be given an input, stimulus of some form, to evaluate and then proceed with
 taking an action. This makes the game ideal for an unsupervised learning environment.
 
-The environment is broken into states. Each state represents information about the game at a given moment.
-This is then fed into the neural network and returns a value outcome of what the
-optimal action to be taken would be.
-A different approach would be to use a Q-learning algorithm with a table format for
-storing actions and values.
-The main difficulty would be the size of the given table.
-As more actions are introduced the size of the table would increase and new values would
-need to be optimized for the given cells.
-Using a neural network, this issue can be avoided by adding new weights and
-nodes to the network.
+The environment is broken into states. Each state represents information about
+the game at a given moment. This is then fed into the neural network and
+returns a value outcome of what the optimal action to be taken would be. A
+different approach would be to use a Q-learning algorithm with a table format
+for storing actions and values. The main difficulty would be the size of the
+given table. As more actions are introduced the size of the table would
+increase and new values would need to be optimized for the given cells. Using a
+neural network, this issue can be avoided by adding new weights and nodes to the
+network.
 
 \subsection{Q-Learning Table}
-Q-Learning is a reinforcement learning algorithm that uses a tabular approach to state action pairs. Q-Learning is an off-policy method which gives the agent the ability to randomly select actions in a given state without affecting the updated value of the state action pair. Q-Learning requires:
+
+Q-Learning is a reinforcement learning algorithm that uses a tabular approach to
+state action pairs. Q-Learning is an off-policy method which gives the agent the
+ability to randomly select actions in a given state without affecting the
+updated value of the state action pair. Q-Learning requires:
+
 \begin{itemize}
-\item State: some form of representation of the environment the agent is in.
-\item Action: an action that may move the agent from one state to the next or keep it in the same state.
+    \item State: some form of representation of the environment the agent is in.
+    \item Action: an action that may move the agent from one state to the next or keep it in the same state.
 \end{itemize}
-The agent is given a state of the world and checks the lookup table for which action would have the highest value in that state. The agent then executes that action checks the table again for the new state. Upon executing an action the agent may be given a reward, a value that dictates whether the action taken was favorable or incorrect.
-The table can be updated through a real-time learning or at the end of an episode. An episode represents an entire list of states and actions taken to reach the end, usually by having a terminal state. The table is updated using the Q-Learning equation.
+
+The agent is given a state of the world and checks the lookup table for which
+action would have the highest value in that state. The agent then executes that
+action checks the table again for the new state. Upon executing an action the
+agent may be given a reward, a value that dictates whether the action taken was
+favourable or incorrect. The table can be updated through a real-time learning
+or at the end of an episode. An episode represents an entire list of states and
+actions taken to reach the end, usually by having a terminal state. The table is
+updated using the Q-Learning equation.
+
 % Should we add more info about how q learning works and the equation it uses 
 
 \subsection{Neural Networks}
-A neural network uses weights which are multiplied by the given value to represent an activation. This activation works by inputting the given value into an activation function that will return a value to be used as input for the next layer. The network is broken into nodes and layers. Each node represents a variable for input and each layer is a collection of nodes. Layers are connected through edges known as weights.
+
+A neural network uses weights which are multiplied by the given value to
+represent an activation. This activation works by inputting the given value into
+an activation function that will return a value to be used as input for the next
+layer. The network is broken into nodes and layers. Each node represents a
+variable for input and each layer is a collection of nodes. Layers are connected
+through edges known as weights.
 
 \subsection{Deep Q Networks}
 The main issue with using a tabular approach for keeping track of state-action values is the number of required entries. As a more complex space needs to be represented, the number of entries in the table would increase for every possible combination of values. The newest approach to tackling the issue of complex space environments is to use a neural network. The weights represent what an expected value for a given state could be. The state is given as input into the network and then the highest value output is chosen as an action to be taken by the agent. The steps for running the network:
