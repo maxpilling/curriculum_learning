@@ -12,6 +12,44 @@ differ to the solution required in this case.
 \subsection{StarCraft II}
 % What is StarCraft II?
 
+StarCraft II is a real-time strategy (RTS) game for PC released in 2010.
+The game consists of a large number of challenges that make it exciting for
+teaching an automated agent to play.
+
+A basic game of StarCraft II requires the management of the following:
+
+\begin{itemize}
+    \item \textbf{Resource Gathering}: Two types of resources must be gathered
+        around the map, which in turn can be used to purchase additional units
+        and buildings.
+    \item \textbf{Unit Management}: StarCraft II consists of a large number of
+        units of varying types, which must all be given actions such that an
+        efficient outcome is reached. For gathering units, this means having
+        them always gathering resources of the required types or working on
+        building the next required building, and for combat units
+        this means controlling and utilising and their abilities effectively
+        such that they are performing their best in fights. This also means
+        managing the efficient spending of resources on new units.
+    \item \textbf{Building Management}: Buildings must also be managed, which
+        means building new buildings to either increase the maximum number of
+        resources and units the player can have, or allow the building of new or
+        additional number of units.
+\end{itemize}
+
+All of these actions take place on a large game map, where the player only has
+partial information. That is, the player can only see the map where they have
+units placed, anywhere else is shrouded in a so-called `Fog of War' which hides
+any resources or enemy units which may be there.
+Because of this, the player must scout the map to look for resources and the
+enemy, whilst also managing the units and resources in their central base.
+In practise, this means a player is expected to move the in-game camera back
+and forth around a large map, to send and manage scouting or combat units,
+and jumping back to manage resource gathering and base building at the central
+base.
+
+All of these add up to a large number of issues for an intelligent agent to
+overcome, as outlined in Section~\ref{challenges:games}.
+
 %TODO: Add section on what is Starcraft II.
 % Feels like an image could go here too, if not added elsewhere.
 
@@ -405,13 +443,18 @@ Figure~\ref{max_pool}.
 % Add more info here about the tech and the challenges it faces
 % i.e. the problems in Reinforcement Learning as a whole
 
-\section{Reinforcement Learning For Games}
+\section{Reinforcement Learning For Games}\label{challenges:games}
 % The earlier sections should cover the general tech,
 % whereas this section will talk about it applied to games
 % and the unique problems that raises.
 
 %TODO: Add differences between supervised and unsupervised.
 %Include about using replays.
+
+\subsection{StarCraft II}
+%TODO: This section should cover SC2 specific issues, whereas
+%the subsection before this should cover other games, ie Go to
+%draw parallels (incomplete info, bigger action space, steps to reward).
 
 \section{Existing Methods}
 % This should then move on from the previous section
