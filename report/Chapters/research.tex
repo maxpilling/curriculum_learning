@@ -454,7 +454,7 @@ of size $2 \times 2$ and a stride of 2. This results in an image that is halved
 in both the width and height dimension. This is useful to help reduce the number
 of parameters in a given network, so is commonly applied after each
 convolutional layer. An example of a max-pooling layer can be seen in
-Figure~\ref{max_pool}.
+Figure~\ref{fig:max_pool}.
 
 \begin{figure}
     \centering
@@ -467,10 +467,38 @@ Figure~\ref{max_pool}.
 % Add more info here about the tech and the challenges it faces
 % i.e. the problems in Reinforcement Learning as a whole
 
+Reinforcement learning has a number of challenges, both specific to this
+project, and those that are issues for reinforcement learning as a whole.
+This section aims to outline these challenges, as well as ways they have been
+mitigated in other projects and how these fixes may apply to this project.
+
 \section{Reinforcement Learning For Games}\label{challenges:games}
 % The earlier sections should cover the general tech,
 % whereas this section will talk about it applied to games
 % and the unique problems that raises.
+
+Reinforcement learning for games is particularly difficult, which is what makes
+it an interesting research area. Games provide a suitable test-bed for some
+larger issues in the area, whilst also providing a repeatable environment to run
+tests.
+
+There has been recent success playing older games using reinforcement learning,
+such as games on the Atari 2600\cite{mnih2013playing} and
+Doom\cite{kempka2016vizdoom}.
+
+Both of these examples had to overcome the following issues:
+
+\begin{itemize}
+    \item `Labels': For traditional deep learning applications, a large dataset
+        with associated labels is needed. However, in this case we instead must
+        learn from a reward, which is usually delayed for a number steps. For
+        example, a reward may not be given until the game is finished, in which
+        case it is very hard to link early actions to the reward. The first
+        action taken could have a strong correlation or no effect on the final
+        score, but tracking it over an entire game can prove very difficult.
+    \item Changes 
+\end{itemize}
+
 
 %TODO: Add differences between supervised and unsupervised.
 %Include about using replays.
