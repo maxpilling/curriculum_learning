@@ -64,13 +64,25 @@ intelligent agent. It means there is a large number of `Replays' from highly
 skilled players, which could be used for supervised learning techniques, as well
 as standards to compare against for unsupervised learning techniques.
 
-
+\subsection{Issues with StarCraft II for an Intelligent Agent}
 % Issues with StarCraft II
-% Potentially, some of this can be moved to the implementation
-% chapter too.
 A game of StarCraft II includes many challenges for a player in terms of
 complexity. The game state can be comprised of thousands of different aspects
-that could represent important information for the player. In order for the
+that could represent important information for the player. At a given moment,
+there is potentially hundreds of different moves that a player could take,
+which results in a vast action space. Plus, an average match of StarCraft II
+can take between 10--15 minutes. Actions taken at the start of a game to build
+or not build a potential unit type until later could result in the win or loss
+of a game, meaning that every action needs to be thought out.
+
+This means an intelligent agent for SCII would need to be able to evaluate all
+these parameters too, and deal with the issues that come up in this style of
+game, versus that of say Chess or Go. This will be spoken about in more detail
+in Section~\ref{challenges:games}.
+
+% All this feels a bit implementation-y, perhaps we should move this to implem.
+
+In order for the
 agent to be able to act, it must be given an input, stimulus of some form, to
 evaluate and then proceed with taking an action. This makes the game ideal for
 an unsupervised learning environment.
