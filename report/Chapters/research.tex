@@ -496,14 +496,34 @@ Both of these examples had to overcome the following issues:
         case it is very hard to link early actions to the reward. The first
         action taken could have a strong correlation or no effect on the final
         score, but tracking it over an entire game can prove very difficult.
-    \item Changes 
+    \item Independence of Inputs: Most deep learning algorithms assume that
+        all inputs are independent, which is usually not the case for
+        reinforcement learning. This is usually because  in reinforcement
+        learning each state follows the last, in this case as frames of input
+        from the game. This can cause issues due to the network needing to
+        understand that a given state leads to another and so on.
+    \item Action Space: In games there is usually a vast number of actions that
+        a player can take at any given moment. This can be in the form of either
+        the number of actions, or the number of locations a given action can
+        take place at. Shooting at one spot is not the same as shooting at
+        another. This usually means that both an  action and location pair are
+        required.
+    \item Incomplete Information: Unlike in most forms of supervised learning,
+        reinforcement learning commonly has elements of incomplete information,
+        that is there is missing information. This is not always the case, such
+        as in Go or Chess, but most games have elements of missing information.
+        This makes it more difficult to make a decision since the full state is
+        not available.
 \end{itemize}
 
+However, there is also things which are much easier to use in reinforcement
+learning, such as learning with self-play, that is having an agent play against
+another agent. This has been used in Poker\cite{heinrich2016deep}, Chess and
+Shogi\cite{silver2017mastering} and most recently
+Go\cite{silver2016mastering,silver2017masteringgo} to great success.
 
-%TODO: Add differences between supervised and unsupervised.
-%Include about using replays.
 
-\subsection{StarCraft II}
+\subsection{Issues specific to StarCraft II}
 %TODO: This section should cover SC2 specific issues, whereas
 %the subsection before this should cover other games, ie Go to
 %draw parallels (incomplete info, bigger action space, steps to reward).
