@@ -498,7 +498,7 @@ Both of these examples had to overcome the following issues:
         score, but tracking it over an entire game can prove very difficult.
     \item Independence of Inputs: Most deep learning algorithms assume that
         all inputs are independent, which is usually not the case for
-        reinforcement learning. This is usually because  in reinforcement
+        reinforcement learning. This is usually because in reinforcement
         learning each state follows the last, in this case as frames of input
         from the game. This can cause issues due to the network needing to
         understand that a given state leads to another and so on.
@@ -506,7 +506,7 @@ Both of these examples had to overcome the following issues:
         a player can take at any given moment. This can be in the form of either
         the number of actions, or the number of locations a given action can
         take place at. Shooting at one spot is not the same as shooting at
-        another. This usually means that both an  action and location pair are
+        another. This usually means that both an action and location pair are
         required.
     \item Incomplete Information: Unlike in most forms of supervised learning,
         reinforcement learning commonly has elements of incomplete information,
@@ -527,6 +527,46 @@ Go\cite{silver2016mastering,silver2017masteringgo} to great success.
 %TODO: This section should cover SC2 specific issues, whereas
 %the subsection before this should cover other games, ie Go to
 %draw parallels (incomplete info, bigger action space, steps to reward).
+
+StarCraft II specifically offers an environment that offers a lot of interesting
+challenges.
+
+First, there is the issue of associating a reward with an action. This is
+specifically an issue for StarCraft II for a few reasons. The main of which is
+the rate at which actions are taken is incredibly high, especially in high-level
+play. Professional players can hit upwards of 150 actions-per-minute
+(APM)\footnote{Value taken from:
+\url{http://starcraft.wikia.com/wiki/Actions_per_minute}}, which over an average
+games 10--15 minutes, combines to a large number of actions that need to be
+given and later have a given reward associated with. This can be avoided if a
+supervised learning approach is taken. As mentioned previously, there is a large
+number of `game replays' available, from all styles of games. These replays
+contain the full game and all actions taken, so can be used to either augment a
+reinforcement learning approach, either through starting a network or helping an
+existing network learn. This approach has been used to varying success in
+similar domains such as Atari games\cite{hester2018deep} and also the original
+StarCraft game\cite{justesen2017learning}.
+
+Replays also help the second issue, which is incomplete information.
+A game of StarCraft II takes place on a potentially large map, with up to 8
+players simultaneously playing on the standard maps. This means that an agent
+could be missing out on the information of 7 other players. Both the number of
+players, and the size of the maps lead to a large amount of missing information.
+However, replays do not have this restriction, and as such both players and bots
+alike can use replays to analyse both their own and other players strategies to
+improve their own play.
+
+Similarly, due to the large map and the wide range of units in the game, there
+is a significantly large action space at any given time. Compared to a game like
+Chess, where there is a (comparatively) small number of units, actions and
+spaces to perform those action, SCII has an order of magnitude more actions
+available, meaning an agent has more options they must perform. Similarly, there
+is a large number of moves that require complex planning, such as `Build a
+combat unit', which may take a number of steps to reach, such as gather
+resources to some amount, build a building to build that specific unit, wait for
+the building to be complete, and finally queue the building of the required
+unit. This sequence of actions, and more complicated ones need to be learnt to
+be a successful SCII player.
 
 \section{Existing Methods}
 % This should then move on from the previous section
