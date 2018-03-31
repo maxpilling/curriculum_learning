@@ -10,13 +10,13 @@ where intelligent agents have been able to complete tasks that were once thought
 to be too complex for an agent to complete, such as beating humans in the game
 Go\cite{silver2016mastering} and more generally such as across a wide range of
 Atari 2600 games\cite{mnih2015human}. However, despite these recent advancements,
-there are still a number of challenges that prove difficult for current
+there are still many challenges that prove difficult for current
 reinforcement learning algorithms.
 
-This has lead DeepMind\cite{deepmind} to developing the
+Because of this, DeepMind\cite{deepmind} to developing the
 StarCraft II Learning Environment\cite{vinyals2017starcraft}, a Python
 environment for interfacing with the game StarCraft II\cite{pysc2, starcraft2}.
-This game was chosen as it involves a number of areas that current reinforcement
+This game was chosen as it involves some of the areas that current reinforcement
 learning algorithms struggle with, including partial observation, a large action
 space, control of multiple units and the reward is delayed across thousands of
 steps, meaning the agent needs to use long-term strategies.
@@ -30,24 +30,23 @@ broadly for reinforcement learning.
 
 \section{Aim}
 
-This project aims to prototype an agent that is able to exhibit intelligent
-behaviour in the game of StarCraft II\@ (SC2). This will be achieved using
-reinforcement learning (RL), that is without using any form of supervised
-learning method.
+This project aims to prototype an agent that can exhibit intelligent behaviour
+in the game of StarCraft II\@ (SC2). This will be achieved using reinforcement
+learning (RL), that is without using any form of supervised learning method.
 
 With the recent addition of the StarCraft II Learning Environment (SC2LE),
-applying reinforcement learning techniques and similar to SC2 has become
-much easier. With the use of SC2LE, the major aspects of the game are
-delivered using an easier to use API, rather than having to read the
-screen's state using the pixel values. This, along with an input API,
-results in an environment that is much easier to interface with than
-using traditional computer vision and mouse emulation techniques.
+applying reinforcement learning techniques and similar to SC2 has become much
+more accessible. With the use of SC2LE, the significant aspects of the game are
+delivered using an easier to use API, rather than having to read the screen's
+state using the pixel values. This, along with an input API, results in an
+environment that is much easier to interface with than using traditional
+computer vision and mouse emulation techniques.
 
-Specifically, this project aims to apply interesting techniques such as
-transfer and curriculum learning to the problems defined in the SC2LE\@.
-This has interesting research potential and the chance to be very effective
-due to the increasing complexity of the challenge mini-games that are defined
-in the SC2LE\@.
+Specifically, this project aims to apply cutting-edge techniques such as
+transfer and curriculum learning to the problems defined in the SC2LE\@.  Both
+of these learning techniques have interesting research potential and the chance
+to be very effective due to the increasing complexity of the challenge
+mini-games that are defined in the SC2LE\@.
 
 \section{Objectives}
 
@@ -55,7 +54,7 @@ As the project is broadly very experimental, there are a few objectives that
 have been defined, as well as associated deliverables, which are:
 
 \begin{enumerate}
-    \item The understanding and clear definition of the project space, that is
+    \item The understanding and precise definition of the project space, that is
         what techniques will be used to tackle the problems, as well as
         metrics to measure the performance of a given prototype.
     \item A prototype (or multiple using various techniques) that exhibit
@@ -81,27 +80,26 @@ In turn, these objectives lead to the following deliverable:
 \section{Scope}
 
 The scope of this project is somewhat restricted, at least compared to the full
-scope that could be taken under this project title. StarCraft II is a very complex
-game, with a steep learning curve even for a human player, such that the training
-of an agent to play the entire game of StarCraft II is infeasible, at least in the
-given time-frame. This has instead lead to the using `mini-games' that are defined
-in SC2LE, which were created by DeepMind in order to mock small portions of the
-game. This means that the full game will not be the main target, but instead
-parts of the game, using a restricted scope, with more well-defined targets.
-One advantage of this, however, is that there are more well-defined scores for
-these mini-games, such that comparison with other methods and human players is
-made easier.
+scope that could be taken under this project title. StarCraft II is a very
+complicated game, with a steep learning curve even for a human player, such that
+the training of an agent to play the entire game of StarCraft II is infeasible,
+at least in the given time-frame. This has instead lead to the using
+`mini-games' that are defined in SC2LE, which were created by DeepMind to mock
+small portions of the game. This means that the full game will not be the
+primary target, but instead parts of the game, using a restricted scope, with
+more well-defined targets.  One advantage of this, however, is that there are
+more well-defined scores for these mini-games, such that comparison with other
+methods and human players is made easier.
 
-Similarly, there are other methods that could be used to train an agent for this
-task, but it was decided to use reinforcement learning, instead of using some
-form of supervised learning method. This was chosen out of interest in the
-application of reinforcement learning, and it being used more prominently
-in this area.
-If a supervised method was needed, DeepMind
-do provide a number of game replays of professional%
+Similarly, other methods could be used to train an agent for this task, but it
+was decided to use reinforcement learning, instead of using some form of
+supervised learning method. Instead, reinforcement learning was chosen out of
+interest in its application, and it being used more prominently in this area.
+If a supervised method was needed, DeepMind do provide game replays of
+professional%
 \footnote{\url{https://en.wikipedia.org/wiki/Professional_StarCraft_competition}}
-players playing, which could
-be used to train agents.
+players playing, which could be used to train agents, which is discussed more in
+detail later.
 
 \section{Report Structure}
 
@@ -132,7 +130,7 @@ intelligent behaviour.
 
 The evaluation itself will be carried out in Chapter~\ref{eval}.
 This will include performance
-comparisons across a number of mini-games, as well as other small game types.
+comparisons across the many mini-games, as well as other small game types.
 Also, it will contain comparisons against the published numbers for the given
 games, as a suitable baseline.
 
