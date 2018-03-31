@@ -4,7 +4,7 @@
 \section{Theory}
 
 This chapter gives an overview of the existing research and methods that
-has occurred in this area. This will first consist of a more descriptive
+have occurred in this area. This will first consist of a more descriptive
 outline of the project space and the methods that can be used to tackle it,
 before moving into talking about existing solutions and how they potentially
 differ to the solution required in this case.
@@ -49,8 +49,8 @@ partial information. That is, the player can only see the map where they have
 units placed, anywhere else is shrouded in a so-called `Fog of War' which hides
 any resources or enemy units which may be there.
 Because of this, the player must scout the map to look for resources and the
-enemy, whilst also managing the units and resources in their central base.
-In practise, this means a player is expected to move the in-game camera back
+enemy, while also managing the units and resources in their central base.
+In practice, this means a player is expected to move the in-game camera back
 and forth around a large map, to send and manage scouting or combat units,
 and jumping back to manage resource gathering and base building at the central
 base.
@@ -58,18 +58,18 @@ base.
 All of these add up to many challenges for an intelligent agent to
 overcome, as outlined in the next section.
 
-Additionally, there is a large competitive scene for StarCraft
+Additionally, there is a significant competitive scene for StarCraft
 II\cite{scIIprof}, which has a lot of potential benefits for training an
-intelligent agent. It means there is many `Replays' from highly
+intelligent agent. It means there are many `Replays' from highly
 skilled players, which could be used for supervised learning techniques, as well
 as standards to compare against for unsupervised learning techniques.
 
 \subsection{Issues with StarCraft II for an Intelligent Agent}
 % Issues with StarCraft II
-A game of StarCraft II includes many challenges for a player in terms of
+A game of StarCraft II includes many challenges for a player regarding
 complexity. The game state can be comprised of thousands of different aspects
-that could represent important information for the player. At a given moment,
-there is potentially hundreds of different moves that a player could take,
+that could represent valuable information for the player. At a given moment,
+there are potentially hundreds of different moves that a player could take,
 which results in a vast action space. Plus, an average match of StarCraft II
 can take between 10--15 minutes. Actions taken at the start of a game to build
 or not build a potential unit type until later could result in the win or loss
@@ -82,10 +82,9 @@ in Section~\ref{challenges:games}.
 
 % All this feels a bit implementation-y, perhaps we should move this to implem.
 
-In order for the
-agent to be able to act, it must be given an input, stimulus of some form, to
-evaluate and then proceed with taking an action. This makes the game ideal for
-an unsupervised learning environment.
+For the agent to be able to act, it must be given an input, stimulus of some
+form, to evaluate and then proceed with taking action. This makes the game
+ideal for an unsupervised learning environment.
 
 The environment is broken into states. Each state represents information about
 the game at a given moment. This is then fed into the neural network and
@@ -111,12 +110,12 @@ updated value of the state action pair. Q-Learning requires:
 
 The agent is given a state of the world and checks the lookup table for which
 action would have the highest value in that state. The agent then executes that
-action checks the table again for the new state. Upon executing an action the
-agent may be given a reward, a value that dictates whether the action taken was
-favourable or incorrect. The table can be updated through a real-time learning
-or at the end of an episode. An episode represents an entire list of states and
-actions taken to reach the end, usually by having a terminal state. The table is
-updated using the Q-Learning equation.
+action and rechecks the table again for the new state. Upon executing an action,
+the agent may be given a reward, a value that dictates whether the action taken
+was favourable or incorrect. The table can be updated through a real-time
+learning or at the end of an episode. An episode represents an entire list of
+states and actions taken to reach the end, usually by having a terminal state.
+The table is updated using the Q-Learning equation.
 
 % Should we add more info about how q learning works and the equation it uses.
 % TODO: Add the Q-Learning Algorithm here with references. Seems like we need it
@@ -125,22 +124,22 @@ updated using the Q-Learning equation.
 
 \subsection{Neural Networks}
 
-Neural networks takes inspiration from the biological neurons that
+Neural networks take inspiration from the biological neurons that
 are present in the brain, similar to how genetic learning
 algorithms take inspiration from the physical process of evolution
 and mutation\cite{goldberg2006genetic}.
 
 Broadly, a Neural Network is a model that estimates a function $f$.
 It does this by using a set of weights, and input neurons. A neuron
-can be thought of some model that given a number of inputs, gives
+can be thought of some model that given some inputs, gives
 an output which is some weighted sum of the inputs.
 
 A given network can have any number of neurons, connected in a number
-of different ways. Normally, neurons are arranged into layers, which
-are sets of neurons who are all receiving from a given input, be
+of different ways. Typically, neurons are arranged into layers, which
+are sets of neurons which are all receiving from a given input, be
 that an outside source, or a different layer of neurons. An explanation of
 these layers will be given later. The communication
-between the neurons is done by using the aforementioned weights, where
+between the neurons is done by using the eights mentioned earlier, where
 $w_{ij}$ denotes the weight between neurons $i$ and $j$. Depending on the
 style of the network, there may be restrictions on the values of these
 weights, and it is also possible that $w_{ij} \ne w_{ji}$.
@@ -159,7 +158,7 @@ of two values as follows:
 where $x$ is the input value to the activation function.
 
 For an average network, the layout of the layers is an input layer,
-followed by a number of hidden layers, and finally an output layer. Usually
+followed by some hidden layers, and finally an output layer. Usually,
 these layers are fully-connected, which means there every neuron in each
 layer is connected to every neuron in the following layer, but
 there are no connections between neurons of the layer. An example of this
@@ -175,7 +174,7 @@ is shown in Figure~\ref{fig:common_layout}.
 \subsection{How a neural network `learns'}
 
 For a neural network to function, it must go through a learning process, such
-that it is able to sufficiently model the function it is needed for. This process
+that it can sufficiently model the function it is needed for. This process
 is by a set of functions $F$, where a solution $f' \in F$, and $f'$ solves
 the given function best of all available solutions.
 
@@ -205,7 +204,7 @@ process as the network is run. The specifics of this will depend on
 the style of network and if a supervised or unsupervised learning method
 is being used, which will be discussed later. Broadly, given these
 initial random weights, a training process is used to tune the weights
-into being suitable. An input is received, and propagates through the
+into being suitable. An input is received and propagates through the
 network to the final output layer. Once an output is given, it may be compared
 against some ground truth or metric, to evaluate if the given output was suitable.
 If the output is suitable, then the next input is received. However, if this
@@ -241,28 +240,28 @@ Commonly, instead the result of the outcome is instead used to help the
 backpropagation process, but this can also be difficult. For example,
 in games the result of an action may not be seen for hundreds or thousands
 of time-steps, making the process much harder~\cite{sutton1984temporal}.
-This makes the learning process harder, since there is no ground truth
-that can be compared against, rather a metric that will change and adapt
+This makes the learning process harder since there is no ground truth
+that can be compared against, instead, a metric that will change and adapt
 over a large period.
 
 This can be avoided by using final results of a process, for example using the
-end result of a game, rather than the score in a number of time-steps. But this
-has other issues, such as slowing the learning process and potentially rewarding
-unproductive behaviour that occurred as part of a game that eventually was won.
-The opposite is also true, that actions that give a local reward may still lead
-to failure to win the game. Because of this, it makes the learning process more
-nuanced than simply comparing against a ground truth. This can be experimented
-with to see how it affects learning.
+result of a game, rather than the score after some number of time-steps.
+However, this has other issues, such as slowing the learning process and
+potentially rewarding unproductive behaviour that occurred as part of a game
+that eventually was won.  The opposite is also true that actions that give a
+local reward may still lead to failure to win the game. Because of this, it
+makes the learning process more nuanced than merely comparing against a ground
+truth. This can be experimented with to see how it affects learning.
 
 \subsection{Deep Q Networks}
 
-The main issue with using a tabular approach for keeping track of state-action
+The main issue with using a tabular approach to keep track of state-action
 values is the number of required entries. As a more complex space needs to be
 represented, the number of entries in the table would increase for every
 possible combination of values. The newest approach to tackling the issue of
 complex space environments is to use a neural network. The weights represent
 what an expected value for a given state could be. The state is given as input
-into the network and then the highest value output is chosen as an action to be
+into the network, and then the highest value output is chosen as an action to be
 taken by the agent. Steps for running the network are as follows:
 
 \begin{enumerate}
@@ -276,11 +275,11 @@ taken by the agent. Steps for running the network are as follows:
         update the network.
 \end{enumerate}
 
-The main difference between a Deep Q Network and a normal neural network is the
+The main difference between a Deep Q Network and a standard neural network is the
 update function used. A Deep Q Network uses the loss function from the
 Q-Learning algorithm to update the weights of the network. The loss function
 provides a value of the target return and the predicted return. For example, the
-agent could choose that in a certain state the best action would be the third
+agent could choose that in a particular state the best action would be the third
 action with a value of 20. The agent takes the action and gets a returned reward
 that is less. The network is then updated to return a lesser value for that
 action next time the agent is in that state again. This is known as the TD
@@ -290,26 +289,26 @@ error:
     TD Error = \sqrt{{(Q(s',a) - Q(s,a))}^{2}}
 \end{align}
 
-The error is the value difference between the next state reward and the current
-expected reward. This tells the network whether the expected reward was correct
-or far. The value is then updated by increasing or decreasing based on the
-returned reward~\cite{pandey2010reinforcement}.
+The error is the value difference between the next state reward and the
+currently expected reward. This tells the network whether the expected reward
+was correct or far. The value is then updated by increasing or decreasing based
+on the returned reward~\cite{pandey2010reinforcement}.
 
 The update could be applied in real-time or at the end of every episode.
 
-When using a real-time learning environment the agent is more likely to mistake
+When using a real-time learning environment, the agent is more likely to mistake
 an action for being optimal from the first reward it gets. This makes the agent
 tend to be more bias towards actions that get an immediate return and will not
 allow the agent to see the possibilities of foreshadowing what could be a better
-action in the long run. To avoid over fitting for a single environment, the
-agent needs to be exposed to differing maps and states. Updating the network at
-the end of each episode, may make the agent learn action pairs that are
+action in the long run. To avoid overfitting for a single environment, the
+agent needs to be exposed to different maps and states. Updating the network at
+the end of each episode may make the agent learn action pairs that are
 incorrect and do not impact the reward factor. For example, the agent can move
-left, which lets assume is correct, then go right and then left again. This
+left, which we may assume is correct, then go right and then left again. This
 introduces a loop that the agent can get stuck in or an extra action step that
 is unnecessary.
 
-In order to avoid such an outcome, a discount factor $\gamma$ is used to reduce
+To avoid such an outcome, a discount factor $\gamma$ is used to reduce
 the reward value for an incoming state. So the more steps an agent may take to
 the reward, the lesser the reward value is. Once the agent takes an action,
 based on the state given to the network, the reward is observed and used to
@@ -322,48 +321,49 @@ current state in the network by using the TD Error.
 \end{align}
 
 The prediction made by the network is then subtracted according to the TD Error
-equation. A learning rate is then multiplied to the value. Final update value
+equation. This is then multiplied by the learning rate. Final update value
 is:
 
 \begin{align}
     Q(s,a) = Q(s,a) + \alpha (TDError)
 \end{align}
 
-The equation above is the same equation used in the Q-Learning algorithm. But is
-implemented through the network with a gradient descent optimizer. The network
+The equation above is the same equation used in the Q-Learning algorithm.
+However, it is
+implemented through the network with a gradient descent optimiser. The network
 evaluates the loss function using the TD Error and then updates the relevant
 weights. The learning rate $\alpha$ must be tested with multiple values. If
 $\alpha$ is increased then the network may converge to an optimal value quicker
-but may also tend to overshoot the local minimal and diverge from the optimal
-value. This makes $\alpha$ an important hyper-parameter based on the amount of
-training the agent may have. If the $\alpha$ is set to a lower value then the
-agent will require more training to achieve an accurate estimate of the expected
-reward for a given state action pair.
+but may also tend to overshoot the local minimum and diverge from the optimal
+value. This makes $\alpha$ a critical hyper-parameter based on the amount of
+training the agent may have. If the $\alpha$ value is set to a lower value, then
+the agent will require more training to achieve an accurate estimate of the
+expected reward for a given state action pair.
 
 \subsection{Convolutional Neural Networks}
 
 A Convolutional Neural Network (CNN) is a type of Artificial Neural Network
-(ANN). Broadly, a CNN is similar to that of an ANN, in that it consists of a
-number of neurons that have associated weights and receive some input, be that
+(ANN). Broadly, a CNN is similar to that of an ANN, in that it consists of some
+neurons that have associated weights and receive some input, be that
 from an input layer or another layer of neurons. Where they differ though is
-that with a CNN it is assumed that the input is an image, and then because of
-this, the learning procedure and design principles changes.
+that with a CNN it is assumed that the input is an image, which changes the
+learning procedure and design principles.
 
 To give an example of why this style of network is needed, the size of a non-CNN
 network must be considered. For the MNIST~\cite{lecun2010mnist} dataset, the
 supplied images are $28 \times 28$. For a fully connected architecture, this
 leads to $28 * 28 = 784$ weights. If an RGB image is used, this number is
-multiplied by 3 to get the number of pixels in each of the 3 channels. $784 * 3$
+multiplied by 3 to get the number of pixels in each of the three channels. $784 * 3$
 weights is reasonable, but once moving to an image of a more reasonable size,
 say $(250, 250, 3)$, the number of weights becomes very large, without even
 considering the rest of the neurons in the network.
 
-A CNN work differently however. Since it is able to assume the input is an
+A CNN works differently however. Since it can assume the input is an
 image, the network architecture may be built in a more specific way. That is,
 instead of input consisting on a flat vector of numbers, the input may be
 considered in 3D, where the images vertical and horizontal resolution make up
-the width and height of the input, and the depth is made up by the channels the
-image is made up of, traditionally 3. This is then helped further since the
+the width and height of the input and the depth is made up of the channels the
+image is made up of, traditionally 3. This is then helped further as the
 neurons in this 3D layer are only connected to a small receptive field from the
 input image, rather than the entire input like in a fully-connected network.
 Broadly, it can be said that a convolutional layer takes a 3D input and
@@ -374,12 +374,12 @@ into a second 3D volume of the same size, but with additional channels.
 
 The additional channels once the convolutional layer has been processed is due
 to the number of filters in that layer. These are defined as the area the
-neuron in a given layer connects to. For example a neuron in the first layer
-may look at a $3 \times 3$ section of the input, extending across all channels
-of the input. This filter is applied to the entire image by moving it over every
-pixel combination it fits on, and at each location the dot product on the input
-and the values in the filter is computed. For the whole image $I$ and a filter
-$F$, this is defined as follows:
+neuron in a given layer connects to on the input. For example, a neuron in the
+first layer may look at a $3 \times 3$ section of the input, extending across
+all channels of the input. This filter is applied to the entire image by moving
+it over every pixel combination it fits on, and at each location, the dot product
+on the input and the values in the filter is computed. For the whole image $I$
+and a filter $F$, this is defined as follows:
 
 \begin{align}
     {(I*F)}_{xy} = \sum^{h}_{i=1} \sum^{w}_{j=1} F_{ij} \cdot I_{x+i-1, y+j-1}
@@ -392,7 +392,7 @@ value in the filter.
 These filters are stacked, which then increases the receptive field of the later
 layers. This process was mirrored on features found in
 biology~\cite{hubel1968receptive}. The receptive field refers to the area that a
-given neuron is receiving input from. For the first layer, this is simply the
+given neuron is receiving input from. For the first layer, this is merely the
 size of the filter, for example the $3 \times 3$ grid. However, this layer is
 then used as input for the next layer. It can be said that the second layer's
 receptive field relative to the image for a filter of size $3 \times 3$ is
@@ -400,7 +400,7 @@ receptive field relative to the image for a filter of size $3 \times 3$ is
 abstracted representations of the image, that are increasingly global across the
 image. This can be seen in the filters that are calculated in the network,
 where the earlier layers contain low-level features, where the later
-ones become more abstract and cover larger parts of the image,
+ones become more abstract and cover more significant parts of the image,
 as shown in Figure~\ref{fig:filter_example}.
 
 In general, the formula a given layer $l_k$, the receptive field can be
