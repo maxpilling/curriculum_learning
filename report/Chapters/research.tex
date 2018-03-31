@@ -433,7 +433,7 @@ $i^{th}$ layer.
 
 \subsubsection{Other required techniques}
 
-There are other techniques that go alongside a CNN by default, and have been
+There are other techniques that go alongside a CNN by default and have been
 mentioned previously. This includes both pooling layers and the concept of
 striding which is used both in the pooling layer and also the convolutional
 layer.
@@ -443,10 +443,10 @@ each time. By default, a stride is 1, that is it is applied to every single pixe
 on the input. However, it is also common to have a stride of two, or in some
 rare cases, a stride of greater than 2. When this is the case, the filter
 is moved two pixels at a time, rather than 1. This leads to less overlap in the
-receptive fields, but does have the potential downside of reducing the
+receptive fields but does have the potential downside of reducing the
 resolution of the input.
 
-A pooling layer is a form of down-sampling. Given an input the pooling layer
+A pooling layer is a form of down-sampling. Given an input, the pooling layer
 will reduce the resolution of it in some fashion. The most common pooling layer
 used is the max-pooling layer. This layer takes the maximum value in a filter
 and uses that as the value for that filter. This is commonly done with a filter
@@ -467,7 +467,7 @@ Figure~\ref{fig:max_pool}.
 % Add more info here about the tech and the challenges it faces
 % i.e. the problems in Reinforcement Learning as a whole
 
-Reinforcement learning has a number of challenges, both specific to this
+Reinforcement learning has many challenges, both specific to this
 project, and those that are issues for reinforcement learning as a whole.
 This section aims to outline these challenges, as well as ways they have been
 mitigated in other projects and how these fixes may apply to this project.
@@ -477,9 +477,9 @@ mitigated in other projects and how these fixes may apply to this project.
 % whereas this section will talk about it applied to games
 % and the unique problems that raises.
 
-Reinforcement learning for games is particularly difficult, which is what makes
-it an interesting research area. Games provide a suitable test-bed for some
-larger issues in the area, whilst also providing a repeatable environment to run
+Reinforcement learning for games is particularly tricky, which is what makes it
+an exciting research area. Games provide a suitable test-bed for some broader
+issues in the area, while also providing a repeatable environment for running
 tests.
 
 There has been recent success playing older games using reinforcement learning,
@@ -490,10 +490,10 @@ Both of these examples had to overcome the following issues:
 
 \begin{itemize}
     \item `Labels': For traditional deep learning applications, a large dataset
-        with associated labels is needed. However, in this case we instead must
+        with associated labels is needed. However, in this case, we instead must
         learn from a reward, which is usually delayed for a number steps. For
         example, a reward may not be given until the game is finished, in which
-        case it is very hard to link early actions to the reward. The first
+        case it is tough to link early actions to the reward. The first
         action taken could have a strong correlation or no effect on the final
         score, but tracking it over an entire game can prove very difficult.
     \item Independence of Inputs: Most deep learning algorithms assume that
@@ -502,22 +502,22 @@ Both of these examples had to overcome the following issues:
         learning each state follows the last, in this case as frames of input
         from the game. This can cause issues due to the network needing to
         understand that a given state leads to another and so on.
-    \item Action Space: In games there is usually a vast number of actions that
+    \item Action Space: In games, there is usually a vast number of actions that
         a player can take at any given moment. This can be in the form of either
-        the number of actions, or the number of locations a given action can
+        the number of actions or the number of locations a given action can
         take place at. Shooting at one spot is not the same as shooting at
-        another. This usually means that both an action and location pair are
+        another. This usually means that both an action and location pair is
         required.
     \item Incomplete Information: Unlike in most forms of supervised learning,
         reinforcement learning commonly has elements of incomplete information,
         that is there is missing information. This is not always the case, such
         as in Go or Chess, but most games have elements of missing information.
-        This makes it more difficult to make a decision since the full state is
+        This makes it more difficult to decide since the full state is
         not available.
 \end{itemize}
 
-However, there is also things which are much easier to use in reinforcement
-learning, such as learning with self-play, that is having an agent play against
+However, there are also things which are much easier to use in reinforcement
+learning, such as learning with self-play that is having an agent play against
 another agent. This has been used in Poker\cite{heinrich2016deep}, Chess and
 Shogi\cite{silver2017mastering} and most recently
 Go\cite{silver2016mastering,silver2017masteringgo} to great success.
@@ -532,14 +532,14 @@ StarCraft II specifically offers an environment that offers a lot of interesting
 challenges.
 
 First, there is the issue of associating a reward with an action. This is
-specifically an issue for StarCraft II for a few reasons. The main of which is
+especially an issue for StarCraft II for a few reasons. The main of which is
 the rate at which actions are taken is incredibly high, especially in high-level
 play. Professional players can hit upwards of 150 actions-per-minute
-(APM)\footnote{Value taken from:
+(APM)\footnote{Value is taken from:
 \url{http://starcraft.wikia.com/wiki/Actions_per_minute}}, which over an average
-games 10--15 minutes, combines to numerous actions that need to be given and
-later have a given reward associated with. This can be avoided if a supervised
-learning approach is taken. As mentioned previously, there is many `game
+game of 10--15 minutes, combines to numerous actions that need to be given and
+later have a given reward associated with them. This can be avoided if a supervised
+learning approach is taken. As mentioned previously, there are many `game
 replays' available, from all styles of games. These replays contain the full
 game and all actions taken, so can be used to either augment a reinforcement
 learning approach, either through starting a network or helping an existing
@@ -551,21 +551,21 @@ Replays also help the second issue, which is incomplete information.
 A game of StarCraft II takes place on a potentially large map, with up to 8
 players simultaneously playing on the standard maps. This means that an agent
 could be missing out on the information of 7 other players. Both the number of
-players, and the size of the maps lead to a large amount of missing information.
+players and the size of the maps lead to a significant amount of missing information.
 However, replays do not have this restriction, and as such both players and bots
 alike can use replays to analyse both their own and other players strategies to
-improve their own play.
+improve their play.
 
 Similarly, due to the large map and the wide range of units in the game, there
 is a significantly large action space at any given time. Compared to a game like
 Chess, where there is a (comparatively) small number of units, actions and
-spaces to perform those action, SCII has an order of magnitude more actions
+spaces to perform those actions, SCII has an order of magnitude more actions
 available, meaning an agent has more options they must perform. Similarly, there
 are many moves that require complex planning, such as `Build a
-combat unit', which may take a number of steps to reach, such as gather
+combat unit', which may take many steps to reach, such as gather
 resources to some amount, build a building to build that specific unit, wait for
-the building to be complete, and finally queue the building of the required
-unit. This sequence of actions, and more complicated ones need to be learnt to
+the building to be complete, and finally, queue the building of the required
+unit. This sequence of actions and more complicated ones need to be learnt to
 be a successful SCII player.
 
 \section{Existing Methods}
