@@ -2,18 +2,18 @@
 \label{implem}
 
 \section{Problem Space}
-Since the game is very complex and can consist of many possible action spaces,
+Since the game is very complicated and can consist of many possible action spaces,
 the majority of the experimentation focuses on the DeepMind mini-games
 and simple small games in the \textbf{Simple64} map.
 
 \subsection{Mini-games}
 
-The mini-games consist of small constrained challenges that represent
+The mini-games consist of small, constrained challenges that represent
 small parts of the full game of StarCraft II, allowing simple actions
 in the game to be tested, as well as compared against a range of
 published scores.
 
-Every mini-game has a time limit and the objective is to get the
+Every mini-game has a time limit, and the objective is to get the
 highest score possible in the time frame.
 
 These mini-games are:
@@ -25,53 +25,53 @@ These mini-games are:
         location is reset.
     \item CollectMineralShards: A map with two marines and 20 mineral shards,
         which act as items to pick up. Once all are picked up, 20 more are
-        placed on the map. To achieve an optimum score, the 2 marines must
+        placed on the map. To achieve an optimum score, the two marines must
         be controlled independently, which results in this map being
         harder than the MoveToBeacon map.
     \item FindAndDefeatZerglings: A map with three marines and 25 zerglings,
         which are an enemy unit. A point is achieved for each zergling that
-        is defeated, and a point lost any time a marine dies. This map
+        is defeated, and a point lost anytime a marine dies. This map
         is also the first to deal with the moving of the camera, as the previous
         two games had the entire state visible without moving the camera.
         Upon defeating the 25 zerglings, 25 more are added.
-    \item DefeatRoaches: A map with nine marines and 4 roaches, which are a
+    \item DefeatRoaches: A map with nine marines and four roaches, which are a
         different enemy unit. This requires a more complex strategy to defeat,
-        and also on defeating all 4 roaches, 4 more are spawned as well as 5
+        and also on defeating all four roaches, four more are spawned as well as 5
         more marines. This means the number of marines potentially grows
         throughout the game. However, a point is lost for any lost marines.
-    \item DefeatZerglingsAndBanelings: A map with nine marines and 6 zerglings
-        and 4 banelings. This again needs a different strategy, and also gives
+    \item DefeatZerglingsAndBanelings: A map with nine marines and six zerglings
+        and four banelings. This again needs a different strategy and also gives
         extra marines upon defeating all the enemies.
     \item CollectMineralsAndGas: This map requires more strategy than the last.
         The map starts with 12 SCVs (which are gatherer units), a command centre
         (which is used to create additional units) and two types of collectable
         resources. The objective is to gather as many resources as possible, and
         also intelligently build more gathering units to increase the
-        speed in which resources are gathered. An optimal strategy will also
+        speed at which resources are gathered. An optimal strategy will also
         build an additional command centre.
     \item BuildMarines: This is the last and most complex map. The map starts
-        with 12 SCVs, a command centre and 8 resources to collect. The
+        with 12 SCVs, a command centre and eight resources to collect. The
         objective is to build as many marines as possible in the time limit.
         This requires the building of Supply Depots to store resources and
         barracks to build marines.
 \end{itemize}
 
-All of these mini-games have published scores for a number of different
+All of these mini-games have published scores for the many different
 techniques as well as some baseline scores for human players and random
 policies.
 
 \subsection{The \textbf{Simple64} Map}
 
 The \textbf{Simple64} map was also chosen to allow experimentation on
-a very simple version of the full game, where the challenge is
+a straightforward version of the full game, where the challenge is
 to beat the games AI, which is built using more traditional game AI
 technology, and also can cheat at higher difficulties.
 
-The map contains a single opponent and 2 starting bases. The agent is spawned
-into one of the 2 areas randomly and starts out with the \textbf{SCV} units,
+The map contains a single opponent and two starting bases. The agent is spawned
+into one of the two areas randomly and starts out with the \textbf{SCV} units,
 characters for building and mining. The initial stage begins with mining of
-necessary of resources for progressing through level by creating the required
-buildings and training \textbf{Marines}, fighter characters. This requires the
+necessary of resources for progressing through the level by creating the required
+buildings and training \textbf{Marines}, fighter characters. This needs the
 agent to control the \textbf{SCV} and \textbf{Marine} units using complex three
 action commands.
 
@@ -81,15 +81,15 @@ action commands.
 
 The agent takes an action based on the given information about the current game
 state, the contextual environment. This relies on how the information can be
-extracted using the \textbf{PySC2} API\@. In order to make the agent as close
-to a human player as possible, the API uses an grid to represent most of the
-required information into a multiple array structure where each sub-array is
-concerned with a single aspect of the game. The arrays mostly represent a grid
-like structure. Each sub-array is a column value with another array to represent
-the row. This means that the agent would see information about the world using a
+extracted using the \textbf{PySC2} API\@. To make the agent as close to a human
+player as possible, the API uses a grid to represent most of the required
+information into a multiple array structure where each sub-array is concerned
+with a single aspect of the game. The arrays mostly represent a grid-like
+structure. Each sub-array is a column value with another array to represent the
+row. This means that the agent would see information about the world using a
 sampling of the available pixels. An example would be the \textbf{screen} array
 which contains the columns and sub-arrays that represent the row value. By
-indexing this array twice \textbf{`screen[x][y]'} it is possible to get a value
+indexing this array twice \textbf{`screen[x][y]'}, it is possible to get a value
 associated with grid position \textbf{(x,y)}. The agent would have a $84 \times
 84$ grid view of the current screen.
 
@@ -97,7 +97,6 @@ The API implements an orthogonal projection to view the game world, as opposed
 to how a human would see a perspective projection that is tilted to the side.
 This is mainly due to the issue of overlapping units, where an agent would not
 be able to distinguish them apart.
-
 
 The API also provides access to the player mini-map. The mini-map provides:
 
@@ -116,12 +115,13 @@ The classifications of mini-map objects are:
     \item Hostile units
 \end{enumerate}
 
-The entire game state is accessed using the \textbf{Observation} method provided in the API\@.
-In order to access any information from the game, the must be called with the
+The entire game state is accessed using the \textbf{Observation} method provided
+by the API\@.
+To access any information from the game, the must be called with the
 relevant index since the \textbf{Obs} variable is an array of arrays with
-relevant information. For example, in order to access the mini-map,
+pertinent information. For example, to access the mini-map,
 use $obs.observation['screen'][UNITTYPE]$. The agent can see that a
-unit is hid through the mini-map but can not identify the type of
+unit is hidden through the mini-map but cannot identify the type of
 unit unless the screen array is accessed for unit type information.
 
 The screen array provides the following:
@@ -130,13 +130,13 @@ The screen array provides the following:
     \item Powers of a selected unit
     \item Unit type
     \item Hit points of a selected unit
-    \item Unit density (how many units are in a given area of screen)
+    \item Unit density (how many units are in a given area of the screen)
     \item and more information on character abilities
 \end{itemize}
 
 For an action to be taken, a return call is made with the required action for the step.
 This means that the action must be coded to select the relative unit and return the coordinates
-for selecting the unit and issuing an action. There are 2 types of actions:
+for selecting the unit and issuing an action. There are two types of actions:
 
 \begin{itemize}
     \item Queued: an action that will take place once the current
@@ -146,7 +146,7 @@ for selecting the unit and issuing an action. There are 2 types of actions:
 \end{itemize}
 
 Some actions require an extra parameter for position.
-This makes the action space much larger as the agent could choose any given
+This makes the action space much more significant as the agent could choose any given
 position to issue the action in a $84 \times 84$ grid.
 So an action such as building a simple building would have $84 \times 84$
 possible positions to represent the single action of building.
@@ -154,10 +154,10 @@ possible positions to represent the single action of building.
 \section{Development Choices}
 
 As part of building an intelligent agent, or working with any form of deep learning application,
-there are a number of parameters that can be tuned, that will alter the networks performance
-for a given task.
+many parameters that can be tuned that will alter the performance of
+the network for a given task.
 
-The biggest challenge was identifying what information the agent would need such that the
+The most prominent challenge was identifying what information the agent would need such that the
 input to the network was:
 
 \begin{itemize}
@@ -181,7 +181,7 @@ This leads to what action in a given state is optimal and can the agent learn wh
 the correct decision was made. The learning algorithm should allow an agent
 to identify that remaining in a given loop is not the correct action and that learning
 new actions could be the better outcome.
-Since this is using a state action pair the agent will not attempt to take any
+Since this is using a state action pair, the agent will not attempt to take any
 other actions that have not been tested and defined to be the highest output.
 
 \section{DeepQ Network}
@@ -201,36 +201,36 @@ The network used for running the agent is comprised of the following layers:
     \item Output layer with 20 nodes (one for each possible action)
 \end{enumerate}
 
-The weights of each of the layers uses a random normal distribution with a
+The weights of each of the layers use a random normal distribution with a
 standard deviation of 0.5 and a mean of 0. This allows the network to randomly
 set the initial weights without the weights going beyond the range of -2 to +2.
-If the weights are initialized to values that are greater than 2 then the
+If the weights are initialised to values that are greater than two, then the
 network would overshoot in its calculations and assign incorrect values to the
 weights with each update step. This then causes the network to tend to infinite
 values since the TD error is always positive. The initial implementation used
 random distributions without setting the standard deviation and caused the
 network to overflow in values and tend to infinity. Since each layer will depend
-on the previous multiplication and summation of the previous nodes, when the
+on the previous multiplication and summation of the previous nodes when the
 network was increased in size the values needed to be truncated to reduce the
 weights from becoming too large.
 
 The input may also need to be reduced due to the weight multiplication. In this
-case, the input values were multiplied by 0.001 to minimize the overall
+case, the input values were multiplied by 0.001 to minimise the overall
 estimation of the network. This also requires the rewards to be reduced for the
 TD Error evaluation.
 
 \subsection{Exploration}
 The agent uses an Epsilon-greedy algorithm for exploration. The algorithm works
 by setting a value $\epsilon$ and taking the maximum value action for a given
-state with a probability of $1-\epsilon$. Otherwise the agent will take a random
-action in that state. Using the Epsilon-greedy algorithm the agent is able to
+state with a probability of $1-\epsilon$. Otherwise, the agent will take a random
+action in that state. Using the Epsilon-greedy algorithm the agent can
 learn the best action for a given state by randomly sampling different actions.
 This helps the agent escape from the same loop of choosing the same action for a
 given state.
 
 The value of $\epsilon$ reduces with each time the agent takes a random action
-so that the number of times the agent runs a random action is reduced. This
-known as Epsilon-decay function. The value of the decay is set prior to running
+so that the number of times the agent runs a random action is reduced. This is
+known as Epsilon-decay function. The value of the decay is set before running
 the network and is multiplied by the current $\epsilon$ every time a random
 action is taken. The value of $\epsilon$ is therefore reduced with every
 multiplication.
@@ -239,7 +239,7 @@ multiplication.
     \epsilon = \epsilon \times decay
 \end{align}
 
-The initial value of $\epsilon$ is set to high value such as 0.4. After a couple
+The initial value of $\epsilon$ is set to a high value such as 0.4. After a couple
 of random actions taken the value of $\epsilon$ will reach a threshold value
 (usually 0.1) and will no longer be multiplied by the decay factor. The agent
 will then continue running with a fixed value of $\epsilon$ for the remainder of
@@ -250,13 +250,13 @@ different states and eventually choosing the best action more often.
 
 The agent can use a terminal reward system, where the final total reward is
 given without live rewards, or live immediate reward system, where the agent is
-given the reward during run time. When using a terminal reward the agent will
+given the reward during runtime. When using a terminal reward the agent will
 receive the final reward without any immediate reward for what action in that
 state may have achieved. Since the network implements a reward decay $\gamma$,
 the agent will learn what pattern of actions and states helped to achieve that
 final reward. This could lead to the problem of the agent over-fitting and
 learning only a given pattern to take. However, the mini-games used for
-evaluation will randomize the game state with every run. For example the
+evaluation will randomize the game state with every run. For example, the
 MoveToBeacon map will randomly move the beacon to a different area of the map
 every time. This makes it impossible for the agent to learn to move in a
 specific motion and achieve the same result. This does, however, take longer for
@@ -264,5 +264,5 @@ the agent to converge on the correct actions to take but will make the agent
 increase the total reward at the end of each episode. If the agent is given an
 immediate reward than the agent may try to achieve the same reward every time
 without knowledge of how well it has performed overall. In some cases using a
-live reward system may be favorable for the agent, but this would depend on the
+live reward system may be favourable for the agent, but this would depend on the
 task and requirement of the agent~\cite{shelton2001balancing}.
