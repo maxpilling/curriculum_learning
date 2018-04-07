@@ -70,7 +70,7 @@ for mm_x in range(0, 64):
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.001, reward_decay=0.9, e_greedy=0.3):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.2):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
@@ -81,9 +81,9 @@ class QLearning:
 
         # ------ Setup NN ---------
         self.n_input = 37          # Number of nodes on first layer (the input)
-        self.n_hidden1 = 40        # Number of nodes on hidden layer 1
-        self.n_hidden2 = 30        # Number of nodes on hidden layer 2
-        self.n_hidden3 = 25        # Number of nodes on hidden layer 3
+        self.n_hidden1 = 80        # Number of nodes on hidden layer 1
+        self.n_hidden2 = 60        # Number of nodes on hidden layer 2
+        self.n_hidden3 = 40        # Number of nodes on hidden layer 3
         self.n_hidden4 = 25        # Number of nodes on hidden layer 4
         self.n_target = 20         # Number of nodes on final layer (the output)
 
@@ -372,9 +372,10 @@ class Agent(base_agent.BaseAgent):
                     #self.previous_killed_building_score = killed_building_score
 
                     # For mini game rewards
-                    #if obs.observation['score_cumulative'][0] > self.previous_score:
-                    #    r = obs.observation['score_cumulative'][0] - self.previous_score
-                    #    self.previous_score = obs.observation['score_cumulative'][0]
+                    if obs.observation['score_cumulative'][0] > self.previous_score:
+                        #r = obs.observation['score_cumulative'][0] - self.previous_score
+                        r = obs.observation['score_cumulative'][0]
+                        self.previous_score = obs.observation['score_cumulative'][0]
 
                     self.qlearn.remember(self.previous_state, self.previous_action, r, current_state)
             
