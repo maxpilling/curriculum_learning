@@ -576,6 +576,28 @@ making selecting certain units from a group much harder.
 % This should then move on from the previous section
 % to show how the outlined challenges are dealt with.
 
+There are many existing methods in the area of reinforcement learning for games,
+as well as solutions that fall outside of gaming but are still potentially
+relevant.
+
+For example, there is existing research into applications for the original
+StarCraft game, where some different methods were tested. The methods vary
+wildly, and a few examples are given below:
+
+\begin{itemize}
+    \item `Teacher/Student Learning': The paper ``Reinforcement learning agents
+        providing advice in complex video games''~\cite{taylor2014reinforcement}
+        talks about using a system to train a network, given guidance from a
+        teacher. It discusses the use of having a network be a `student' such
+        that it takes instructions from the teacher as it learns to guide its
+        learning, though this process can only be used a certain number of
+        times. The conclusion reached shows that given suitable advice, an agent
+        can learn much faster.
+    \item Existing use of reinforcement learning: There are many papers on the
+        use of reinforcement learning for the original StarCraft game and its
+        expansions~\cite{wender2012applying, shantia2011connectionist}.
+\end{itemize}
+
 \section{Conclusion}
 % Conclusion of the research and what it means moving into the
 % implementation and evaluation.
