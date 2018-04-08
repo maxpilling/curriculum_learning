@@ -87,10 +87,10 @@ information into a multiple array structure where each sub-array is concerned
 with a single aspect of the game. The arrays mostly represent a grid-like
 structure. Each sub-array is a column value with another array to represent the
 row. This means that the agent would see information about the world using a
-sampling of the available pixels. An example would be the \textbf{screen} array
+sampling of the available pixels. An example would be the \texttt{screen} array
 which contains the columns and sub-arrays that represent the row value. By
-indexing this array twice \textbf{`screen[x][y]'}, it is possible to get a value
-associated with grid position \textbf{(x,y)}. The agent would have a $84 \times
+indexing this array twice \texttt{`screen[x][y]'}, it is possible to get a value
+associated with grid position \texttt{(x,y)}. The agent would have a $84 \times
 84$ grid view of the current screen.
 
 The API implements an orthogonal projection to view the game world, as opposed
@@ -101,12 +101,12 @@ be able to distinguish them apart.
 The API also provides access to the player mini-map. The mini-map provides:
 
 \begin{itemize}
-    \item The entire map view including unexplored areas (blacked out)
-    \item All units and building in the game
-    \item Objects represented by an index for classification
+    \item The entire map view including unexplored areas, which are blacked out.
+    \item All units and building in the game.
+    \item Objects represented by an index for classification.
 \end{itemize}
 
-The classifications of mini-map objects are:
+The classifications of the mini-map objects are:
 \begin{enumerate}
     \item Background
     \item Agent's units
@@ -115,33 +115,37 @@ The classifications of mini-map objects are:
     \item Hostile units
 \end{enumerate}
 
-The entire game state is accessed using the \textbf{Observation} method provided
-by the API\@.
-To access any information from the game, the must be called with the
-relevant index since the \textbf{Obs} variable is an array of arrays with
-pertinent information. For example, to access the mini-map,
-use $obs.observation['screen'][UNITTYPE]$. The agent can see that a
-unit is hidden through the mini-map but cannot identify the type of
-unit unless the screen array is accessed for unit type information.
+The entire game state is accessed using the \texttt{observation} method provided
+by the API\@. To access any information from the game, the user must index the
+object with the relevant index since the \texttt{obs} variable is an array of
+arrays with pertinent information. For example, to access the mini-map, the
+following code is used, \texttt{obs.observation['screen'][UNITTYPE]}. The agent
+can see that a unit is hidden through the mini-map but cannot identify the type
+of unit unless the screen array is accessed for unit type information.
 
 The screen array provides the following:
 
 \begin{itemize}
     \item Powers of a selected unit
-    \item Unit type
+    \item The unit type
     \item Hit points of a selected unit
     \item Unit density (how many units are in a given area of the screen)
-    \item and more information on character abilities
+    \item More information on character abilities
 \end{itemize}
 
-For an action to be taken, a return call is made with the required action for the step.
-This means that the action must be coded to select the relative unit and return the coordinates
-for selecting the unit and issuing an action. There are two types of actions:
+For an action to be taken, a return call is made with the required action for
+the step. This means that the action must be coded to select the relative unit
+and return the coordinates for selecting the unit and issuing an action. This
+makes most common actions in the game take multiple in-game steps, resulting in
+even a common action such as movement being comprised of a selection step and
+then an order to move.
+
+There are two types of actions:
 
 \begin{itemize}
-    \item Queued: an action that will take place once the current
-        action is finished
-    \item Immediate: interrupts the current action being carried out and
+    \item Queued: An action that will take place once the current
+        action is finished.
+    \item Immediate: Interrupts the current action being carried out and
         forces the character to begin the returned action.
 \end{itemize}
 
@@ -153,12 +157,12 @@ possible positions to represent the single action of building.
 
 \section{Development Choices}
 
-As part of building an intelligent agent, or working with any form of deep learning application,
-many parameters that can be tuned that will alter the performance of
-the network for a given task.
+As part of building an intelligent agent, or working with any form of deep
+learning application, many parameters can be tuned that will alter the
+performance of the network for a given task.
 
-The most prominent challenge was identifying what information the agent would need such that the
-input to the network was:
+The most prominent challenge was identifying what information the agent would
+need such that the input to the network was:
 
 \begin{itemize}
     \item Useful in many states
@@ -177,12 +181,12 @@ If given insufficient information, the agent could potentially make undesirable
 choices due to not having enough information and performing the best
 action that was visible.
 
-This leads to what action in a given state is optimal and can the agent learn whether
-the correct decision was made. The learning algorithm should allow an agent
-to identify that remaining in a given loop is not the correct action and that learning
-new actions could be the better outcome.
-Since this is using a state action pair, the agent will not attempt to take any
-other actions that have not been tested and defined to be the highest output.
+This leads to what action in a given state is optimal and can the agent learn
+whether the correct decision was made. The learning algorithm should allow an
+agent to identify that remaining in a given loop is not the correct action and
+that learning new actions could be the better outcome. Since this is using a
+state action pair, the agent will not attempt to take any other actions that
+have not been tested and defined to be the highest output.
 
 \section{DeepQ Network}
 
@@ -194,11 +198,11 @@ Q-Learning update function and policy evaluation.
 The network used for running the agent is comprised of the following layers:
 
 \begin{enumerate}
-    \item Input layer with 37 inputs for the state representation
-    \item First hidden layer with 50 nodes and a bias node
-    \item Second hidden layer with 40 nodes and a bias node
-    \item Third hidden layer with 25 nodes and a bias node
-    \item Output layer with 20 nodes (one for each possible action)
+    \item Input layer with 37 inputs for the state representation.
+    \item First hidden layer with 50 nodes and a bias node.
+    \item Second hidden layer with 40 nodes and a bias node.
+    \item Third hidden layer with 25 nodes and a bias node.
+    \item Output layer with 20 nodes (one for each possible action).
 \end{enumerate}
 
 The weights of each of the layers use a random normal distribution with a
@@ -220,6 +224,7 @@ estimation of the network. This also requires the rewards to be reduced for the
 TD Error evaluation.
 
 \subsection{Exploration}
+
 The agent uses an Epsilon-greedy algorithm for exploration. The algorithm works
 by setting a value $\epsilon$ and taking the maximum value action for a given
 state with a probability of $1-\epsilon$. Otherwise, the agent will take a random
@@ -262,7 +267,7 @@ every time. This makes it impossible for the agent to learn to move in a
 specific motion and achieve the same result. This does, however, take longer for
 the agent to converge on the correct actions to take but will make the agent
 increase the total reward at the end of each episode. If the agent is given an
-immediate reward than the agent may try to achieve the same reward every time
+immediate reward then the agent may try to achieve the same reward every time
 without knowledge of how well it has performed overall. In some cases using a
 live reward system may be favourable for the agent, but this would depend on the
 task and requirement of the agent~\cite{shelton2001balancing}.
