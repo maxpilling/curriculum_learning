@@ -264,10 +264,24 @@ learning only a given pattern to take. However, the mini-games used for
 evaluation will randomize the game state with every run. For example, the
 MoveToBeacon map will randomly move the beacon to a different area of the map
 every time. This makes it impossible for the agent to learn to move in a
-specific motion and achieve the same result. This does, however, take longer for
+specific pattern and achieve the same result. This does, however, take longer for
 the agent to converge on the correct actions to take but will make the agent
 increase the total reward at the end of each episode. If the agent is given an
 immediate reward then the agent may try to achieve the same reward every time
 without knowledge of how well it has performed overall. In some cases using a
-live reward system may be favourable for the agent, but this would depend on the
+live reward system may be favorable for the agent, but this would depend on the
 task and requirement of the agent~\cite{shelton2001balancing}.
+
+The agent's ability to learn the correct actions to take will depend on the reward system. If the agent takes an action, the reward will define the value of that taken action. This introduces the problem with live learning in a game that runs in real-time. Since the game has actions that can take time to perform, attacking for example, the agent will get the reward in the next few steps. This means that the agent could take the correct action and then take another action after it. The reward will go to the later action taken but that is not the action that was the correct one to take. For example, the agent decides to attack an enemy unit and will receive a reward once the unit is dead, which takes multiple attack and is not instantaneous. The agent then takes the action to build something and at that given state the enemy unit was killed. This would confuse the agent into assuming that the building action was the correct action and not the attacking action. Using $\gamma$ can help rectify this issue. The reward decay allows the agent to plan a couple of steps ahead from the taken action. The higher $\gamma$ is the more it adds to the current state and action value. Allowing the agent to associate higher values for the given state will give better future outcomes. Rather than the agent looking at the immediate reward. Equation 3.5 shows $\gamma$ being multiplied by the next state's value based on the best action to be taken next.
+
+\subsection{Learning}
+
+The DeepQ network can be updated at the end or during a game. Using an offline network allows the agent to evaluate itself over the all the choices made by the agent during game play. The state, action, reward and next state are saved into an array for updating the network once the episode is done. However, the issue with offline learning is that the agent will not receive a reward for the given action at the correct time and may require the agent be stopped for a couple of steps. 
+
+\subsubsection{Memory}
+
+An array known as a "memory" is used for storing the state, action and rewards from the episode. The memory array is then shuffled, this helps avoid learning certain patterns or over-fitting. The memory array allows the agent to play without losing any of the steps it took. Once the episode is finished, a terminal state contains the final overall score of the agent. 
+
+\subsubsection{Remember}
+
+The remember function is called at the end of every episode and trigger the updating of the DeepQ network. The memory array is shuffled and sampled from one array at a time. The array needs to be sampled in these single steps so that the network can be run to test the next state prediction from the given state. The function takes a single array that contains the state, action, reward and next state from a single game step. The action is used to check the next state's value. Once the network has been run on the next state a value is returned representing the next state's expected return. The loss function can then be calculated using these 2 values.
