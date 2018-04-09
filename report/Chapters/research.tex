@@ -115,11 +115,33 @@ the agent may be given a reward, a value that dictates whether the action taken
 was favourable or incorrect. The table can be updated through a real-time
 learning or at the end of an episode. An episode represents an entire list of
 states and actions taken to reach the end, usually by having a terminal state.
-The table is updated using the Q-Learning equation.
+The table is updated using the Q-Learning equation. The algorithm is as follows:
+\begin{itemize}
+\item The agent observes its current state
+\item The agent performs an action 
+\item The agent observes the new state it is in
+\item It will also observe the new reward (if any are given)
+\item The table is adjusted for the previous state using a learning factor
+\end{itemize}
 
-% TODO: Add the Q-Learning Algorithm here with references. Seems like we need it
-% since later in the report we say the Deep Q network uses the same alg without
-% actually mentioning what it is anywhere.
+The equation for updating the table is \cite{watkins1992q}:
+\begin{align}
+Q(s_t,a_t) = Q(s,a_t) + \alpha (r + \gamma (\max_a Q(s_{t+1}, a) - Q(s_t,a_t)))
+\end{align}
+
+The rewards are given as follows:
+\begin{itemize}
+\item Immediate rewards: The agent is given a reward after an action is taken and the next state is not the final state.
+\begin{align}
+Q(s_t,a_t) = r + \gamma (\max_a Q(s_{t+1}, a))
+\end{align}
+\item Terminal rewards: The agent is given a reward and the state is the final state
+\begin{align}
+Q(s_t,a_t) = r
+\end{align}
+
+\end{itemize}
+
 
 \subsection{Neural Networks}
 

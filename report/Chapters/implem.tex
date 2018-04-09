@@ -278,6 +278,10 @@ The agent's ability to learn the correct actions to take will depend on the rewa
 
 The DeepQ network can be updated at the end or during a game. Using an offline network allows the agent to evaluate itself over the all the choices made by the agent during game play. The state, action, reward and next state are saved into an array for updating the network once the episode is done. However, the issue with offline learning is that the agent will not receive a reward for the given action at the correct time and may require the agent be stopped for a couple of steps. 
 
+\subsubsection{Off-Policy Learning}
+
+
+
 \subsubsection{Memory}
 
 An array known as a "memory" is used for storing the state, action and rewards from the episode. The memory array is then shuffled, this helps avoid learning certain patterns or over-fitting. The memory array allows the agent to play without losing any of the steps it took. Once the episode is finished, a terminal state contains the final overall score of the agent. 
