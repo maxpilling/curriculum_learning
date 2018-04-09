@@ -70,7 +70,7 @@ for mm_x in range(0, 64):
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.2):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.002):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
@@ -171,6 +171,7 @@ class QLearning:
         with self.sess.as_default():
             
             sample_memory = np.random.permutation(self.memory)
+            #sample_memory = self.memory
             #sample_memory = np.random.choice(self.memory, int(0.7*len(self.memory)), replace=False)
             for mem in sample_memory:
                 # Get prediction
