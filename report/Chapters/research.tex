@@ -544,7 +544,7 @@ Shogi\cite{silver2017mastering} and most recently
 Go\cite{silver2016mastering,silver2017masteringgo} to great success.
 
 
-\subsection{Issues specific to StarCraft II}
+\subsection{StarCraft II specific issues}
 
 StarCraft II specifically offers an environment that offers a lot of interesting
 challenges.
@@ -604,24 +604,47 @@ relevant.
 
 For example, there is existing research into applications for the original
 StarCraft game, where some different methods were tested. The methods vary
-wildly, and a few examples are given below:
+wildly, and a few examples are given now.
 
-\begin{itemize}
-    \item `Teacher/Student Learning': The paper ``Reinforcement learning agents
-        providing advice in complex video games''~\cite{taylor2014reinforcement}
-        talks about using a system to train a network, given guidance from a
-        teacher. It discusses the use of having a network be a `student' such
-        that it takes instructions from the teacher as it learns to guide its
-        learning, though this process can only be used a certain number of
-        times. The conclusion reached shows that given suitable advice, an agent
-        can learn much faster.
-    \item Existing use of reinforcement learning: There are many papers on the
-        use of reinforcement learning for the original StarCraft game and its
-        expansions~\cite{wender2012applying, shantia2011connectionist}. However,
-        many of these solutions had issues with the processing of the system,
-        such that they had to develop novel systems to even get the data out
-        efficiently, which is not a problem with the SC2LE\@.
-\end{itemize}
+The paper ``Reinforcement learning agents providing advice in complex video
+games''~\cite{taylor2014reinforcement} talks about using a system to train a
+network, given guidance from a teacher. It discusses the use of having a network
+be a `student' such that it takes instructions from the teacher as it learns to
+guide its learning, though this process can only be used a certain number of
+times. The conclusion reached shows that given suitable advice, an agent can
+learn much faster. Whilst interesting, this style of learning is not easily
+compatible with the use of curriculum or transfer learning, which limits its
+usefulness in this project, however it could be an interesting extension in the
+future.
+
+There are many papers on the use of reinforcement learning for the original
+StarCraft game and its expansions~\cite{wender2012applying,
+shantia2011connectionist}. However, many of these solutions had issues with the
+processing of the system, such that they had to develop novel systems to even
+get the data out efficiently, which is not a problem with the SC2LE\@. Despite
+these issues, they managed to get intelligent behaviour out of the respective
+agents either in full games or in small problems that were subsets of the full
+game. Both of these agents used a Q-Learning approach or a Sarsa learning
+approach~\cite{sutton1996generalization} to differing results. The results
+achieved as well as the methods used could prove useful informing design
+decisions for the networks used for this problem. However, due to the change in
+both the game and the method that is used to interact with the game, the
+techniques and parameters used could prove to be less useful due to a
+significant difference in the two environments.
+
+Finally, the last area that can be used for inspiration is the large amount of
+work that has been done in the area of reinforcement learning throughout gaming,
+rather than the work that is specific to StarCraft. Whilst older games such as
+the aforementioned Atari 2600 games, differ heavily from StarCraft, there are
+more modern games that have similar problems. For example, the game
+Civilization IV~\ref{wender2008using}, which is a complicated strategy game,
+taking place over a map that covers a large number of playable spaces, with
+games taking many thousands or millions of steps potentially, depending on the
+game settings. As such, similarly to StarCraft, the game has significant issues
+with associating rewards and choosing the location that actions should be taken
+at. As a result, most research is done on small subsets of the game. This
+strategy again uses Q-Learning, and could provide useful insights into the
+design for a network for StarCraft II\@.
 
 \section{Conclusion}
 % Conclusion of the research and what it means moving into the
