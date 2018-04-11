@@ -681,13 +681,38 @@ path, but for such a simple example it could be expected that it would. This
 expectation however would change depending on the complexity of the task.
 
 \subsection{Solution Choices}
-% We should also outline the solutions we intend to follow here, so we can bring
-% together the challenges + existing methods to say what we think will work and
-% lead into the next chapter (Implementation).
+
+From the research that went into this chapter and the associated similar
+problems, two styles of solution will be built and tested.
+
+First, a Q-Learning approach will be taken. This approach has been tested across
+many different games, and should prove very effective at this task. If combined
+with compound actions that combine multiple actions into one single agent
+action, it is possible that an agent may be able to show intelligent behaviour
+across the many different test situations, to give a strong result. This
+approach has the advantage of being used very readily across a vast number of
+projects, including StarCraft and StarCraft II projects, as well as many other
+games.
+
+Secondly, a Convolutional Neural Network approach will be taken. This approach
+has less testing, but a form of CNN did behave the best in the DeepMind SC2LE
+paper~\cite{vinyals2017starcraft}, so there is proven results in the area. This
+approach should be more global, since it takes input of the entire visual space,
+and perhaps additional other information, to learn its environment sufficiently.
+However, it is also possible that due to the higher complexity in being forced
+to select more specific actions instead of the Q-learning approaches compound
+actions, it may fair worse for tasks that require large amounts of tasks that
+take multiple steps.
+
+Both of these networks will allow research into Transfer and Curriculum
+learning, such that their effect on both the learning speed as well as the agent
+efficiency can be measured and compared.
+
+Using the insights the many past projects gained should mean that a solution
+can be found that avoids the issues outlined in~\ref{sc2-issues}. This mix of
+solutions should also give an interesting comparison between the different
+learning styles, and how each one fairs for a given challenge.
 
 \section{Conclusion}
 % Conclusion of the research and what it means moving into the
 % implementation and evaluation.
-
-Now, the basics of the tools needed to build an intelligent agent for StarCraft
-II has been explored. The 
