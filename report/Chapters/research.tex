@@ -10,7 +10,6 @@ before moving into talking about existing solutions and how they potentially
 differ to the solution required in this case.
 
 \subsection{StarCraft II}
-% What is StarCraft II?
 
 StarCraft II (SCII) is a real-time strategy (RTS) game for PC released in 2010.
 The game consists of many challenges that make it exciting for
@@ -65,7 +64,7 @@ skilled players, which could be used for supervised learning techniques, as well
 as standards to compare against for unsupervised learning techniques.
 
 \subsection{Issues with StarCraft II for an Intelligent Agent}
-% Issues with StarCraft II
+
 A game of StarCraft II includes many challenges for a player regarding
 complexity. The game state can be comprised of thousands of different aspects
 that could represent valuable information for the player. At a given moment,
@@ -81,20 +80,21 @@ game, versus that of say Chess or Go. This will be spoken about in more detail
 in Section~\ref{challenges:games}.
 
 % All this feels a bit implementation-y, perhaps we should move this to implem.
+% TODO: Move this or delete it, and then expand this subsection.
 
-For the agent to be able to act, it must be given an input, stimulus of some
-form, to evaluate and then proceed with taking action. This makes the game
-ideal for an unsupervised learning environment.
+% For the agent to be able to act, it must be given an input, stimulus of some
+% form, to evaluate and then proceed with taking action. This makes the game
+% ideal for an unsupervised learning environment.
 
-The environment is broken into states. Each state represents information about
-the game at a given moment. This is then fed into the neural network and
-returns a value outcome of what the optimal action to be taken would be. A
-different approach would be to use a Q-learning algorithm with a table format
-for storing actions and values. The main difficulty would be the size of the
-given table. As more actions are introduced the size of the table would
-increase and new values would need to be optimized for the given cells. Using a
-neural network, this issue can be avoided by adding new weights and nodes to the
-network.
+% The environment is broken into states. Each state represents information about
+% the game at a given moment. This is then fed into the neural network and
+% returns a value outcome of what the optimal action to be taken would be. A
+% different approach would be to use a Q-learning algorithm with a table format
+% for storing actions and values. The main difficulty would be the size of the
+% given table. As more actions are introduced the size of the table would
+% increase and new values would need to be optimized for the given cells. Using a
+% neural network, this issue can be avoided by adding new weights and nodes to the
+% network.
 
 \subsection{Q-Learning Table}
 
@@ -105,7 +105,8 @@ updated value of the state action pair. Q-Learning requires:
 
 \begin{itemize}
     \item State: some form of representation of the environment the agent is in.
-    \item Action: an action that may move the agent from one state to the next or keep it in the same state.
+    \item Action: an action that may move the agent from one state to the next
+        or keep it in the same state.
 \end{itemize}
 
 The agent is given a state of the world and checks the lookup table for which
@@ -116,32 +117,35 @@ was favourable or incorrect. The table can be updated through a real-time
 learning or at the end of an episode. An episode represents an entire list of
 states and actions taken to reach the end, usually by having a terminal state.
 The table is updated using the Q-Learning equation. The algorithm is as follows:
+
 \begin{itemize}
-\item The agent observes its current state
-\item The agent performs an action 
-\item The agent observes the new state it is in
-\item It will also observe the new reward (if any are given)
-\item The table is adjusted for the previous state using a learning factor
+    \item The agent observes its current state
+    \item The agent performs an action
+    \item The agent observes the new state it is in
+    \item It will also observe the new reward (if any are given)
+    \item The table is adjusted for the previous state using a learning factor
 \end{itemize}
 
-The equation for updating the table is \cite{watkins1992q}:
+The equation for updating the table is~\cite{watkins1992q}:
+
 \begin{align}
-Q(s_t,a_t) = Q(s,a_t) + \alpha (r + \gamma (\max_a Q(s_{t+1}, a) - Q(s_t,a_t)))
+    Q(s_t,a_t) = Q(s,a_t) + \alpha (r + \gamma (\max_a Q(s_{t+1}, a) - Q(s_t,a_t)))
 \end{align}
 
 The rewards are given as follows:
+
 \begin{itemize}
-\item Immediate rewards: The agent is given a reward after an action is taken and the next state is not the final state.
-\begin{align}
-Q(s_t,a_t) = r + \gamma (\max_a Q(s_{t+1}, a))
-\end{align}
-\item Terminal rewards: The agent is given a reward and the state is the final state
-\begin{align}
-Q(s_t,a_t) = r
-\end{align}
-
+    \item Immediate rewards: The agent is given a reward after an action is
+        taken and the next state is not the final state.
+        \begin{align}
+            Q(s_t,a_t) = r + \gamma (\max_a Q(s_{t+1}, a))
+        \end{align}
+    \item Terminal rewards: The agent is given a reward and the state is the
+        final state.
+        \begin{align}
+            Q(s_t,a_t) = r
+        \end{align}
 \end{itemize}
-
 
 \subsection{Neural Networks}
 
@@ -374,10 +378,10 @@ To give an example of why this style of network is needed, the size of a non-CNN
 network must be considered. For the MNIST~\cite{lecun2010mnist} dataset, the
 supplied images are $28 \times 28$. For a fully connected architecture, this
 leads to $28 * 28 = 784$ weights. If an RGB image is used, this number is
-multiplied by 3 to get the number of pixels in each of the three channels. $784 * 3$
-weights is reasonable, but once moving to an image of a more reasonable size,
-say $(250, 250, 3)$, the number of weights becomes very large, without even
-considering the rest of the neurons in the network.
+multiplied by 3 to get the number of pixels in each of the three channels. $784
+* 3$ weights is reasonable, but once moving to an image of a more reasonable
+size, say $(250, 250, 3)$, the number of weights becomes very large, without
+even considering the rest of the neurons in the network.
 
 A CNN works differently however. Since it can assume the input is an
 image, the network architecture may be built in a more specific way. That is,
@@ -485,18 +489,13 @@ Figure~\ref{fig:max_pool}.
 \end{figure}
 
 \section{Challenges}
-% Add more info here about the tech and the challenges it faces
-% i.e. the problems in Reinforcement Learning as a whole
 
 Reinforcement learning has many challenges, both specific to this
 project, and those that are issues for reinforcement learning as a whole.
 This section aims to outline these challenges, as well as ways they have been
 mitigated in other projects and how these fixes may apply to this project.
 
-\section{Reinforcement Learning For Games}\label{challenges:games}
-% The earlier sections should cover the general tech,
-% whereas this section will talk about it applied to games
-% and the unique problems that raises.
+\subsection{Reinforcement Learning For Games}\label{challenges:games}
 
 Reinforcement learning for games is particularly tricky, which is what makes it
 an exciting research area. Games provide a suitable test-bed for some broader
@@ -646,6 +645,19 @@ design for a network for StarCraft II\@.
 
 %TODO: Potentially needs more stuff on other games in the last paragraph.
 
+\section{Formal Definition of the Problem}
+
+% Here we need to formally describe the problem we will be undertaking,
+% since we haven't really outlined that fully anywhere else.
+
+\subsection{Solution Choices}
+% We should also outline the solutions we intend to follow here, so we can bring
+% together the challenges + existing methods to say what we think will work and
+% lead into the next chapter (Implementation).
+
 \section{Conclusion}
 % Conclusion of the research and what it means moving into the
 % implementation and evaluation.
+
+Now, the basics of the tools needed to build an intelligent agent for StarCraft
+II has been explored. The 
