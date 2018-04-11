@@ -652,9 +652,9 @@ design for a network for StarCraft II\@.
 \section{Formal Definition of the Problem}
 
 The final part of the research was into the problem of creating an intelligent
-agent for StarCraft II\@. The previous sections covers all the technical aspects
+agent for StarCraft II\@. The previous sections cover all the technical aspects
 that would be needed for such an agent, but does not attempt to define what
-consists of an intelligent agent, nor what is needed to consider the project a
+consists of an intelligent agent, nor what is required to consider the project a
 success.
 
 As mentioned, the game of StarCraft II consists of many elements, such that the
@@ -664,29 +664,29 @@ mini-games and the Simple64 map. Both of these are explained in more detail in
 Chapter~\ref{implem}.
 
 Intelligent behaviour is hard to define, due to the inherent subjectivity in
-defining what it consists of. This is spoken about in more detail as part of the
+determining what it consists of. This is spoken about in more detail as part of the
 Evaluation Methodology in Chapter~\ref{eval_method}, but broadly the definition
 used for this project is that intelligent behaviour is taking the most direct
 route to a given solution or state possible, without having too many superfluous
 actions. This means an agent does not necessarily need to reach a most optimum
 state, as it is also true that many humans play games sub-optimally. However,
-the agent should still move to that state in an efficient way.
+the agent should still efficiently move to that state.
 
-To give a more structured example, consider a single agent having to move to
-a set location. It may be quickest to follow a certain path, but the agents
-behaviour will be considered intelligent if it is able to move directly to the
+To give a more structured example, consider a single agent has to move to
+a set location. It may be quickest to follow a specific path, but the agent's
+behaviour will be regarded as intelligent if it can move directly to the
 target location, without unneeded actions such as turning around or attacking at
 random on that path. The agent does not necessarily need to follow the optimal
 path, but for such a simple example it could be expected that it would. This
-expectation however would change depending on the complexity of the task.
+expectation, however, would change depending on the complexity of the task.
 
 \subsection{Solution Choices}
 
 From the research that went into this chapter and the associated similar
-problems, two styles of solution will be built and tested.
+problems, two styles of a solution will be built and tested.
 
 First, a Q-Learning approach will be taken. This approach has been tested across
-many different games, and should prove very effective at this task. If combined
+many different games and should prove very useful for this task. If combined
 with compound actions that combine multiple actions into one single agent
 action, it is possible that an agent may be able to show intelligent behaviour
 across the many different test situations, to give a strong result. This
@@ -696,13 +696,14 @@ games.
 
 Secondly, a Convolutional Neural Network approach will be taken. This approach
 has less testing, but a form of CNN did behave the best in the DeepMind SC2LE
-paper~\cite{vinyals2017starcraft}, so there is proven results in the area. This
-approach should be more global, since it takes input of the entire visual space,
-and perhaps additional other information, to learn its environment sufficiently.
-However, it is also possible that due to the higher complexity in being forced
-to select more specific actions instead of the Q-learning approaches compound
-actions, it may fair worse for tasks that require large amounts of tasks that
-take multiple steps.
+paper~\cite{vinyals2017starcraft}, so there is proven results in the area that
+show a CNN performs very well at this task. This approach should be more global
+since it takes input of the entire visual space, and perhaps other additional
+information, to learn its environment sufficiently.  However, it is also
+possible that due to the higher complexity of being forced to select more
+specific actions instead of the Q-learning approaches compound actions, it may
+fair worse for tasks that require large amounts of tasks that take multiple
+steps.
 
 Both of these networks will allow research into Transfer and Curriculum
 learning, such that their effect on both the learning speed as well as the agent
@@ -711,7 +712,7 @@ efficiency can be measured and compared.
 Using the insights the many past projects gained should mean that a solution
 can be found that avoids the issues outlined in~\ref{sc2-issues}. This mix of
 solutions should also give an interesting comparison between the different
-learning styles, and how each one fairs for a given challenge.
+learning styles, and how each one fair for a given challenge.
 
 \section{Conclusion}
 % Conclusion of the research and what it means moving into the
