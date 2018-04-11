@@ -595,8 +595,6 @@ selection step. This is made more complicated due to the limitations of the API
 making selecting certain units from a group much harder.
 
 \section{Existing Methods}
-% This should then move on from the previous section
-% to show how the outlined challenges are dealt with.
 
 There are many existing methods in the area of reinforcement learning for games,
 as well as solutions that fall outside of gaming but are still potentially
@@ -612,9 +610,9 @@ network, given guidance from a teacher. It discusses the use of having a network
 be a `student' such that it takes instructions from the teacher as it learns to
 guide its learning, though this process can only be used a certain number of
 times. The conclusion reached shows that given suitable advice, an agent can
-learn much faster. Whilst interesting, this style of learning is not easily
+learn much faster. While interesting, this style of learning is not readily
 compatible with the use of curriculum or transfer learning, which limits its
-usefulness in this project, however it could be an interesting extension in the
+usefulness in this project. However, it could be an exciting extension in the
 future.
 
 There are many papers on the use of reinforcement learning for the original
@@ -632,10 +630,10 @@ both the game and the method that is used to interact with the game, the
 techniques and parameters used could prove to be less useful due to a
 significant difference in the two environments.
 
-Finally, the last area that can be used for inspiration is the large amount of
-work that has been done in the area of reinforcement learning throughout gaming,
-rather than the work that is specific to StarCraft. Whilst older games such as
-the aforementioned Atari 2600 games, differ heavily from StarCraft, there are
+Finally, the last area that can be used for inspiration is the vast amount of
+work that has been done in the field of reinforcement learning throughout gaming,
+rather than the work that is specific to StarCraft. While older games such as
+the Atari 2600 games mentioned above, differ massively from StarCraft, there are
 more modern games that have similar problems. For example, the game
 Civilization IV~\ref{wender2008using}, which is a complicated strategy game,
 taking place over a map that covers a large number of playable spaces, with
@@ -643,8 +641,10 @@ games taking many thousands or millions of steps potentially, depending on the
 game settings. As such, similarly to StarCraft, the game has significant issues
 with associating rewards and choosing the location that actions should be taken
 at. As a result, most research is done on small subsets of the game. This
-strategy again uses Q-Learning, and could provide useful insights into the
+strategy again uses Q-Learning and could provide useful insights into the
 design for a network for StarCraft II\@.
+
+%TODO: Potentially needs more stuff on other games in the last paragraph.
 
 \section{Conclusion}
 % Conclusion of the research and what it means moving into the
