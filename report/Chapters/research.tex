@@ -273,7 +273,7 @@ This can be avoided by using final results of a process, for example using the
 result of a game, rather than the score after some number of time-steps.
 However, this has other issues, such as slowing the learning process and
 potentially rewarding unproductive behaviour that occurred as part of a game
-that eventually was won.  The opposite is also true that actions that give a
+that eventually was won. The opposite is also true that actions that give a
 local reward may still lead to failure to win the game. Because of this, it
 makes the learning process more nuanced than merely comparing against a ground
 truth. This can be experimented with to see how it affects learning.
@@ -488,6 +488,10 @@ Figure~\ref{fig:max_pool}.
     \label{fig:max_pool}
 \end{figure}
 
+\subsection{Curriculum Learning}
+
+\subsection{Transfer Learning}
+
 \section{Challenges}
 
 Reinforcement learning has many challenges, both specific to this
@@ -634,7 +638,7 @@ work that has been done in the field of reinforcement learning throughout gaming
 rather than the work that is specific to StarCraft. While older games such as
 the Atari 2600 games mentioned above, differ massively from StarCraft, there are
 more modern games that have similar problems. For example, the game
-Civilization IV~\ref{wender2008using}, which is a complicated strategy game,
+Civilization IV~\cite{wender2008using}, which is a complicated strategy game,
 taking place over a map that covers a large number of playable spaces, with
 games taking many thousands or millions of steps potentially, depending on the
 game settings. As such, similarly to StarCraft, the game has significant issues
@@ -647,8 +651,34 @@ design for a network for StarCraft II\@.
 
 \section{Formal Definition of the Problem}
 
-% Here we need to formally describe the problem we will be undertaking,
-% since we haven't really outlined that fully anywhere else.
+The final part of the research was into the problem of creating an intelligent
+agent for StarCraft II\@. The previous sections covers all the technical aspects
+that would be needed for such an agent, but does not attempt to define what
+consists of an intelligent agent, nor what is needed to consider the project a
+success.
+
+As mentioned, the game of StarCraft II consists of many elements, such that the
+scope of an intelligent agent must be restricted, for it to remain feasible.
+Because of this, the game will focus on two specific tasks: The DeepMind
+mini-games and the Simple64 map. Both of these are explained in more detail in
+Chapter~\ref{implem}.
+
+Intelligent behaviour is hard to define, due to the inherent subjectivity in
+defining what it consists of. This is spoken about in more detail as part of the
+Evaluation Methodology in Chapter~\ref{eval_method}, but broadly the definition
+used for this project is that intelligent behaviour is taking the most direct
+route to a given solution or state possible, without having too many superfluous
+actions. This means an agent does not necessarily need to reach a most optimum
+state, as it is also true that many humans play games sub-optimally. However,
+the agent should still move to that state in an efficient way.
+
+To give a more structured example, consider a single agent having to move to
+a set location. It may be quickest to follow a certain path, but the agents
+behaviour will be considered intelligent if it is able to move directly to the
+target location, without unneeded actions such as turning around or attacking at
+random on that path. The agent does not necessarily need to follow the optimal
+path, but for such a simple example it could be expected that it would. This
+expectation however would change depending on the complexity of the task.
 
 \subsection{Solution Choices}
 % We should also outline the solutions we intend to follow here, so we can bring
