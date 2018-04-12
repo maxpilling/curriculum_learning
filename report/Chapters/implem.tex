@@ -75,23 +75,44 @@ buildings and training \textbf{Marines}, fighter characters. This needs the
 agent to control the \textbf{SCV} and \textbf{Marine} units using complex three
 action commands.
 
-\section{PySC2 API}
+\section{StarCraft II API and SC2LE}
 
-% Possibly needs a broader explanation of what this is, and why we use it.
+The SC2LE is an environment produced by DeepMind to provide a Python wrapper
+for the StarCraft II API that is produced by Blizzard. This API allows both
+information to be received from the game, as well as the sending on input to the
+game. This is made even easier with the SC2LE, due to it serving up this API in
+a language that fits directly with the Machine Learning libraries (Python, using
+TensorFlow), as well as providing many different views of both the screen and
+the mini-map, as can be seen in Figure~\ref{fig:sc2le}. In it, the main portion
+of the screen shows the current screen and in the bottom left, the current
+mini-map. The right-hand half of the screen has different views of both of the
+screen and mini-map, showing different information in each.
 
-The agent takes an action based on the given information about the current game
-state, the contextual environment. This relies on how the information can be
-extracted using the \textbf{PySC2} API\@. To make the agent as close to a human
-player as possible, the API uses a grid to represent most of the required
-information into a multiple array structure where each sub-array is concerned
-with a single aspect of the game. The arrays mostly represent a grid-like
-structure. Each sub-array is a column value with another array to represent the
-row. This means that the agent would see information about the world using a
-sampling of the available pixels. An example would be the \texttt{screen} array
-which contains the columns and sub-arrays that represent the row value. By
-indexing this array twice \texttt{`screen[x][y]'}, it is possible to get a value
-associated with grid position \texttt{(x,y)}. The agent would have a $84 \times
-84$ grid view of the current screen.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{pysc2}
+    \caption{Example of the StarCraft II Learning Environment interface.}%
+    \label{fig:sc2le}
+\end{figure}
+
+Using the SC2LE provides an easy interface to the game, such that game states
+can be read, and input actions can be sent.  An agent takes an action based on
+the given state, which in turn relies on how the information can be extracted
+from the SC2LE\@.
+
+To make the agent as close to a human player as possible, the API uses a grid to
+represent most of the required information into a multiple array structure, where
+each sub-array is concerned with a single aspect of the game. The arrays mostly
+represent a grid-like structure, which can be treated as a simplified version of
+the pixels that make up the game. Each sub-array is a column value with another
+array to represent the row. This means that the agent would see information
+about the world using a sampling of the available pixels.
+
+An example would be the \texttt{screen} array which contains the columns and
+sub-arrays that represent the row value. By indexing this array twice with
+\texttt{`screen[x][y]'}, it is possible to get the value associated with grid
+position \texttt{(x,y)}. The agent by default has a $64 \times 64$ grid view of
+the current screen, and a second view of the same size of the mini-map.
 
 The API implements an orthogonal projection to view the game world, as opposed
 to how a human would see a perspective projection that is tilted to the side.
@@ -116,12 +137,13 @@ The classifications of the mini-map objects are:
 \end{enumerate}
 
 The entire game state is accessed using the \texttt{observation} method provided
-by the API\@. To access any information from the game, the user must index the
+by the SC2LE\@. To access any information from the game, the user must index the
 object with the relevant index since the \texttt{obs} variable is an array of
-arrays with pertinent information. For example, to access the mini-map, the
-following code is used, \texttt{obs.observation['screen'][UNITTYPE]}. The agent
-can see that a unit is hidden through the mini-map but cannot identify the type
-of unit unless the screen array is accessed for unit type information.
+arrays with pertinent information. For example, to access the units of a given
+type on the screen currently, the following code is used,
+\texttt{obs.observation['screen'][UNITTYPE]}. The agent can see that a unit is
+hidden through the mini-map but cannot identify the type of unit unless the
+screen array is accessed for unit type information.
 
 The screen array provides the following:
 
@@ -151,9 +173,11 @@ There are two types of actions:
 
 Some actions require an extra parameter for position.
 This makes the action space much more significant as the agent could choose any given
-position to issue the action in a $84 \times 84$ grid.
-So an action such as building a simple building would have $84 \times 84$
-possible positions to represent the single action of building.
+position to issue the action in a $64 \times 64$ grid.
+So an action such as building a simple building would have $64 \times 64$
+possible positions to represent the single action of building. However, this is
+somewhat reduced due to some of the positions being invalid for a given action,
+for example a building can not be built on top of an existing building.
 
 \section{Development Choices}
 
