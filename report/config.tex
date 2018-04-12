@@ -78,14 +78,14 @@
 % Layout for the front cover !!!!! YOU SHOULD NOT HAVE TO CHANGE THIS!!!!!
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newcommand{\frontcover}{\
+\newcommand{\frontcover}{
     % The title page:
     \begin{titlepage}
         \newgeometry{left=25mm,right=25mm,top=45mm,bottom=0.1cm}
 
         \begin{minipage}[t]{7cm}
             \noindent\textbf{\Large{School of Computing}}\\
-            {\fontfamily{ptm}\selectfont
+            {\fontfamily{ptm}\selectfont 
                 \uppercase{faculty of engineering}
             }
         \end{minipage}
@@ -108,7 +108,7 @@
         \textbf{\degreeTitle}\\
         \vspace*{10mm}
         \session\\
-        \restoregeometry\
+        \restoregeometry%
     \end{titlepage}
 }
 
