@@ -328,3 +328,4 @@ TSWLatexianTemp*
 # Ignore CNN files and logs
 CNN/_files/
 CNN/common/mass_log_dir/
+!report/images/*
