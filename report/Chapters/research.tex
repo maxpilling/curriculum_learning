@@ -548,12 +548,11 @@ speed of convergence to some local minima, and in some cases improve the local
 minima found.
 
 This idea takes its inspiration from the fact that humans learn this way. Humans
-are rarely given information in a random order, rather they are given it in a
+are rarely given information in a random order; instead, they are given it in a
 specific order of increasing difficulty to progress through. This can be applied
 to machine learning by curating the order examples are passed to a network. This
 can be as simple as preparing for training with a single small set of easy
-examples, or as complicated as a full sequence of increasingly difficult
-examples.
+examples, or as complicated as a full sequence of increasingly tricky cases.
 
 Formally, this process can be defined as followed, as using the equations
 outlined in ``Curriculum Learning''\cite{bengio2009curriculum}.
@@ -596,13 +595,13 @@ increasing) in $\lambda$:
 
 Broadly, this means that as we increase $\lambda$, that is by adding new
 examples, $Q_{\lambda}$ also increases alongside $\lambda$, as the training
-examples moves from a set of small easy examples and finishes with the full
+examples move from a set of small, easy examples and finishes with the full
 training set. As $Q_{\lambda}$ is increasing and is proportional to the weights
 and the probability distribution, the network is converging towards a better
 minima.
 
 The exact definition of what consists of an `easy example' will depend on the
-domain, and can be experimented with as part of the final models evaluation.
+domain, and can be experimented with as part of the final model's evaluation.
 
 \section{Challenges}
 
