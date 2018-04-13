@@ -3,7 +3,7 @@
 
 \section{Problem Space}
 Since the game is very complicated and can consist of many possible action spaces,
-the majority of the experimentation focuses on the DeepMind mini-games
+the majority of the experimentation focuses on the DeepMind \textbf{mini-games}
 and simple small games in the \textbf{Simple64} map.
 
 \subsection{Mini-games}
@@ -212,7 +212,7 @@ that learning new actions could be the better outcome. Since this is using a
 state action pair, the agent will not attempt to take any other actions that
 have not been tested and defined to be the highest output.
 
-\section{DeepQ Network}
+\section{Deep Q Network}
 
 The following section will focus on the Deep Neural Network that implements a
 Q-Learning update function and policy evaluation.
@@ -322,7 +322,7 @@ based on the best action to be taken next.
 
 \subsection{Learning}
 
-The DeepQ network can be updated at the end of or during a game. Using an
+The Deep Q network can be updated at the end of or during a game. Using an
 offline network allows the agent to evaluate itself over all the choices made by
 the agent during gameplay. The state, action, reward and next state are saved
 into an array for updating the network once the episode is done. However, the
@@ -345,7 +345,7 @@ terminal state contains the final overall score of the agent.
 \subsubsection{The Remember function}
 
 The remember function is called at the end of every episode and triggers the
-updating of the DeepQ network. The memory array is shuffled and sampled from one
+updating of the Deep Q network. The memory array is shuffled and sampled from one
 array at a time. The array needs to be sampled in these single steps so that the
 network can be run to test the next state prediction from the given state. The
 function takes a single array that contains the state, action, reward and next
