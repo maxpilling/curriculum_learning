@@ -510,8 +510,8 @@ medical imaging\cite{shin2016deep, tajbakhsh2016convolutional}. This is possible
 due to the task at hand, recognising some feature or object, has stayed the same
 despite the vast differences in the domain.
 
-A more formal definition of Transfer learning is as follows, as taken from ``A
-Survey on Transfer Learning''\cite{pan2010survey}:
+A more formal definition of Transfer learning follows, as taken from ``A
+Survey on Transfer Learning''\cite{pan2010survey}.
 
 Given a domain $\mathcal{D}$ this is made of a feature space $\mathcal{X}$, and a
 probability distribution of $P(X)$ over $\mathcal{X}$, where $X = x_1, \ldots,
@@ -539,6 +539,70 @@ tuples are different.
 %TODO: Are these 4 scenarios worth explaining?
 
 \subsection{Curriculum Learning}
+
+Curriculum learning is a similar process to that of transfer learning. However,
+where it differs is that in transfer learning, knowledge learnt in any domain or
+task is used to make a similar task easier. In curriculum learning, it is
+instead the idea that learning information in a specific order can improve the
+speed of convergence to some local minima, and in some cases improve the local
+minima found.
+
+This idea takes its inspiration from the fact that humans learn this way. Humans
+are rarely given information in a random order, rather they are given it in a
+specific order of increasing difficulty to progress through. This can be applied
+to machine learning by curating the order examples are passed to a network. This
+can be as simple as preparing for training with a single small set of easy
+examples, or as complicated as a full sequence of increasingly difficult
+examples.
+
+Formally, this process can be defined as followed, as using the equations
+outlined in ``Curriculum Learning''\cite{bengio2009curriculum}.
+
+Given $z$, a random example for the network (or $(x, y)$ for a supervised
+example and its associated label), let $P(z)$ be the target probability
+distribution that would learn the required function. Let $0 \le W_{\lambda}(z)
+\le 1$ be the weight applied to $z$ at step $\lambda$ in the curriculum, with
+$1 \le \lambda \le 1$ and $W_1(z) = 1$. That leads to the following training
+distribution at a step $\lambda$:
+
+\begin{align}
+    Q_{\lambda}(z) \propto W_{\lambda}(z) P(z) \qquad \forall z
+\end{align}
+
+such that $\int Q_{\lambda}(z) dz = 1$. This leads to
+
+\begin{align}
+    Q_1 (z) = P(z) \qquad \forall z
+\end{align}
+
+This allows us to consider an increasing sequence for $\lambda$ such that it
+increases from 0 and ends at $\lambda = 1$.
+
+This allows curriculum learning to defined as a sequence of distributions of
+$Q_{\lambda}$, which we may call a curriculum if the entropy of the
+distributions increases:
+
+\begin{align}
+    H(Q_{\lambda}) < H(Q_{\lambda + \epsilon}) \qquad \forall \epsilon > 0
+\end{align}
+
+and $W_{\lambda}(z)$ (the weights) are monotonically increasing (that is, always
+increasing) in $\lambda$:
+
+\begin{align}
+    W_{\lambda + \epsilon}(z) \ge W_{\lambda}(z) \qquad
+    \forall z, \forall \epsilon > 0
+\end{align}
+
+Broadly, this means that as we increase $\lambda$, that is by adding new
+examples, $Q_{\lambda}$ also increases alongside $\lambda$, as the training
+examples moves from a set of small easy examples and finishes with the full
+training set. As $Q_{\lambda}$ is increasing and is proportional to the weights
+and the probability distribution, the network is converging towards a better
+minima.
+
+The exact definition of what consists of an `easy example' will depend on the
+domain, and can be experimented with as part of the final models evaluation.
 
 \section{Challenges}
 
