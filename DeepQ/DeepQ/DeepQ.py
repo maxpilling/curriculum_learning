@@ -70,7 +70,7 @@ for mm_x in range(0, 64):
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.002):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.2):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
