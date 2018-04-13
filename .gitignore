@@ -325,4 +325,6 @@ TSWLatexianTemp*
 # Ignore Python Enviroment Folder
 .meng_env
 
+# Ignore CNN files and logs
 CNN/_files/
+CNN/common/mass_log_dir/
