@@ -1,5 +1,6 @@
 import sys
 import os
+import glob
 
 import tensorflow as tf
 import numpy as np
@@ -13,11 +14,11 @@ def get_weights():
     return [v for v in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES) if v.name.endswith('weights:0')]
 
 def get_conv_weights(weights, sess):
-    conv_weights = [v.eval(session=sess) for v in weights if v.name.find("conv_layer")]
-    return [w for w in conv_weights if w.ndim == 4]
+    conv_weights = [{'weights': v.eval(session=sess), 'name': v.name} for v in weights if v.name.find("conv_layer")]
+    return [w for w in conv_weights if w['weights'].ndim == 4]
 
-def get_filters_from_layer(weights):
-    transposed_weights = weights.transpose()
+def get_filters_from_layer(layer_dict):
+    transposed_weights = layer_dict['weights'].transpose()
 
     image_list = []
 
@@ -27,9 +28,9 @@ def get_filters_from_layer(weights):
 
     return image_list
 
-def visualise_filter_from_layer(images, index):
+def visualise_filter_from_layer(images, folder_name, filter_name):
 
-    save_dir = os.path.join(LOG_DIR, "images", str(index))
+    save_dir = os.path.join(LOG_DIR, folder_name, "images", filter_name)
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -62,14 +63,26 @@ def print_all_info(graph, weights, sess):
 def main():
 
     print("Parsing args...")
-    meta_graph = sys.argv[1]
-    model_folder = '\\'.join(meta_graph.split('\\')[:-1])
+    passed_folder = sys.argv[1]
+
+    meta_graph_path = ""
+    for file in os.listdir(passed_folder):
+        if file.endswith(".meta"):
+            current_path = os.path.join(passed_folder, file)
+            if meta_graph_path == "":
+                meta_graph_path = current_path
+            else:
+                checkpoint_higher = file.split('-')[-1] > meta_graph_path.split('-')[-1]
+                meta_graph_path = current_path if checkpoint_higher else meta_graph_path
+
+    model_name = passed_folder.split('\\')[-1]
+    model_folder = '\\'.join(meta_graph_path.split('\\')[:-1])
 
     print("Creating session...")
     session = tf.Session()
 
     print("Loading session...")
-    saver = tf.train.import_meta_graph(meta_graph)
+    saver = tf.train.import_meta_graph(meta_graph_path)
     saver.restore(session, tf.train.latest_checkpoint(model_folder))
 
     print("Writing graph log...")
@@ -78,7 +91,7 @@ def main():
 
     print("Getting all weights...")
     weights = get_weights()
-    conv_weights = get_conv_weights(weights, session)
+    conv_layer_dicts = get_conv_weights(weights, session)
     graph = tf.get_default_graph()
     # all_variables = tf.all_variables()
 
@@ -93,10 +106,11 @@ def main():
 
     print("Getting all images in Conv Filters...")
 
-    for i, layer_weights in enumerate(conv_weights):
-        print(f"    Processing layer {i + 1} out of {len(conv_weights)}...")
-        images = get_filters_from_layer(layer_weights)
-        visualise_filter_from_layer(images, i)
+    for i, layer_dict in enumerate(conv_layer_dicts):
+        print(f"    Processing layer {i + 1} out of {len(conv_layer_dicts)}...")
+        images = get_filters_from_layer(layer_dict)
+        layer_name = '_'.join(layer_dict['name'].split('/')[-3:-1])
+        visualise_filter_from_layer(images, model_name, layer_name)
 
 
 if __name__ == "__main__":
