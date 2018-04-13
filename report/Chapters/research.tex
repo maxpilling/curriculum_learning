@@ -497,6 +497,45 @@ to be useful. A common example that is used to describe this process is that a
 network that has been trained to find cars in an image could be used as the
 basis of a network to locate pictures of trucks, vans or other vehicles.
 
+This can be useful for many reasons, the most obvious of which is lowering the
+complexity of the new task, due to the network having existing knowledge. This
+works best when the task at hand has not significantly changed, but the domain
+has. A good example of this is the use of transfer learning in medical
+applications, where knowledge in one domain can be very easily applied to
+another\cite{van2015transfer}. However, what is perhaps less obvious but more
+useful, is the ability to augment an existing small dataset by using a network
+trained on another domain entirely, for example using networks trained on the
+ImageNet dataset\cite{ILSVRC15}, for use in completely different domains
+such as medical imaging\cite{shin2016deep, tajbakhsh2016convolutional}. This is
+possible due to task at hand, recognising some feature or object, has stayed the
+same despite the vast different in domain.
+
+A more formal definition of Transfer learning is as follows, as taken from ``A
+Survey on Transfer Learning''\cite{pan2010survey}:
+
+Given a domain $\mathcal{D}$ this is made of a feature space $\mathcal{X}$, and a
+probability distribution of $P(X)$ over $\mathcal{X}$, where $X = x_1, \ldots,
+x_n \in \mathcal{X}$.
+
+A task $\mathcal{T}$ for a domain $\mathcal{D} = {\mathcal{X}, P(X)}$ consists
+of $\mathcal{Y}$, a label space for the task at hand, as well as $P(Y|X)$ which
+is the probability of a label $Y$ from some training data $X$, typically for
+some pair $x_i \in X$ an $y_i \in \mathcal{Y}$. These labels are domain
+specific, so for the MNIST dataset, they would be the number zero through nine.
+
+Finally, transfer learning can be defined as given a source domain
+$\mathcal{D}_s$ with an associated task $\mathcal{T}_s$, alongside a target
+domain and task $\mathcal{D}_t$ and $\mathcal{T}_t$, transfer learning aims to
+learn the task of the target domain, using information from the source domain.
+This is expressed as wanting to learn $P(Y_t | X_t)$ in $\mathcal{D}_t$ using
+information from both $\mathcal{D}_s$ and $\mathcal{T}_s$, where either
+$\mathcal{D}_s \ne \mathcal{D}_t$ or $\mathcal{T}_s \ne \mathcal{T}_t$.
+
+This leads to 4 scenarios of transfer learning, where each of the 4 elements
+that make up the $\mathcal{D}$ and $\mathcal{T}$ tuples are different.
+
+%TODO: Are these 4 scenarios worth explaining?
+
 \subsection{Curriculum Learning}
 
 \section{Challenges}
