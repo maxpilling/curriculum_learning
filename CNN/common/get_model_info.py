@@ -24,7 +24,8 @@ def get_filters_from_layer(layer_dict):
 
     for image_row in transposed_weights:
         for sub_image in image_row:
-            image_list.append(sub_image)
+            scaled_image = ((255.0 / sub_image.max() * (sub_image - sub_image.min())).astype(np.uint8))
+            image_list.append(scaled_image)
 
     return image_list
 
@@ -39,8 +40,10 @@ def visualise_filter_from_layer(images, folder_name, filter_name):
         file_name = f"{save_dir}/{i}.png"
         size = image.shape[0]
 
-        img = Image.fromarray(image, 'RGB')
+        img = Image.fromarray(image)
         img = img.resize((size * 10, size * 10))
+        img.convert('L')
+
         img.save(file_name)
 
 def print_all_info(graph, weights, sess):
