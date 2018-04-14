@@ -33,7 +33,7 @@ These mini-games are:
         harder than the MoveToBeacon map.
     \item FindAndDefeatZerglings: A map with three marines and 25 zerglings,
         which are an enemy unit. A point is achieved for each zergling that
-        is defeated, and a point lost anytime a marine dies. This map
+        is defeated, and a point lost any time a marine dies. This map
         is also the first to deal with the moving of the camera, as the previous
         two games had the entire state visible without moving the camera.
         Upon defeating the 25 zerglings, 25 more are added.
@@ -61,23 +61,23 @@ These mini-games are:
 
 All of these mini-games have published scores for the many different
 techniques as well as some baseline scores for human players and random
-policies. This makes them ideal to test a model again, such that the scores can
+policies. This makes them ideal for testing a model again, such that the scores can
 be directly compared.
 
 \subsection{The \textbf{Simple64} Map}
 
-The \textbf{Simple64} map was also chosen to allow experimentation on
-a straightforward version of the full game, where the challenge is
-to beat the games AI, which is built using more traditional game AI
-technology, and also can cheat at higher difficulties.
+The \textbf{Simple64} map was also chosen to allow experimentation on a
+straightforward version of the full game, where the challenge is to beat the
+games AI, which is built using more traditional game AI technology, and also can
+cheat at higher difficulties.
 
 The map contains a single opponent and two starting bases. The agent is spawned
 into one of the two areas randomly and starts out with the \textbf{SCV} units,
 characters for building and mining. The initial stage begins with mining of
-necessary of resources for progressing through the level by creating the required
-buildings and training \textbf{Marines}, fighter characters. This needs the
-agent to control the \textbf{SCV} and \textbf{Marine} units using complex three
-action commands. The end goal is to defeat the AI player, and win the game.
+necessary of resources for progressing through the level by creating the
+required buildings and training \textbf{Marines}, fighter characters. This needs
+the agent to control the \textbf{SCV} and \textbf{Marine} units using complex
+three action commands. The end goal is to defeat the AI player and win the game.
 
 One aspect that makes this much harder is the removal of a simple scoring
 element, like that in the mini-games. This means the only scoring methods
@@ -88,15 +88,15 @@ the global aspect of the game.
 
 The more obvious element that makes this harder is that it combines all the
 tasks that the mini-games cover, as well adding new tasks as the AI player will
-attack bases and units, search and take resources, and build its own units and
+attack bases and units, search and take resources, and build units and
 buildings, all of which are not covered in the mini-games. This combination of
 both new elements and a large number of already known elements makes the simple
 64 maps much harder to play.
 
 Due to this map containing a small snippet of the entire game, it will be useful
-for measuring how the agent behaves generally, as it is possible for an agent to
-excel at each of the underlying tasks that go into a game of StarCraft II, but
-to fail in the process of combining them effectively.
+for measuring how the agent behaves in a general settings, as it is possible for
+an agent to excel at each of the underlying tasks that go into a game of
+StarCraft II, but to fail in the process of combining them effectively.
 
 \section{Reasoning For Evaluation}
 
