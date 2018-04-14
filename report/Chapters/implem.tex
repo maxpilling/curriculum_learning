@@ -333,7 +333,9 @@ couple of steps.
 
 \subsubsection{Off-Policy Learning}
 
-%TODO: Fill in.
+Q-learning is an off-policy learning algorithm. An off-policy method does not require the policy behavior to evaluate the new expected value. The agent is able to take any form of action and update the relevant Q-value after the action has been taken. The method works by taking a greedy step, where the agents next state is evaluated for the highest value action in the next state. An on-policy method would make it difficult for the agent to take a random action that is not the action the agent would normally take. Since on-policy requires the agent to take a greedy step, the value of that step would be updated as opposed to the random action the agent would have taken. For example, if the highest value for the agent is to go up but the agent takes a random action of down and receives a reward. During the learning phase the agent will update the up action with the reward from the action of going down. 
+
+Using an off-policy method, the agent accumulates the states, actions and rewards into an array. By taking random actions, the agent can explore and later update the Q-values without updating the wrong action. Off-policy methods can learn the optimal policy without the values from the behavior policy.
 
 \subsubsection{Memory}
 
