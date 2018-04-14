@@ -276,7 +276,6 @@ class A2C:
         )
 
         # Finally, log some information about the model in its current state.
-
         self.get_scalar_summary(
             "Value - Estimate:",
             tf.reduce_mean(self.value_estimate)

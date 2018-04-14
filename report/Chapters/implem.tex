@@ -1,80 +1,6 @@
 \chapter{Implementation \& Design}%
 \label{implem}
 
-\section{Problem Space}
-Since the game is very complicated and can consist of many possible action spaces,
-the majority of the experimentation focuses on the DeepMind \textbf{mini-games}
-and simple small games in the \textbf{Simple64} map.
-
-\subsection{Mini-games}
-
-The mini-games consist of small, constrained challenges that represent
-small parts of the full game of StarCraft II, allowing simple actions
-in the game to be tested, as well as compared against a range of
-published scores.
-
-Every mini-game has a time limit, and the objective is to get the
-highest score possible in the time frame.
-
-These mini-games are:
-
-\begin{itemize}
-    \item MoveToBeacon: A simple map with a single marine (player controlled
-        unit) and a beacon, which acts as a target to move to. The agent gets
-        a point each time it reaches the beacon, at which point the beacon's
-        location is reset.
-    \item CollectMineralShards: A map with two marines and 20 mineral shards,
-        which act as items to pick up. Once all are picked up, 20 more are
-        placed on the map. To achieve an optimum score, the two marines must
-        be controlled independently, which results in this map being
-        harder than the MoveToBeacon map.
-    \item FindAndDefeatZerglings: A map with three marines and 25 zerglings,
-        which are an enemy unit. A point is achieved for each zergling that
-        is defeated, and a point lost anytime a marine dies. This map
-        is also the first to deal with the moving of the camera, as the previous
-        two games had the entire state visible without moving the camera.
-        Upon defeating the 25 zerglings, 25 more are added.
-    \item DefeatRoaches: A map with nine marines and four roaches, which are a
-        different enemy unit. This requires a more complex strategy to defeat,
-        and also on defeating all four roaches, four more are spawned as well as 5
-        more marines. This means the number of marines potentially grows
-        throughout the game. However, a point is lost for any lost marines.
-    \item DefeatZerglingsAndBanelings: A map with nine marines and six zerglings
-        and four banelings. This again needs a different strategy and also gives
-        extra marines upon defeating all the enemies.
-    \item CollectMineralsAndGas: This map requires more strategy than the last.
-        The map starts with 12 SCVs (which are gatherer units), a command centre
-        (which is used to create additional units) and two types of collectable
-        resources. The objective is to gather as many resources as possible, and
-        also intelligently build more gathering units to increase the
-        speed at which resources are gathered. An optimal strategy will also
-        build an additional command centre.
-    \item BuildMarines: This is the last and most complex map. The map starts
-        with 12 SCVs, a command centre and eight resources to collect. The
-        objective is to build as many marines as possible in the time limit.
-        This requires the building of Supply Depots to store resources and
-        barracks to build marines.
-\end{itemize}
-
-All of these mini-games have published scores for the many different
-techniques as well as some baseline scores for human players and random
-policies.
-
-\subsection{The \textbf{Simple64} Map}
-
-The \textbf{Simple64} map was also chosen to allow experimentation on
-a straightforward version of the full game, where the challenge is
-to beat the games AI, which is built using more traditional game AI
-technology, and also can cheat at higher difficulties.
-
-The map contains a single opponent and two starting bases. The agent is spawned
-into one of the two areas randomly and starts out with the \textbf{SCV} units,
-characters for building and mining. The initial stage begins with mining of
-necessary of resources for progressing through the level by creating the required
-buildings and training \textbf{Marines}, fighter characters. This needs the
-agent to control the \textbf{SCV} and \textbf{Marine} units using complex three
-action commands.
-
 \section{StarCraft II API and SC2LE}
 
 The SC2LE is an environment produced by DeepMind to provide a Python wrapper
@@ -179,6 +105,24 @@ So an action such as building a simple building would have $64 \times 64$
 possible positions to represent the single action of building. However, this is
 somewhat reduced due to some of the positions being invalid for a given action,
 for example a building can not be built on top of an existing building.
+
+\section{Problem Space}
+Since the game is very complicated and can consist of many possible action spaces,
+the majority of the experimentation focuses on the DeepMind \textbf{mini-games}
+and simple small games in the \textbf{Simple64} map. A more thorough description
+of these maps will be given in Chapter~\ref{eval_method}.
+
+The differences between these two challenges mean that the networks will need to
+work for both, or be easily swappable between them. This is because the
+mini-games defined their own custom scoring routine, which allows the map to
+give a score on the completion of an objective, rather than finishing the map as
+a whole.
+
+This does however help reduce the scope of the agents that are being designed,
+as the game state is reduced significantly compared to the playing of the full
+game. This is even more true if the agent was being built to play against a
+human player, rather than the in-game AI or with no opponent, as is the case in
+the mini-games.
 
 \section{Development Choices}
 
@@ -335,7 +279,7 @@ The reward decay allows the agent to plan a couple of steps from the taken
 action. The higher $\gamma$ is, the more it adds to the current state and action
 value. Allowing the agent to associate higher values for the given state will
 give better future outcomes, rather than the agent looking for the immediate
-reward. Equation \ref{eq:q_update} shows $\gamma$ being multiplied by the next state's value
+reward. Equation~\ref{eq:q_update} shows $\gamma$ being multiplied by the next state's value
 based on the best action to be taken next.
 
 \subsection{Learning}
@@ -460,7 +404,7 @@ made the most sense to include.
 \subsection{Learning}
 
 The agent trains live, in that it builds up a list of states as it plays, and
-trains of those states during a game, rather than waiting until the end of the
+trains on those states during a game, rather than waiting until the end of the
 game. This process works as follows:
 
 \begin{enumerate}

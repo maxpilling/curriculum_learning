@@ -3,6 +3,101 @@
 
 \section{Datasets}
 
+The two agent types will be tested on two different sets of datasets.
+These are the DeepMind mini-games, as well as the Simple64 map. These two
+datasets should give an overall idea of how the agent is performing.
+
+\subsection{Mini-games}
+
+The mini-games consist of small, constrained challenges that represent
+small parts of the full game of StarCraft II, allowing simple actions
+in the game to be tested, as well as compared against a range of
+published scores.
+
+Every mini-game has a time limit, and the objective is to get the
+highest score possible in the time frame. The scores for the game are surfaced
+as part of the SC2LE \texttt{obs} object, meaning the agent is capable of easily
+telling how well it is doing, and learning from this reward.
+
+These mini-games are:
+
+\begin{itemize}
+    \item MoveToBeacon: A simple map with a single marine (player controlled
+        unit) and a beacon, which acts as a target to move to. The agent gets
+        a point each time it reaches the beacon, at which point the beacon's
+        location is reset.
+    \item CollectMineralShards: A map with two marines and 20 mineral shards,
+        which act as items to pick up. Once all are picked up, 20 more are
+        placed on the map. To achieve an optimum score, the two marines must
+        be controlled independently, which results in this map being
+        harder than the MoveToBeacon map.
+    \item FindAndDefeatZerglings: A map with three marines and 25 zerglings,
+        which are an enemy unit. A point is achieved for each zergling that
+        is defeated, and a point lost anytime a marine dies. This map
+        is also the first to deal with the moving of the camera, as the previous
+        two games had the entire state visible without moving the camera.
+        Upon defeating the 25 zerglings, 25 more are added.
+    \item DefeatRoaches: A map with nine marines and four roaches, which are a
+        different enemy unit. This requires a more complex strategy to defeat,
+        and also on defeating all four roaches, four more are spawned as well as 5
+        more marines. This means the number of marines potentially grows
+        throughout the game. However, a point is lost for any lost marines.
+    \item DefeatZerglingsAndBanelings: A map with nine marines and six zerglings
+        and four banelings. This again needs a different strategy and also gives
+        extra marines upon defeating all the enemies.
+    \item CollectMineralsAndGas: This map requires more strategy than the last.
+        The map starts with 12 SCVs (which are gatherer units), a command centre
+        (which is used to create additional units) and two types of collectable
+        resources. The objective is to gather as many resources as possible, and
+        also intelligently build more gathering units to increase the
+        speed at which resources are gathered. An optimal strategy will also
+        build an additional command centre.
+    \item BuildMarines: This is the last and most complex map. The map starts
+        with 12 SCVs, a command centre and eight resources to collect. The
+        objective is to build as many marines as possible in the time limit.
+        This requires the building of Supply Depots to store resources and
+        barracks to build marines.
+\end{itemize}
+
+All of these mini-games have published scores for the many different
+techniques as well as some baseline scores for human players and random
+policies. This makes them ideal to test a model again, such that the scores can
+be directly compared.
+
+\subsection{The \textbf{Simple64} Map}
+
+The \textbf{Simple64} map was also chosen to allow experimentation on
+a straightforward version of the full game, where the challenge is
+to beat the games AI, which is built using more traditional game AI
+technology, and also can cheat at higher difficulties.
+
+The map contains a single opponent and two starting bases. The agent is spawned
+into one of the two areas randomly and starts out with the \textbf{SCV} units,
+characters for building and mining. The initial stage begins with mining of
+necessary of resources for progressing through the level by creating the required
+buildings and training \textbf{Marines}, fighter characters. This needs the
+agent to control the \textbf{SCV} and \textbf{Marine} units using complex three
+action commands. The end goal is to defeat the AI player, and win the game.
+
+One aspect that makes this much harder is the removal of a simple scoring
+element, like that in the mini-games. This means the only scoring methods
+available is the win/lose/draw score at the end of the game, of the ``Blizzard''
+score that is given throughout, but is based on many different in-game aspects.
+This makes it much harder for the agent to directly tell how well it is doing in
+the global aspect of the game.
+
+The more obvious element that makes this harder is that it combines all the
+tasks that the mini-games cover, as well adding new tasks as the AI player will
+attack bases and units, search and take resources, and build its own units and
+buildings, all of which are not covered in the mini-games. This combination of
+both new elements and a large number of already known elements makes the simple
+64 maps much harder to play.
+
+Due to this map containing a small snippet of the entire game, it will be useful
+for measuring how the agent behaves generally, as it is possible for an agent to
+excel at each of the underlying tasks that go into a game of StarCraft II, but
+to fail in the process of combining them effectively.
+
 \section{Reasoning For Evaluation}
 
 \section{Measuring Accuracy}
