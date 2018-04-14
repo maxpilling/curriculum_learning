@@ -499,3 +499,28 @@ game. This process works as follows:
     \item Finally, the \texttt{obs} object is updated one last time so the next
         batch starts with a new object, and the batch counter is incremented.
 \end{enumerate}
+
+The training operation itself is using the TensorFlow \texttt{optimize\_loss}
+layer to optimise the \texttt{total\_loss} variable, which is made up of the
+following components:
+
+\begin{itemize}
+    \item The policy loss, made up of the mean of the logarithmic probabilities of the
+        actions combined with the gained advantage.
+    \item The value loss, which is the mean squared error of the value target
+        and estimate. This is then multiplied by some value, to weight this loss
+        lower or higher.
+    \item The negative spatial action entropy, is the sum of the spatial action
+        probabilities with their logarithmic probabilities. This value is then
+        multiplied by some value, to weight it again.
+    \item Finally, similar to the negative spatial action entropy, the negative
+        action entropy is calculated with the mean of the summed action
+        probabilities and the logarithmic action probabilities. Similarly,  this
+        is also multiplied by a weight value.
+    \item These four values are added together into the single
+        \texttt{total\_loss} variable, which is minimised.
+\end{itemize}
+
+These values are also all logged out as part of this process, such that the loss
+can be mapped through the training process, to see how both the score for the
+game improves, and how the loss is minimised throughout.
