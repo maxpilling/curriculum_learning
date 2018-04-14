@@ -215,6 +215,20 @@ have not been tested and defined to be the highest output.
 
 \section{Deep Q Network}
 
+For the agent to be able to act, it must be given an input, stimulus of some
+form, to evaluate and then proceed with taking action. This makes the game
+ideal for an unsupervised learning environment.
+
+The environment is broken into states. Each state represents information about
+the game at a given moment. This is then fed into the neural network and
+returns a value outcome of what the optimal action to be taken would be. A
+different approach would be to use a Q-learning algorithm with a table format
+for storing actions and values. The main difficulty would be the size of the
+given table. As more actions are introduced the size of the table would
+increase and new values would need to be optimized for the given cells. Using a
+neural network, this issue can be avoided by adding new weights and nodes to the
+network.
+
 The following section will focus on the Deep Neural Network that implements a
 Q-Learning update function and policy evaluation.
 
@@ -274,7 +288,14 @@ of random actions taken the value of $\epsilon$ will reach a threshold value
 (usually 0.1) and will no longer be multiplied by the decay factor. The agent
 will then continue running with a fixed value of $\epsilon$ for the remainder of
 the episodes. This allows the agent to start by testing more actions in
-different states and eventually choosing the best action more often.
+different states and eventually choosing the highest value action more often.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{random_action}
+    \caption{Agent takes an action and repeats.}%
+    \label{fig:random_action}
+\end{figure}
 
 \subsection{Reward}
 
@@ -314,12 +335,8 @@ The reward decay allows the agent to plan a couple of steps from the taken
 action. The higher $\gamma$ is, the more it adds to the current state and action
 value. Allowing the agent to associate higher values for the given state will
 give better future outcomes, rather than the agent looking for the immediate
-reward. Equation 3.5 shows $\gamma$ being multiplied by the next state's value
+reward. Equation \ref{eq:q_update} shows $\gamma$ being multiplied by the next state's value
 based on the best action to be taken next.
-
-%TODO: Update the Equation 3.5 above to use \ref{} (by using \label on the
-%equation). Just so its auto-generated since 3.5 is already wrong as far as I
-%can tell.
 
 \subsection{Learning}
 
@@ -356,6 +373,13 @@ state from a single game step. The action is used to check the next state's
 value. Once the network has been run on the next state, a value is returned
 representing the next state's expected return. The loss function can then be
 calculated using these two values.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{agent_learn}
+    \caption{The agents learning process by using a memory array.}%
+    \label{fig:agent_learn}
+\end{figure}
 
 \section{Convolutional Neural Network}
 

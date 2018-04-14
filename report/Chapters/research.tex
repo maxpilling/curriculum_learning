@@ -79,22 +79,6 @@ these parameters too, and deal with the issues that come up in this style of
 game, versus that of say Chess or Go. This will be spoken about in more detail
 in Section~\ref{challenges:games}.
 
-% All this feels a bit implementation-y, perhaps we should move this to implem.
-% TODO: Move this or delete it, and then expand this subsection.
-
-% For the agent to be able to act, it must be given an input, stimulus of some
-% form, to evaluate and then proceed with taking action. This makes the game
-% ideal for an unsupervised learning environment.
-
-% The environment is broken into states. Each state represents information about
-% the game at a given moment. This is then fed into the neural network and
-% returns a value outcome of what the optimal action to be taken would be. A
-% different approach would be to use a Q-learning algorithm with a table format
-% for storing actions and values. The main difficulty would be the size of the
-% given table. As more actions are introduced the size of the table would
-% increase and new values would need to be optimized for the given cells. Using a
-% neural network, this issue can be avoided by adding new weights and nodes to the
-% network.
 
 \subsection{Q-Learning Table}
 
@@ -113,7 +97,7 @@ The agent is given a state of the world and checks the lookup table for which
 action would have the highest value in that state. The agent then executes that
 action and rechecks the table again for the new state. Upon executing an action,
 the agent may be given a reward, a value that dictates whether the action taken
-was favourable or incorrect. The table can be updated through a real-time
+was favorable or incorrect. The table can be updated through a real-time
 learning or at the end of an episode. An episode represents an entire list of
 states and actions taken to reach the end, usually by having a terminal state.
 The table is updated using the Q-Learning equation. The algorithm is as follows:
@@ -137,7 +121,7 @@ The rewards are given as follows:
 \begin{itemize}
     \item Immediate rewards: The agent is given a reward after an action is
         taken and the next state is not the final state.
-        \begin{align}
+        \begin{align} \label{eq:q_update}
             Q(s_t,a_t) = r + \gamma (\max_a Q(s_{t+1}, a))
         \end{align}
     \item Terminal rewards: The agent is given a reward and the state is the
