@@ -100,6 +100,38 @@ StarCraft II, but to fail in the process of combining them effectively.
 
 \section{Reasoning For Evaluation}
 
+Evaluating the networks is important for many reasons. Firstly, with the
+mini-games the networks can be directly compared to both each other, and also
+the list of existing results, which is very useful for giving a direct metric
+for the agents. Secondly, the Simple64 map is useful since it allows a lot of
+interesting evaluations, both in the measuring of how the agent has generalised
+from the individual tasks but also for how the agent does in a full game of
+StarCraft II\@.
+
+The accuracy of the agents is important so that we can see if the agents have
+started to learn the basics of the game. This is especially easy as we can rank
+how they perform against published results, to see if they rank higher than
+simple or random agents, as well as comparing against the human players scores
+that are given. It is expected that both agents will perform well and similarly
+to each other for the initial mini-games, before the more complex ones should
+split them up further and show their inherent advantages and disadvantages in
+their implementations. These compromises can then be compared, to see which
+agent performs the best, and also to see what features of each agent is the most
+desirable if a newer agent was to be built using the information learnt from
+this project.
+
+Generalisation is similarly important in that it allows us to see if an agent
+that has learnt the basics of the game is able to then apply the lessons it has
+learnt to situations that use the same skills, but take place on a different
+map. This is important for the agent, as it should be able to apply its skills
+regardless of the map, like that of a human player. Furthermore, this is useful
+for giving additional information on how the agent has learnt in the initial
+case. It is possible the agent was able to learn some feature of the map at hand
+that allowed it to do well in a mini-game, but when applied to a more realistic
+case, the agent fails. Testing across new areas should allow this to be caught,
+as well as giving an insight into how the agent would potentially fair if put on
+an arbitrary map.
+
 \section{Measuring Accuracy}
 
 \section{Measuring Generalisation}
