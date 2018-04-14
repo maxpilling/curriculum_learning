@@ -95,13 +95,13 @@ class Runner(object):
         # When finished, deal with the episode end.
         for n_step in range(self.n_steps):
             # Save the value estimate here, to make the n step reward calculation easier.
-            action_ids, spatial_action_2ds, value_estimate = self.agent.step(latest_obs)
+            action_id, spatial_action_2d, value_estimate = self.agent.step(latest_obs)
 
             mb_values[:, n_step] = value_estimate
             mb_obs.append(latest_obs)
-            mb_actions.append((action_ids, spatial_action_2ds))
+            mb_actions.append((action_id, spatial_action_2d))
 
-            actions_pp = self.action_processor.process(action_ids, spatial_action_2ds)
+            actions_pp = self.action_processor.process(action_id, spatial_action_2d)
             obs_raw = self.envs.step(actions_pp)
             latest_obs = self.obs_processor.process(obs_raw)
             mb_rewards[:, n_step] = [t.reward for t in obs_raw]
