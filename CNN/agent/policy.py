@@ -71,6 +71,8 @@ class ConvPolicy:
         if self.trainable:
             layers.summarize_activation(conv_layer1)
             layers.summarize_activation(conv_layer2)
+            tf.summary.image(f"{name}/conv_layer1", tf.reshape(conv_layer1, [-1, 32, 32, 1]), 3)
+            tf.summary.image(f"{name}/conv_layer2", tf.reshape(conv_layer2, [-1, 32, 32, 1]), 3)
 
         return conv_layer2
 
@@ -165,6 +167,9 @@ class ConvPolicy:
             scope='spatial_action',
             trainable=self.trainable
         )
+
+        if self.trainable:
+            tf.summary.image(f"spatial_action", tf.reshape(spatial_actions, [-1, 32, 32, 1]), 3)
 
         # Take the softmax of this final convolutional layer.
         spatial_action_probs = tf.nn.softmax(layers.flatten(spatial_actions))
