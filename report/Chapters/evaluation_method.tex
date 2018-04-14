@@ -134,5 +134,12 @@ an arbitrary map.
 
 \section{Measuring Accuracy}
 
+Identifying the accurate action to take in an ever increasing space of possibilities can be difficult. The main definition by saying how accurate an agent is in taking an action will mostly depend on the final score achieved through that episode. The game is being played in real-time and as so creates complexity in the number of possible state action pairs that can be observed. When the agent is playing in real-time without any form of turn based playing, the state space is to large to efficiently represent using a tree structure of all possible actions the agent and opponent can take that will lead into a new state. This means that when measuring the accuracy of an action, it will depend on the final score. For example, the agent can go up or down and then go to the right and attack an opponent on the square in-between. To achieve the same reward for both actions, would mean that the optimal action to take could be either. 
+
+The main items that an agent must able to do is learn and improve. The learning phase can be tested and shown by accumulating the loss function's value. These values can then be analyzed for a decline in values as more episodes are tested. The loss function shows how far the policy's prediction was for a given action and reward. As the agent trains, the predicted value and actual value should converge. However, due to the random initialization of each episode in a mini-game, the process of identifying the correct sequence and pattern is difficult since the agent will keep learning the wrong pattern. Because of this, the loss function will never perfectly converge to zero. This also keeps the agent from over-fitting a single sequence of actions to take.
+
+The final score of each episode is used to identify if the agent is learning the correct actions to take. The agent should aim to maximize this value at all times. When graphing the final score of multiple episodes, an increasing slope will define the agents performance with the training it had already done.
+
+
 \section{Measuring Generalisation}
 
