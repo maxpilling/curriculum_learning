@@ -346,7 +346,7 @@ was used, as based on the DeepMind specification.
 
 \subsection{Network Architecture}
 
-The convolutional network used is built of the following layers, and a
+The convolutional network used is built of the following layers and a
 visualisation of this can be seen in Figure~\ref{fig:cnn_arch}.
 
 \begin{figure}[h]
@@ -365,23 +365,23 @@ visualisation of this can be seen in Figure~\ref{fig:cnn_arch}.
             \item Use the player relative screen or mini-map (usually a $32
                 \times 32$ array), as input to a convolutional layer. Before
                 inputting, the input is `one hot encoded' to swap it from being
-                in the range 0--5 to binary form. From here, this information
-                is combined with the unit types list (for the screen) and the
+                in the range 0--5 to binary form. From here, this information is
+                combined with the unit types list (for the screen) and the
                 non-player relative screen information (for both the screen and
                 the mini-map). All of this is passed to a single convolutional
                 layer with 16 filters, using a kernel of size $(5 \times 5)$, a
                 ReLU activation function, and a stride of 1. Padding is applied
                 such that the input is the same size as the output.
-            \item This first convolutional layer leads into a second with 32 filters, a
-                kernel of size $(3 \times 3)$, and the same activation function and
-                padding.
+            \item This first convolutional layer leads into a second with 32
+                filters, a kernel of size $(3 \times 3)$, and the same
+                activation function and padding.
     \end{enumerate}
     \item The two convolutional layers from the screen and mini-map are then
         combined into a single \texttt{visual\_input} variable, which is then
         used to provide input to two more layers.
     \begin{enumerate}
         \item The first of these layers is a convolutional layer. This layer
-            consists of a single output, that the spatial action is based upon,
+            consists of a single output that the spatial action is based upon,
             with a kernel of $(1 \times 1)$ and no activation function. This
             output is converted to a probability by using the \texttt{softmax}
             function.
@@ -389,9 +389,9 @@ visualisation of this can be seen in Figure~\ref{fig:cnn_arch}.
             the \texttt{visual\_input} variable and flattens it down, such that
             it can be used as input to a fully connected layer with 256 outputs,
             with a ReLU activation function. This then leads into a second
-            fully-connected layer that has number of outputs equal to the number
-            of possible actions, as defined in the SC2LE\@. This uses no
-            activation function, and is used to calculate the action to take.
+            fully-connected layer that has number of outputs equal to the
+            number of possible actions, as defined in the SC2LE\@. This uses no
+            activation function and is used to calculate the action to take.
             This vector of action probabilities is then corrected such that any
             unavailable actions have a probability of zero, with the remaining
             values updated to sum to 1 again.
@@ -410,7 +410,7 @@ paper, but differs in one crucial way, in that it is solely based upon screen
 inputs, whereas the model outlined in the paper also combines some non-spatial
 features into the model as well. The exact values used are not discussed but it
 most likely contains non-spatial values such as the current amount of resources,
-number of units and more that can be accessed through the \texttt{obs} object.
+the number of units and more that can be accessed through the \texttt{obs} object.
 This input was omitted to make the initial model easier to build, and due to
 difficulty in working out suitable values to pass over, as well as where they
 made the most sense to include.
@@ -433,21 +433,21 @@ game. This process works as follows:
         co-ordinate pair is processed, such that the action is taken. The game
         then progresses a number of frames, and the actual reward from that
         action is processed and stored.
-    \item This process continues for a number of steps, usually 8, before the
+    \item This process continues for a number of steps, usually eight, before the
         network then starts to evaluate the results. If the episode ends in the
         middle of this, the final score is logged, and then the results are
         evaluated. The learning works by first calculating the advantage that
         was gained, by comparing the estimate and the actual rewards. Next, this
         advantage is combined with the following:
         \begin{itemize}
-            \item The value target for each of the 8 steps.
-            \item The taken action and co-ordinate pair for each of the 8 steps.
-            \item The \texttt{obs} object for each of the 8 steps.
+            \item The value target for each of the eight steps.
+            \item The taken action and co-ordinate pair for each of the eight steps.
+            \item The \texttt{obs} object for each of the eight steps.
         \end{itemize}
-        This then leaves an object that contains all the information for the 8
-        taken steps, including the screen state, the action/co-ordinate pair, the
-        estimated value and the actual reward.
-    \item This object containing all the 8 steps is passed into the
+        This then leaves an object that contains all the information for the
+        eight taken steps, including the screen state, the action/co-ordinate
+        pair, the estimated value and the actual reward.
+    \item This object containing all the eight steps is passed into the
         \texttt{train} function, so that the networks weights can be updated.
         This time, the network runs a loss optimisation function, rather than
         simply sampling the current values to get out some probabilities. The
@@ -463,15 +463,15 @@ layer to optimise the \texttt{total\_loss} variable, which is made up of the
 following components:
 
 \begin{itemize}
-    \item The policy loss, made up of the mean of the logarithmic probabilities of the
-        actions combined with the gained advantage.
+    \item The policy loss, which is made up of the mean of the logarithmic
+        probabilities of the actions combined with the gained advantage.
     \item The value loss, which is the mean squared error of the value target
         and estimate. This is then multiplied by some value, to weight this loss
         lower or higher.
     \item The negative spatial action entropy, is the sum of the spatial action
         probabilities with their logarithmic probabilities. This value is then
         multiplied by some value, to weight it again.
-    \item Finally, similar to the negative spatial action entropy, the negative
+    \item Finally, similar to the negative spatial action entropy the negative
         action entropy is calculated with the mean of the summed action
         probabilities and the logarithmic action probabilities. Similarly, this
         is also multiplied by a weight value.
