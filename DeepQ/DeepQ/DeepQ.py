@@ -167,12 +167,14 @@ class QLearning:
     """ Update the wieghts based on the memory. """
     def learn(self):
         # May not be able to use minibatch since we need to update the q target in every run
-        
+
         with self.sess.as_default():
-            
+
+            total_loss = 0  # Accumulates the total loss of a run
             sample_memory = np.random.permutation(self.memory)
             #sample_memory = self.memory
             #sample_memory = np.random.choice(self.memory, int(0.7*len(self.memory)), replace=False)
+
             for mem in sample_memory:
                 # Get prediction
                 states_P = np.reshape(mem[0], (-1, self.n_input) )  # Reshape to make 8 rows instead
@@ -193,7 +195,13 @@ class QLearning:
                     q_target[0, mem[1]] = mem[2]
 
                 updateM, updateL = self.sess.run( [self.updateModel, self.loss] , feed_dict={self.X: states_P, self.y: q_target })
+                total_loss += updateL
+
         self.memory = []
+
+        # Save the total loss to a file for analysis
+        with open("loss.txt", "a") as myfile:
+            myfile.write( str(total_loss) + "," )
 
 class Agent(base_agent.BaseAgent):
     def __init__(self):
