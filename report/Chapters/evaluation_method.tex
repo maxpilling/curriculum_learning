@@ -134,22 +134,26 @@ arbitrary map.
 
 \section{Measuring Accuracy}
 
-Identifying the accurate action to take in an ever increasing space of
-possibilities can be difficult. The main definition of saying how accurate an
-agent is in taking an action will mostly depend on the final score achieved
-through that episode. The game is being played in real-time and as so creates
-complexity in the number of possible state action pairs that can be observed.
-When the agent is playing in real-time, without any form of turn based playing,
-the state space is too large to efficiently represent using a tree structure of
-all possible actions.
+Firstly, we need to measure the accuracy of the agents, which requires us to
+define what we mean by an accurate agent. The main definition of saying how
+accurate an agent is in taking an action will mostly depend on the final score
+achieved through that episode. The game is being played in real-time and as so
+creates complexity in the number of possible state action pairs that can be
+observed. When the agent is playing in real-time, without any form of turn
+based playing, the state space is too large to efficiently represent using a
+tree structure of all possible actions.
 
-This means that when measuring the accuracy of an action, it will depend
-on the final score. For example, the agent can go up or down and then go to the
-right and attack an opponent on the square in-between. To achieve the same
-reward for both actions, would mean that the optimal action to take could be
-either.
+This means that when measuring the accuracy of an action, it will depend on the
+final score. For example, the agent can go up or down and then go to the right
+and attack an opponent on the square in-between. To achieve the same reward for
+both actions, would mean that the optimal action to take could be either.
 
-The main items that an agent must able to do is learn and improve. The learning
+Broadly, what this means is that an accurate agent will be able to get a
+competitive score in the mini-games, as due to their time limit, any actions
+that are not needed would negatively impact its performance, and in turn its
+final score.
+
+The main things that an agent must able to do is learn and improve. The learning
 phase can be tested and shown by accumulating the loss function's value. These
 values can then be analysed for a decline in values as more episodes are tested.
 The loss function shows how far the policy's prediction was for a given action
@@ -165,14 +169,15 @@ correct actions to take. The agent should aim to maximize this value at all
 times. When graphing the final score of multiple episodes, an increasing slope
 will define the agents performance with the training it had already done. If the
 agent is learning and improving the policy, then the average of final scores
-should increase.
+should increase. The average is used here due to the aforementioned random
+differences in each run of the mini-games.
 
 \section{Measuring Generalisation}
 
 Since the agent is being trained on a curriculum based system, the required
 movements and actions the agent needs to take will be learnt on different
-mini-games that focus on different skills. The agent will be trained on
-different mini-games using the same model. So if a mini-game is focused on
+mini-games, each of which focus on different skills. The agent will be trained
+on different mini-games using the same model. So if a mini-game is focused on
 moving to the beacon, the agent will learn the required state and action pairs
 for achieving the highest score possible on that map. This allows the agent to
 train on specific scenarios with a specified outcome. Ideally, training on one
@@ -189,7 +194,15 @@ relevant field and tested on similar mechanics. So, an agent cannot be trained
 on attacking and then tested on building. The agent should be tested on the same
 actions but in different maps and scenarios.
 
-%TODO: This subsection is great for generalisation, just needs a little extra on
-%subjectivity of the actions. The definitive scoring of the mini-games means if
-%they mess around, the scores will be lower. Here, they could wander around the
-%map and still potentially win. So talk about that etc.
+However, the issue with training outside the mini-games is the objective
+efficiency of a move comes into question. In the mini-games, sub-optimal actions
+will lead to a lower score due to the time limits. However, when playing a
+normal game of StarCraft II, even if on an easy map such as the Simple64 map,
+this is not the case. The agent could take many sub-optimal actions, but still
+be able to beat the in-game AI, and win the match. This makes it harder to
+evaluate, as arguably an agent that performs lots of unneeded actions isn't very
+intelligent, but also if it is able to win, then it isn't doing badly. In the
+end, the performance of the agent will need to be closely monitored to ensure
+that sub-optimal actions are only taken due to a lack of knowledge at that point
+in the learning process, rather than thinking they are the most efficient
+action.
