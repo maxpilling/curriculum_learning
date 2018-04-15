@@ -70,7 +70,7 @@ for mm_x in range(0, 64):
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.2):
+    def __init__(self, actions, learning_rate=0.001, reward_decay=0.9, e_greedy=0.4):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
@@ -155,7 +155,11 @@ class QLearning:
         else:
             # choose random action
             action = np.random.randint(low=0, high=self.n_target-1)  # Take a random action
-            #self.epsilon *= self.epsilon_decay         # Reduces the value of epsilon everytime we take a random step
+
+            # Makes sure that it is never less than 1
+            if self.epsilon > .15:
+                self.epsilon *= self.epsilon_decay         # Reduces the value of epsilon everytime we take a random step
+            
             return action
 
     """ Adds the state, action, reward recieved, and next state is terminal or normal state. """
@@ -195,8 +199,9 @@ class QLearning:
                     q_target[0, mem[1]] = mem[2]
 
                 updateM, updateL = self.sess.run( [self.updateModel, self.loss] , feed_dict={self.X: states_P, self.y: q_target })
-                total_loss += updateL
-
+                total_loss += updateL   # Accumulate
+        # Get average loss
+        total_loss = total_loss / len(self.memory)
         self.memory = []
 
         # Save the total loss to a file for analysis
@@ -283,6 +288,9 @@ class Agent(base_agent.BaseAgent):
 
             #self.sess.close()
             
+            with open("score.txt", "a") as scoreFile:
+                scoreFile.write( str(reward) + "," )
+
             return actions.FunctionCall(_NO_OP, [])
 
         unit_type = obs.observation['screen'][_UNIT_TYPE]
@@ -356,7 +364,7 @@ class Agent(base_agent.BaseAgent):
 
                 # Save to memory for learning later
                 if self.previous_action is not None:
-                    r = 0                                                   # R is rewards for building and army
+                    r = obs.observation['score_cumulative'][0]      # R is rewards for building and army
                 
                     #if current_state[1] > self.previous_state[1]:           # Check for new supply depots built
                      #   r += 10 /( current_state[4] - current_state[3] + 1 )    # Supply limit - current number of units in army. If values get close than more reward
@@ -381,10 +389,10 @@ class Agent(base_agent.BaseAgent):
                     #self.previous_killed_building_score = killed_building_score
 
                     # For mini game rewards
-                    if obs.observation['score_cumulative'][0] > self.previous_score:
-                        #r = obs.observation['score_cumulative'][0] - self.previous_score
-                        r = obs.observation['score_cumulative'][0]
-                        self.previous_score = obs.observation['score_cumulative'][0]
+                    #if obs.observation['score_cumulative'][0] > self.previous_score:
+                    #    #r = obs.observation['score_cumulative'][0] - self.previous_score
+                    #    r = obs.observation['score_cumulative'][0]
+                    #    self.previous_score = obs.observation['score_cumulative'][0]
 
                     self.qlearn.remember(self.previous_state, self.previous_action, r, current_state)
             
