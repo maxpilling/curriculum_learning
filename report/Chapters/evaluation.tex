@@ -30,9 +30,17 @@ filters for the Convolutional network will be given here, as well as some
 example outputs.
 
 \section{Mini-games}
-%TODO: Tiny bit on what, like 1 or 2 lines.
+
+The mini-games are specific maps designed for training and testing different skill requirements from the player. Each mini-game uses a different scoring system, map and end goal. This makes it ideal for testing the agent on different abilities for the agent to learn. Most of the mini-games incorporate some form of randomness so that the agents do not learn to play using the same fixed move-set.
 
 \subsection{Deep Q Network}
+
+Starting off with the Deep Q network, the mini-games that are to be used must correlate with the network's input for states. Since this network does not use an image as the entire state of the game, the mini-games chosen need to relate the states that the network is designed to use. An example would be the ability to move individual units. The Deep Q network does not yet support the ability to move individual units since this is not in it's available actions and require a much greater complexity to of available actions. Instead the agent will be tested on it's ability to issue a command for attacking a hostile unit using the entire army at the agents disposal.
+
+
+
+
+
 %TODO: Evaluate all mini-games under DQN. As there is 8 I wouldn't go into
 %detail for them all, mainly maybe 2 successes and 2 failures? The interesting
 %ones basically. Give table of all results. Try not to do anything on curriculum
