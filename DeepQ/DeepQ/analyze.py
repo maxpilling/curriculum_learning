@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Open the file for analyzing and graphing
-file = open("score.txt", "r").readlines()
+file = open("loss.txt", "r").readlines()
 # Split the commas to get an array of values
 result = file[0].split(",")
 

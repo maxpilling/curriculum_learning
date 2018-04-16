@@ -75,7 +75,7 @@ class QLearning:
         self.lr = learning_rate
         self.gamma = reward_decay
         self.epsilon = e_greedy
-        self.epsilon_decay = 0.99
+        self.epsilon_decay = 0.995
 
         self.memory = []    # Used to store the memory of each game step taken
 
@@ -124,8 +124,13 @@ class QLearning:
 
             self.loss = tf.reduce_sum(tf.abs(self.y - self.Qout))    # Loss function
 
-            self.trainer = tf.train.GradientDescentOptimizer(self.lr)   # Update the network
-            self.updateModel = self.trainer.minimize(self.loss)         # Minimize loss
+            #self.loss = tf.abs(self.y - self.Qout)
+
+            #self.trainer = tf.train.GradientDescentOptimizer(self.lr)   # Update the network
+            #self.updateModel = self.trainer.minimize(self.loss)         # Minimize loss
+
+            self.updateModel = tf.train.GradientDescentOptimizer(self.lr).minimize(self.loss)
+
             self.predict = tf.argmax(self.Qout, 1)                      # Predicted value
             
             self.init = tf.global_variables_initializer()               # Initilizes variables
@@ -157,7 +162,7 @@ class QLearning:
             action = np.random.randint(low=0, high=self.n_target-1)  # Take a random action
 
             # Makes sure that it is never less than 1
-            if self.epsilon > .15:
+            if self.epsilon > .21:
                 self.epsilon *= self.epsilon_decay         # Reduces the value of epsilon everytime we take a random step
             
             return action
@@ -201,6 +206,7 @@ class QLearning:
                 updateM, updateL = self.sess.run( [self.updateModel, self.loss] , feed_dict={self.X: states_P, self.y: q_target })
                 total_loss += updateL   # Accumulate
         # Get average loss
+        #total_loss = np.sum(total_loss) / len(self.memory)
         total_loss = total_loss / len(self.memory)
         self.memory = []
 
