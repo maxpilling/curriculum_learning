@@ -13,7 +13,7 @@
     <Name>DeepQ</Name>
     <RootNamespace>DeepQ</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>-m pysc2.bin.agent \ --map FindAndDefeatZerglings \ --agent DeepQ.Agent \ --agent_race T \ --max_agent_steps 0 \ --norender</CommandLineArguments>
+    <CommandLineArguments>-m pysc2.bin.agent \ --map MoveToBeacon \ --agent DeepQ.Agent \ --agent_race T \ --max_agent_steps 0 \ --norender</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <IsWindowsApplication>False</IsWindowsApplication>
     <InterpreterId>Global|PythonCore|3.6</InterpreterId>
