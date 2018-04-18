@@ -31,7 +31,51 @@ example outputs.
 
 \section{Mini-games}
 
-The mini-games are specific maps designed for training and testing different skill requirements from the player. Each mini-game uses a different scoring system, map and end goal. This makes it ideal for testing the agent on different abilities for the agent to learn. Most of the mini-games incorporate some form of randomness so that the agents do not learn to play using the same fixed move-set.
+The mini-games are specific maps designed for training and testing different
+skill requirements from the player. Each mini-game uses a different scoring
+system, map and end goal. This makes it ideal for testing the agent on different
+abilities for the agent to learn. Most of the mini-games incorporate some form
+of randomness so that the agents do not learn to play using the same fixed
+move-set.
+
+For comparison, the results achieved by DeepMind are given in
+Table~\ref{tab:deepmind}, as taken from the ``StarCraft II:\@ A New Challenge
+for Reinforcement Learning'' paper.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{@{}c|c|rrrrrrr@{}}
+        Agent & Metric &
+        \rot{MoveToBeacon} & \rot{CollectMineralShards} &
+        \rot{FindAndDefeatZerglings} & \rot{DefeatRoaches} &
+        \rot{DefeatZerglingsAndBanelings} & \rot{CollectMineralsAndGas} &
+        \rot{BuildMarines} \\ \midrule
+
+        \multirow{2}{*}{Random Policy} & Mean & 1 & 17 & 4 & 1 & 23 & 12 & \textless{}1 \\
+                                       & Max & 6 & 35 & 19 & 46 & 118 & 750 & 5 \\ \midrule
+
+        \multirow{2}{*}{Random Search} & Mean & 25 & 32 & 21 & 51 & 55 & 2318 & 8 \\
+                                       & Max & 29 & 57 & 33 & 241 & 159 & 3940 & 46 \\ \midrule
+
+        \multirow{2}{*}{DeepMind Human Player} & Mean & 26 & 133 & 46 & 41 & 729 & 6880 & 138 \\
+                                               & Max & 28 & 142 & 49 & 81 & 757 & 6952 & 142 \\ \midrule
+
+        \multirow{2}{*}{StarCraft GrandMaster} & Mean & 28 & 177 & 61 & 215 & 727 & 7566 & 133 \\
+                                               & Max & 28 & 179 & 61 & 363 & 848 & 7566 & 133 \\ \midrule \midrule
+
+        \multirow{2}{*}{Atari-Net} & Best Mean & 25 & 96 & 49 & 101 & 81 & 3356 & \textless{}1 \\
+                                   & Max & 33 & 131 & 59 & 351 & 352 & 3505 & 20 \\ \midrule
+
+        \multirow{2}{*}{FullyConv} & Best Mean & 26 & 103 & 45 & 100 & 62 & 3978 & 3 \\
+                                   & Max & 45 & 134 & 56 & 355 & 251 & 4130 & 42 \\ \midrule
+
+        \multirow{2}{*}{FullyConv LSTM} & Best Mean & 26 & 104 & 44 & 98 & 96 & 3351 & 6 \\
+                                        & Max & 35 & 137 & 57 & 373 & 444 & 3995 & 62
+    \end{tabular}
+    \caption{Scores achieved and outlined in the DeepMind ``StarCraft II:\@ A New
+    Challenge for Reinforcement Learning'' paper.}%
+    \label{tab:deepmind}%
+\end{table}
 
 \subsection{Deep Q Network}
 
@@ -49,6 +93,23 @@ Starting off with the Deep Q network, the mini-games that are to be used must co
 %detail for them all, mainly maybe 2 successes and 2 failures? The interesting
 %ones basically. Give table of all results. Try not to do anything on curriculum
 %learning etc.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{@{}llll@{}}
+        \toprule
+        Map                         & Mean & Max & Training Time \\ \midrule
+        MoveToBeacon                &      &     &               \\
+        CollectMineralShards        &      &     &               \\
+        FindAndDefeatZerglings      &      &     &               \\
+        DefeatRoaches               &      &     &               \\
+        DefeatZerglingsAndBanelings &      &     &               \\
+        CollectMineralsAndGas       &      &     &               \\
+        BuildMarines                &      &     &               \\ \bottomrule
+    \end{tabular}
+    \caption{Results for the Convolutional Network}%
+    \label{tab:cnn_results}%
+\end{table}
 
 \subsection{Network comparison}
 %TODO: Compare/Contrast - Why did X network do well on some mini-game whilst the

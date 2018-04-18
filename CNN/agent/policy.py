@@ -3,6 +3,7 @@ from pysc2.lib import actions
 from pysc2.lib.features import SCREEN_FEATURES, MINIMAP_FEATURES
 from tensorflow.contrib import layers
 
+
 class ConvPolicy:
     """ConvPolicy
 
@@ -15,7 +16,7 @@ class ConvPolicy:
     def __init__(self,
                  agent,
                  trainable: bool = True
-                ):
+                 ):
         self.placeholders = agent.placeholders
         self.trainable = trainable
         self.unittype_emb_dim = agent.unit_type_emb_dim
