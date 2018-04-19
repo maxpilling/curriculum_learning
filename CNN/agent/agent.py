@@ -107,16 +107,17 @@ class A2C:
         Convolutional Based Agent for learning PySC2 Mini-games
         Tidied and altered code from https://github.com/pekaalto/sc2aibot
 
+        :param session: The TensorFlow session to be used.
         :param summary_path: Path to store TensorFlow summaries in.
         :param all_summary_freq: How often to save all summaries.
         :param scalar_summary_freq: How often save scalar summaries.
         :param spatial_dim: Dimension for both the mini-map and the screen.
+        :param unit_type_emb_dim: The unit type embedding dimensions, used for mappings.
         :param loss_value_weight: Value weight for the update step.
         :param entropy_weight_spatial: Spatial entropy for update step.
         :param entropy_weight_action_id: Action selection entropy for update step.
         :param max_gradient_norm: Max norm for gradients, if None then no limit.
         :param optimiser_params: Parameters to be passed to the optimiser.
-        :param policy: The policy to be used.
         """
 
         # Setup the values passed over.
