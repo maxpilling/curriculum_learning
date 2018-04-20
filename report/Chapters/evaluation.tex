@@ -36,7 +36,10 @@ skill requirements from the player. Each mini-game uses a different scoring
 system, map and end goal. This makes it ideal for testing the agent on different
 abilities for the agent to learn. Most of the mini-games incorporate some form
 of randomness so that the agents do not learn to play using the same fixed
-move-set.
+move-set. Because of this, the mini-games will be played 200 times with a
+trained agent, and the mean and max scores will be recorded. This will allow a
+suitable average to be taken, which takes into account the inherent randomness
+of the mini-games.
 
 For comparison, the results achieved by DeepMind are given in
 Table~\ref{tab:deepmind}, as taken from the ``StarCraft II:\@ A New Challenge
@@ -78,15 +81,44 @@ for Reinforcement Learning'' paper.
 \end{table}
 
 \subsection{Deep Q Network}
-
-Starting off with the Deep Q network, the mini-games that are to be used must correlate with the network's state inputs. Since this network does not use an image as the entire state input for the game, the mini-games chosen need to relate the states that the network is designed to use. An example would be the ability to move individual units. The Deep Q network does not yet support the ability to move individual units since this is not in it's available actions and require a much greater complexity to of available actions. Instead the agent will be tested on it's ability to issue a command for attacking a hostile unit using the entire army at the agents disposal.
-
-
-
 %TODO: Evaluate all mini-games under DQN. As there is 8 I wouldn't go into
 %detail for them all, mainly maybe 2 successes and 2 failures? The interesting
 %ones basically. Give table of all results. Try not to do anything on curriculum
 %learning etc.
+
+Starting off with the Deep Q network, the mini-games that are to be used must
+correlate with the network's state inputs. Since this network does not use an
+image as the entire state input for the game, the mini-games chosen need to
+relate the states that the network is designed to use. An example would be the
+ability to move individual units. The Deep Q network does not yet support the
+ability to move individual units since this is not in the networks available actions and
+requires a much more complex actions to control individual units. This means
+that the agent may perform sub-optimally in certain games.
+On the other hand, due to the networks action space including actions that are
+built up of multiple actions, this does also mean that in certain games the
+agent has an advantage in that it can take a complicated action easily.
+
+Results are given in Table~\ref{tab:dqn_results}, where the mean and max score
+achieved is given, as well as the number of episodes the agent was trained for
+to achieve that score.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{@{}lrrr@{}}
+        \toprule
+        Map                         & Mean & Max & Episode Count \\ \midrule
+        MoveToBeacon                &      &     &               \\
+        CollectMineralShards        &      &     &               \\
+        FindAndDefeatZerglings      &      &     &               \\
+        DefeatRoaches               &      &     &               \\
+        DefeatZerglingsAndBanelings &      &     &               \\
+        CollectMineralsAndGas       &      &     &               \\
+        BuildMarines                &      &     &               \\ \bottomrule
+    \end{tabular}
+    \caption{Results for the Deep Q Network}%
+    \label{tab:dqn_results}%
+\end{table}
+
 
 \subsection{Convolutional Network}
 %TODO: Evaluate all mini-games under CNN. As there is 8 I wouldn't go into
@@ -94,8 +126,22 @@ Starting off with the Deep Q network, the mini-games that are to be used must co
 %ones basically. Give table of all results. Try not to do anything on curriculum
 %learning etc.
 
-This section covers how well the Convolutional network did for the seven
-mini-games. As before, Table~\ref{tab:cnn_results} contains the mean and max
+In contrast to the Deep Q network, the Convolutional network does not have to
+consider the state inputs, due to the only input being the screen and mini-map
+data. This is both an advantage and disadvantage for the network, as it does not
+need tuning potentially, but does also mean that the network lacks the required
+information to perform well in some of the mini-games. For example, some
+mini-games require the usage of resource management and knowing when to spend
+resources to build units or buildings. Since the current number of resources is
+not shown on the screen to the agent, it is unable to make decisions based on
+this and as such suffers in these mini-games.
+Similarly, there is no issues with action space due to having access to the
+entire game action space. This means the agent is able to move multiple units
+independently, and perform many actions. However, as there is no compound
+actions, it is much harder for the network to perform complex actions, which
+puts it at a disadvantage in later mini-games.
+
+As before, Table~\ref{tab:cnn_results} contains the mean and max
 scores achieved, as well as the number of episodes the agent trained for.
 
 \begin{table}[h]
