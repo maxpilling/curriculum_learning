@@ -94,12 +94,16 @@ Starting off with the Deep Q network, the mini-games that are to be used must co
 %ones basically. Give table of all results. Try not to do anything on curriculum
 %learning etc.
 
+This section covers how well the Convolutional network did for the seven
+mini-games. As before, Table~\ref{tab:cnn_results} contains the mean and max
+scores achieved, as well as the number of episodes the agent trained for.
+
 \begin{table}[h]
     \centering
-    \begin{tabular}{@{}llll@{}}
+    \begin{tabular}{@{}lrrr@{}}
         \toprule
-        Map                         & Mean & Max & Training Time \\ \midrule
-        MoveToBeacon                &      &     &               \\
+        Map                         & Mean & Max & Episode Count \\ \midrule
+        MoveToBeacon                & 26 & 32 & 2000 \\
         CollectMineralShards        &      &     &               \\
         FindAndDefeatZerglings      &      &     &               \\
         DefeatRoaches               &      &     &               \\
