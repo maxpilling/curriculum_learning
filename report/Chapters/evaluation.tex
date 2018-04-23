@@ -96,7 +96,7 @@ requires a much more complex actions to control individual units. This means
 that the agent may perform sub-optimally in certain games.
 On the other hand, due to the networks action space including actions that are
 built up of multiple actions, this does also mean that in certain games the
-agent has an advantage in that it can take a complicated action easily.
+agent has an advantage in that it can take a complicated action sequence.
 
 Results are given in Table~\ref{tab:dqn_results}, where the mean and max score
 achieved is given, as well as the number of episodes the agent was trained for
@@ -121,7 +121,7 @@ to achieve that score.
 
 Looking at the table above, the Deep Q agent struggles with the action space available. Due to the way the agent needs to test all combinations of state and actions to identify the best action sequence, the agent is limited in the amount of actions it is able to take and as so is unable to select specific units or specific locations to send the units to. This meant that the agent will struggle with maps that require a complex action sequence of splitting units or moving units to specific position. 
 
-The MoveToBeacon map is an example where the agent is unable to send the units to the beacon if the beacon is on the corners of the quads that the agent can select. Q-Learning requires the agent to test different actions in a state to identify the optimal action to take. If the action space is too large than the agent will require a huge amount of training time such that the agent takes a possible combination of actions to the goal. The agent will struggle with maps that require a build up of different sequence actions. For example, the agent needs to be able to control each individual unit to spread the attack around the enemy units to kill them. But such a sequence would increase the output layer of the network and require a large amount of training.
+The MoveToBeacon map is an example where the agent is unable to send the units to the beacon if the beacon is on the corners of the quads that the agent can select. Q-Learning requires the agent to test different actions in a state to identify the optimal action to take. If the action space is too large than the agent will require a huge amount of training time such that the agent takes a possible combination of actions to the goal.
 
 However, it is possible to see the agent performs well on the FindAndDefeatZerglings and BuildMarines map. Because the Deep Q actions are made of multiple smaller action sets, the agent is able to execute the complex commands with a single action. This makes it possible for the agent to take a given action and evaluate the action without needing a large action space. 
 
