@@ -172,6 +172,16 @@ agent is learning and improving the policy, then the average of final scores
 should increase. The average is used here due to the aforementioned random
 differences in each run of the mini-games.
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{loss_deepq_movetobeacon}
+    \caption{Deep Q loss over 350 training episodes}
+    \label{fig:loss_deepq_movetobeacon}
+\end{figure}
+
+
+Figure \ref{fig:loss_deepq_movetobeacon} shows the Deep Q agent's value approximation converging to 0. The loss reduces to show the agent learning the correct expected value.
+
 \section{Measuring Generalisation}
 
 Since the agent is being trained on a curriculum based system, the required

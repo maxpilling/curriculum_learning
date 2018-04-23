@@ -107,17 +107,23 @@ to achieve that score.
     \begin{tabular}{@{}lrrr@{}}
         \toprule
         Map                         & Mean & Max & Episode Count \\ \midrule
-        MoveToBeacon                &      &     &               \\
+        MoveToBeacon                & 5    &  21 & 2000          \\
         CollectMineralShards        &      &     &               \\
         FindAndDefeatZerglings      &      &     &               \\
         DefeatRoaches               &      &     &               \\
         DefeatZerglingsAndBanelings &      &     &               \\
         CollectMineralsAndGas       &      &     &               \\
-        BuildMarines                &      &     &               \\ \bottomrule
+        BuildMarines                & 11   & 61  & 1000          \\ \bottomrule
     \end{tabular}
     \caption{Results for the Deep Q Network}%
     \label{tab:dqn_results}%
 \end{table}
+
+Looking at the table above, the Deep Q agent struggles with the action space available. Due to the way the agent needs to test all combinations of state and actions to identify the best action sequence, the agent is limited in the amount of actions it is able to take and as so is unable to select specific units or specific locations to send the units to. This meant that the agent will struggle with maps that require a complex action sequence of splitting units or moving units to specific position. 
+
+The MoveToBeacon map is an example where the agent is unable to send the units to the beacon if the beacon is on the corners of the quads that the agent can select. Q-Learning requires the agent to test different actions in a state to identify the optimal action to take. If the action space is too large than the agent will require a huge amount of training time such that the agent takes a possible combination of actions to the goal. The agent will struggle with maps that require a build up of different sequence actions. For example, the agent needs to be able to control each individual unit to spread the attack around the enemy units to kill them. But such a sequence would increase the output layer of the network and require a large amount of training.
+
+However, it is possible to see the agent performs well on the FindAndDefeatZerglings and BuildMarines map. Because the Deep Q actions are made of multiple smaller action sets, the agent is able to execute the complex commands with a single action. This makes it possible for the agent to take a given action and evaluate the action without needing a large action space. 
 
 
 \subsection{Convolutional Network}
