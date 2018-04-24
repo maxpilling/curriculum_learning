@@ -335,3 +335,5 @@ CNN/_files/
 CNN/common/mass_log_dir/
 !report/images/*
 /DeepQ/.vs/
+
+*.csv

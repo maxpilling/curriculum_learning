@@ -119,11 +119,26 @@ to achieve that score.
     \label{tab:dqn_results}%
 \end{table}
 
-Looking at the table above, the Deep Q agent struggles with the action space available. Due to the way the agent needs to test all combinations of state and actions to identify the best action sequence, the agent is limited in the amount of actions it is able to take and as so is unable to select specific units or specific locations to send the units to. This meant that the agent will struggle with maps that require a complex action sequence of splitting units or moving units to specific position. 
+Looking at the table above, the Deep Q agent struggles with the action space
+available. Due to the way the agent needs to test all combinations of state and
+actions to identify the best action sequence, the agent is limited in the amount
+of actions it is able to take and as so is unable to select specific units or
+specific locations to send the units to. This meant that the agent struggles
+with maps that require a complex action sequence of splitting units or moving
+units to specific position.
 
-The MoveToBeacon map is an example where the agent is unable to send the units to the beacon if the beacon is on the corners of the quads that the agent can select. Q-Learning requires the agent to test different actions in a state to identify the optimal action to take. If the action space is too large than the agent will require a huge amount of training time such that the agent takes a possible combination of actions to the goal.
+The MoveToBeacon map is an example where the agent is unable to send the units
+to the beacon, if the beacon is on the corners of the quads that the agent can
+select. Q-Learning requires the agent to test different actions in a state to
+identify the optimal action to take. If the action space is too large than the
+agent will require a huge amount of training time such that the agent takes a
+possible combination of actions to the goal.
 
-However, it is possible to see the agent performs well on the FindAndDefeatZerglings and BuildMarines map. Because the Deep Q actions are made of multiple smaller action sets, the agent is able to execute the complex commands with a single action. This makes it possible for the agent to take a given action and evaluate the action without needing a large action space. 
+However, it is possible to see the agent performs well on the
+FindAndDefeatZerglings and BuildMarines map. Because the Deep Q actions are made
+of multiple smaller action sets, the agent is able to execute the complex
+commands with a single action. This makes it possible for the agent to take a
+given action and evaluate the action without needing a large action space.
 
 
 \subsection{Convolutional Network}
@@ -156,16 +171,37 @@ scores achieved, as well as the number of episodes the agent trained for.
         \toprule
         Map                         & Mean & Max & Episode Count \\ \midrule
         MoveToBeacon                & 26 & 32 & 2000 \\
-        CollectMineralShards        &      &     &               \\
+        CollectMineralShards        & 84 & 110 & 3500 \\
         FindAndDefeatZerglings      &      &     &               \\
         DefeatRoaches               &      &     &               \\
         DefeatZerglingsAndBanelings &      &     &               \\
-        CollectMineralsAndGas       &      &     &               \\
-        BuildMarines                &      &     &               \\ \bottomrule
+        CollectMineralsAndGas       & 1110 & 2025 & 2500 \\
+        BuildMarines                & 2 & 8 & 2500 \\ \bottomrule
     \end{tabular}
     \caption{Results for the Convolutional Network}%
     \label{tab:cnn_results}%
 \end{table}
+
+The scores above highlight one of the known weakness of the network. Both of the
+final two mini-games depend heavily on the current resources. Since this is
+never passed to the network, the agent struggles heavily in these challenges.
+That is because the agent never knows the state of the current resources, and as
+such can not react to it. For a player, they can see they are able to build a
+new gathering unit to increase their production, or to build a new building such
+that they are able to store more resources, or a second command centre to build
+units even faster. Since the agent never knows how many resources it has, it is
+unable to formulate the concept of ``There is enough resources to build a new
+unit/building'', so it struggles massively and the end result is worse than the
+random policies DeepMind show. Similarly for BuildMarines, the agent never knows
+to build marines or buildings to increase the unit cap and so on. This is why
+the passing of additional variables is an important addition.
+
+On the other side, the mini-games that depend solely on the screen input do very
+well. The first mini-game is able to be completed to the level of an average
+human player and the best DeepMind approaches. After this, the other mini-games
+are predominantly close to the values given such that any changes can mostly be
+put down to hyperparameter choices, since only a small sample of values was able
+to be tested, due to time constraints.
 
 \subsection{Network comparison}
 %TODO: Compare/Contrast - Why did X network do well on some mini-game whilst the
@@ -181,8 +217,6 @@ scores achieved, as well as the number of episodes the agent trained for.
 %Give table of results, then a play by play of why it did good or bad across the
 %games. Try not to do too much on the mini-games and then S64, since that is
 %covered later.
-
-
 
 \subsection{Convolutional Network}
 %TODO: Evaluate a number of games of the simple64 map under the CNN network.
