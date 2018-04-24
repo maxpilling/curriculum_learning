@@ -5,7 +5,7 @@
 
 The SC2LE is an environment produced by DeepMind to provide a Python wrapper for
 the StarCraft II API that is produced by Blizzard. This API allows both
-information to be received from the game, as well as the sending on input to the
+information to be received from the game, as well as the sending of input to the
 game. This is made even easier with the SC2LE, due to it serving up this API in
 a language that fits directly with the Machine Learning libraries (Python, using
 TensorFlow), as well as providing many different views of both the screen and
@@ -103,7 +103,7 @@ space much more significant as the agent could choose any given position to
 issue the action in a $64 \times 64$ grid. So an action such as building a
 simple building would have $64 \times 64$ possible positions to represent the
 single action of building. However, this is somewhat reduced due to some of the
-positions being invalid for a given action, for example a building can not be
+positions being invalid for a given action, for example, a building can not be
 built on top of an existing building.
 
 \section{Problem Space}
@@ -113,16 +113,15 @@ and simple small games in the \textbf{Simple64} map. A more thorough description
 of these maps will be given in Chapter~\ref{eval_method}.
 
 The differences between these two challenges mean that the networks will need to
-work for both, or be easily swappable between them. This is because the
-mini-games defined their own custom scoring routine, which allows the map to
-give a score on the completion of an objective, rather than finishing the map as
-a whole.
+work for both or be easily swappable between them. This is because the
+mini-games define custom scoring routines, which allows the map to give a score
+on the completion of an objective, rather than finishing the map as a whole.
 
-This does however help reduce the scope of the agents that are being designed,
+This does, however, help reduce the scope of the agents that are being designed,
 as the game state is reduced significantly compared to the playing of the full
-game. This is even more true if the agent was being built to play against a
-human player, rather than the in-game AI or with no opponent, as is the case in
-the mini-games.
+game. This is even truer if the agent was being built to play against a human
+player, rather than the in-game AI or with no opponent, as is the case in the
+mini-games.
 
 \section{Development Choices}
 
@@ -169,7 +168,7 @@ returns a value outcome of what the optimal action to be taken would be. A
 different approach would be to use a Q-learning algorithm with a table format
 for storing actions and values. The main difficulty would be the size of the
 given table. As more actions are introduced the size of the table would
-increase and new values would need to be optimized for the given cells. Using a
+increase, and new values would need to be optimised for the given cells. Using a
 neural network, this issue can be avoided by adding new weights and nodes to the
 network.
 
@@ -251,13 +250,13 @@ state may have achieved. Since the network implements a reward decay $\gamma$,
 the agent will learn what pattern of actions and states helped to achieve that
 final reward. This could lead to the problem of the agent over-fitting and
 learning only a given pattern to take. However, the mini-games used for
-evaluation will randomize the game state with every run. For example, the
+evaluation will randomise the game state with every run. For example, the
 MoveToBeacon map will randomly move the beacon to a different area of the map
 every time. This makes it impossible for the agent to learn to move in a
 specific pattern and achieve the same result. This does, however, take longer for
 the agent to converge on the correct actions to take but will make the agent
 increase the total reward at the end of each episode. If the agent is given an
-immediate reward then the agent may try to achieve the same reward every time
+immediate reward, then the agent may try to achieve the same reward every time
 without knowledge of how well it has performed overall. In some cases using a
 live reward system may be favourable for the agent, but this would depend on the
 task and requirement of the agent~\cite{shelton2001balancing}.
@@ -266,7 +265,7 @@ The agent's ability to learn the correct actions to take will depend on the
 reward system. If the agent takes an action, the reward will define the value of
 that taken action. This introduces the problem with live learning in a game that
 runs in real-time. Since the game has actions that can take time to perform,
-attacking for example, the agent will get the reward in the next few steps.
+attacking, for example, the agent will get the reward in the next few steps.
 This means that the agent could take the correct action and then take another
 action after it. The reward will go to the later action taken, but that is not
 the action that was the correct one to take. For example, the agent decides to
@@ -284,9 +283,25 @@ state's value based on the best action to be taken next.
 
 \subsection{Negative Reward}
 
-The agent will need to learn the correct action sequence to take in order to increase the overall score of the mini-games. However, in between action can cause the agent to learn incorrect loops. Since the game has an animation time, the time frame that the game is doing an animation after the agent has taken an action, the agent will call other actions in this time frame without effecting the previous taken action. For example, say the agent attacks the top right corner and the unit is on the opposite side of the map, the unit will need to walk to the other side of the map and within this window of walking and attacking the agent will call other actions. Actions that do not cancel the attacking one previously called. In this case, the agent will learn an incorrect sequence of actions that will effect the reward taken as the agent will learn that the reward was for the in-between actions and not the original ones.
+The agent will need to learn the correct action sequence to take to increase the
+overall score of the mini-games. However, in between actions can cause the agent
+to learn incorrect loops. Since the game has an animation time, which is the
+time the game takes to do an animation after the agent has taken an action, the
+agent will call other actions in this time frame without affecting the
+previously taken action. For example, say the agent attacks the top right corner
+and the unit is on the opposite side of the map. The unit will need to walk to
+the other side of the map and within this window of walking and attacking the
+agent can call other actions, which may not cancel the attacking action
+previously called. In this case, the agent will learn an incorrect sequence of
+actions that will affect the reward taken as the agent will learn that the
+reward was for the in-between actions and not the original ones.
 
-A negative reward can fix such behaviors and prevent the agent from staying in a looped sequence of actions. The negative reward will be smaller than the positive reward so that the agent does not remain in his place with a 0 value. In some cases the agent will learn the correct sequence of actions without the need for a negative reward. Using a negative reward also allows the agent to find a route to the solution with the least cost as the agent moves in a grid.
+A negative reward can fix such behaviours and prevent the agent from staying in a
+looped sequence of actions. The negative reward will be smaller than the
+positive reward so that the agent does not remain in his place with a 0 value.
+In some cases, the agent will learn the correct sequence of actions without the
+need for a negative reward. Using a negative reward also allows the agent to
+find a route to the solution with the least cost as the agent moves in a grid.
 
 \begin{figure}[h]
     \centering
@@ -295,7 +310,9 @@ A negative reward can fix such behaviors and prevent the agent from staying in a
     \label{fig:negative_reward}
 \end{figure}
 
-Figure \ref{fig:negative_reward} shows how the agent will receive a negative reward if it takes more actions to reach the goal. This will also stop the agent from looping by going left and right multiple times before it goes for the goal.
+Figure~\ref{fig:negative_reward} shows how the agent will receive a negative
+reward if it takes more actions to reach the goal. This will also stop the agent
+from looping by going left and right multiple times before it goes for the goal.
 
 \subsection{Learning}
 
@@ -463,12 +480,12 @@ game. This process works as follows:
         eight taken steps, including the screen state, the action/co-ordinate
         pair, the estimated value and the actual reward.
     \item This object containing all the eight steps is passed into the
-        \texttt{train} function, so that the networks weights can be updated.
-        This time, the network runs a loss optimisation function, rather than
-        simply sampling the current values to get out some probabilities. The
-        network attempts to minimise the following loss, using the Adam
-        optimiser, defined in TensorFlow.
-        Alongside this, logging is done for easier reviewing later.
+        \texttt{train} function, so that the weights of the network can be
+        updated.  This time, the network runs a loss optimisation function,
+        rather than simply sampling the current values to get out some
+        probabilities. The network attempts to minimise the following loss,
+        using the Adam optimiser, defined in TensorFlow.  Alongside this,
+        logging is done for easier reviewing later.
     \item Finally, the \texttt{obs} object is updated one last time so the next
         batch starts with a new object, and the batch counter is incremented.
 \end{enumerate}
