@@ -1,10 +1,10 @@
-# python -m pysc2.bin.agent \ --map Simple64 \ --agent DeepQ.Agent \ --agent_race T \ --max_agent_steps 0 \ --norender
+# python -m pysc2.bin.agent \ --map FindAndDefeatZerglings \ --agent DeepQ.Agent \ --agent_race T \ --max_agent_steps 0 \ --norender
 # Code segments used from: https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow
 
 import random
 import math
 import os.path
-import time
+import time, shutil
 
 import numpy as np
 import pandas as pd
@@ -73,12 +73,12 @@ for mm_x in range(0, 64):
 
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.7):
+    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.2):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
         self.epsilon = e_greedy
-        self.epsilon_decay = 0.99999
+        self.epsilon_decay = 0.999
 
         self.memory = []    # Used to store the memory of each game step taken
 
@@ -186,7 +186,7 @@ class QLearning:
             action = np.random.randint(low=0, high=self.n_target-1)  # Take a random action
 
             # Makes sure that it is never less than 1
-            if self.epsilon > .21:
+            if self.epsilon > .02:
                 self.epsilon *= self.epsilon_decay         # Reduces the value of epsilon everytime we take a random step
             
             return action
@@ -295,14 +295,16 @@ class Agent(base_agent.BaseAgent):
         # Checks that game has ended if so then get final reward
         if obs.last():
             # When using simple 64 map use this reward
-            reward = obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
+            #reward = obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
 
             # When using minigames use below reward            
             #reward = obs.observation['score_cumulative'][0]
 
-            #reward = 0
-            #if obs.observation['score_cumulative'][0] > self.previous_score:
-            #    reward = 1
+            reward = 0
+            if obs.observation['score_cumulative'][0] > self.previous_score:
+                reward = 1
+            else:
+                reward = -0.1
 
             self.qlearn.remember(self.previous_state, self.previous_action, reward, [-1])
             self.qlearn.learn()
@@ -315,15 +317,16 @@ class Agent(base_agent.BaseAgent):
             self.previous_score = 0
 
             # Save the model
-            with self.qlearn.sess.as_default(): 
+            with self.qlearn.sess.as_default():
+                #shutil.rmtree("./model")
                 self.qlearn.saver.save(self.qlearn.sess, "./model/agent_model.ckpt")
 
             #self.sess.close()
             
             # Save the score to a file
             with open("score.txt", "a") as scoreFile:
-                #scoreFile.write( str(obs.observation['score_cumulative'][0]) + "," )
-                scoreFile.write( str(obs.reward) + "," )
+                scoreFile.write( str(obs.observation['score_cumulative'][0]) + "," )
+                #scoreFile.write( str(obs.reward) + "," )
 
             return actions.FunctionCall(_NO_OP, [])
 
@@ -422,11 +425,13 @@ class Agent(base_agent.BaseAgent):
                 #self.previous_killed_building_score = killed_building_score
 
                 # For mini game rewards
-                #if obs.observation['score_cumulative'][0] > self.previous_score:
+                if obs.observation['score_cumulative'][0] > self.previous_score:
                     #r = obs.observation['score_cumulative'][0] - self.previous_score
                     #r = obs.observation['score_cumulative'][0]
-                    #r = 1
-                    #self.previous_score = obs.observation['score_cumulative'][0]
+                    r = 1
+                    self.previous_score = obs.observation['score_cumulative'][0]
+                else:
+                    r = -0.1
 
                 self.qlearn.remember(self.previous_state, self.previous_action, r, current_state)
         

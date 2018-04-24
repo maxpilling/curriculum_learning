@@ -282,6 +282,21 @@ give better future outcomes, rather than the agent looking for the immediate
 reward. Equation~\ref{eq:q_update} shows $\gamma$ being multiplied by the next
 state's value based on the best action to be taken next.
 
+\subsection{Negative Reward}
+
+The agent will need to learn the correct action sequence to take in order to increase the overall score of the mini-games. However, in between action can cause the agent to learn incorrect loops. Since the game has an animation time, the time frame that the game is doing an animation after the agent has taken an action, the agent will call other actions in this time frame without effecting the previous taken action. For example, say the agent attacks the top right corner and the unit is on the opposite side of the map, the unit will need to walk to the other side of the map and within this window of walking and attacking the agent will call other actions. Actions that do not cancel the attacking one previously called. In this case, the agent will learn an incorrect sequence of actions that will effect the reward taken as the agent will learn that the reward was for the in-between actions and not the original ones.
+
+A negative reward can fix such behaviors and prevent the agent from staying in a looped sequence of actions. The negative reward will be smaller than the positive reward so that the agent does not remain in his place with a 0 value. In some cases the agent will learn the correct sequence of actions without the need for a negative reward. Using a negative reward also allows the agent to find a route to the solution with the least cost as the agent moves in a grid.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{negative_reward}
+    \caption{Game world with negative and positive rewards for reaching the beacon.}%
+    \label{fig:negative_reward}
+\end{figure}
+
+Figure \ref{fig:negative_reward} shows how the agent will receive a negative reward if it takes more actions to reach the goal. This will also stop the agent from looping by going left and right multiple times before it goes for the goal.
+
 \subsection{Learning}
 
 The Deep Q network can be updated at the end of or during a game. Using an
