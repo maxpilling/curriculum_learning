@@ -2,6 +2,7 @@ import fnmatch
 import os
 import re
 import sys
+import glob
 
 import numpy as np
 
@@ -15,7 +16,14 @@ def main():
         print("Need to pass in log files!")
         return
 
-    input_files = sys.argv[1:]
+    input_files = []
+
+    if len(sys.argv) > 2:
+        input_files = sys.argv[1:]
+    elif len(sys.argv) == 2:
+        print(f"Getting list of all files from {sys.argv[1]}...")
+        input_files = glob.glob(sys.argv[1])
+        print(f"Got list : {input_files}")
 
     for file in input_files:
         print(f"Parsing scores for {file}...")
