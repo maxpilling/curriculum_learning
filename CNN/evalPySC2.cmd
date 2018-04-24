@@ -12,7 +12,7 @@ SET LOG_FILE=eval_logs/%mydate%_%mytime%_%MAP_NAME%_%MODEL_NAME%.log
 
 type nul > %LOG_FILE%
 
-echo "Starting script..." > %LOG_FILE% 2>&1
-echo "Using %MODEL_NAME%, on map %MAP_NAME%." > %LOG_FILE% 2>&1
-python %SCRIPT_TO_RUN% %SCRIPT_ARGS% > %LOG_FILE% 2>&1
-echo "Finished script." > %LOG_FILE% 2>&1
+echo "Starting script..." >> %LOG_FILE% 2>&1
+echo "Using %MODEL_NAME%, on map %MAP_NAME%." >> %LOG_FILE% 2>&1
+python %SCRIPT_TO_RUN% %SCRIPT_ARGS% >> %LOG_FILE% 2>&1
+echo "Finished script." >> %LOG_FILE% 2>&1
