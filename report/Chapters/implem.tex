@@ -416,7 +416,10 @@ visualisation of this can be seen in Figure~\ref{fig:cnn_arch}.
             consists of a single output that the spatial action is based upon,
             with a kernel of $(1 \times 1)$ and no activation function. This
             output is converted to a probability by using the \texttt{softmax}
-            function.
+            function. Essentially, this means this layer is used to generate a
+            probability distribution over the entire input, such that area with
+            the maximum probability can be used as the co-ordinate for the
+            spatial action.
         \item The second of these layers is a fully-connected layer. This takes
             the \texttt{visual\_input} variable and flattens it down, such that
             it can be used as input to a fully connected layer with 256 outputs,

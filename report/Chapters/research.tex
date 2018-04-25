@@ -217,17 +217,19 @@ is received. However, if this is not the case then instead, the weights must be
 adjusted, such that given the same inputs again, a more desirable result is
 achieved.
 
-Commonly, this is achieved via Backpropagation. Backpropagation is the process
-of calculating the required gradient, needed to adjust the weights of the
-network~\cite{goodfellow2016deep}. However, this is mainly used in supervised
-learning techniques, where a known value is available.
+Commonly, this is achieved via Backpropagation~\cite{hecht1992theory}.
+Backpropagation is the process of calculating the required gradient, needed to
+adjust the weights of the network~\cite{goodfellow2016deep}. However, this is
+mainly used in supervised learning techniques, where a known value is available.
 
 Backpropagation is achieved through repeated use of the chain rule, to go from
 the output layer back to the start of the network, using the derived gradient to
 update the weights in each layer, such that they are closer to a more optimal
-solution.
-
-%TODO: Expand on backprop with more refs and explanation.
+solution. Essentially, this means calculating the error of the network for a
+given value, and then propagating that error through the network from the output
+back to the input, such that the weights move towards an optimal value, usually
+with the usage of some learning rate value to prevent large changes in the
+weights in a single step.
 
 \subsection{Supervised and Unsupervised learning}
 
@@ -731,8 +733,6 @@ with associating rewards and choosing the location that actions should be taken
 at. As a result, most research is done on small subsets of the game. This
 strategy again uses Q-Learning and could provide useful insights into the
 design for a network for StarCraft II\@.
-
-%TODO: Potentially needs more stuff on other games in the last paragraph.
 
 \section{Formal Definition of the Problem}
 
