@@ -108,11 +108,11 @@ to achieve that score.
         \toprule
         Map                         & Mean & Max & Episode Count \\ \midrule
         MoveToBeacon                & 5    & 21  & 2000          \\
-        CollectMineralShards        & 10   & 23  & 2000          \\
+        CollectMineralShards        & 11   & 23  & 2000          \\
         FindAndDefeatZerglings      &      &     &               \\
         DefeatRoaches               &      &     &               \\
         DefeatZerglingsAndBanelings &      &     &               \\
-        CollectMineralsAndGas       &      &     &               \\
+        CollectMineralsAndGas       & 2071 & 2814& 1000          \\
         BuildMarines                & 11   & 61  & 1000          \\ \bottomrule
     \end{tabular}
     \caption{Results for the Deep Q Network}%
@@ -140,6 +140,7 @@ of multiple smaller action sets, the agent is able to execute the complex
 commands with a single action. This makes it possible for the agent to take a
 given action and evaluate the action without needing a large action space.
 
+The agent is all the cases has learnt the correct sequence of actions to be taken for an optimal value approximation. The only limiting factor comes down the action space available to the agent. In the CollectMineralsAndGas mini-game, the agent has learnt to issue a command to the units to extract resources without calling any other actions that would use up these resources. The limiting factor is that the agent cannot create more CSV units, the units that farm and extract resources, due to the complexity of the action space.
 
 \subsection{Convolutional Network}
 %TODO: Evaluate all mini-games under CNN. As there is 8 I wouldn't go into
@@ -209,6 +210,8 @@ to be tested, due to time constraints.
 %different one whilst the other struggled. I expect this will mainly compare the
 %compound actions of the DQN vs the simple actions of the CNN.
 
+The Deep Q network was able to learn the required actions to achieve the best results given the limitations in its action space. It would be favorable to make the agent learn the entire base sequence of the smaller action sets rather than giving an abstracted action such as build. In the implementation of the Q-Learning action space, the agent was designed to show an ability to learn using a deep neural network and not the complexity of its action space. To show the agents ability to learn, the actions needed to be simplified to a single command that would issue the sequence. For example, when the agent calls the attack action, a sequence of actions is executed. This includes selecting the the marine units by issuing a select point on the map, a select second point on map and then issuing the attack to the selected units. Such complex sequences, will require a lager network and more training episodes. 
+
 \section{The Simple64 Map}
 %TODO: Tiny bit on what, like 1 or 2 lines.
 
@@ -229,6 +232,7 @@ to be tested, due to time constraints.
 %did badly. Maybe talk about consistency here, how often they won, how their in
 %game strategies compare etc.
 
+
 \section{Transfer and Curriculum Learning}
 %TODO: Add a few examples of the above, and show how it changes the results.
 % I.e. show a bot going from MoveToBeacon -> CollectMinerals ->
@@ -237,6 +241,9 @@ to be tested, due to time constraints.
 % well as only the Simple64 map.
 % Compare how well it does, time to learn, etc.
 
+Training the Deep Q agent on the MoveToBeacon mini-game, the agent is required to point to the location of a beacon that will appear randomly on the map. The training was stopped and the agent was tested on the mini-game to show that the agent had learnt the correct actions to take. The same model was then tested on the CollectMineralShards mini-game without any training on the new map. The agent was able to collect the shards and perform well without the need to be retrained on the new mini-game. Scoring an average of 9, the agent performed almost as well as it would have been trained only on the CollectMineralShards map alone.
+
+The Deep Q agent is then tested on its ability to attack on multiple mini-games. The agent is trained on the FindAndDefeatZerglings mini-game. This map required the agent to learn to search the map and kill the enemy units with little strategy required. The agent only needed to issue the attack command to increase the overall score. The agent is then tested on the DefeatRoaches and DefeatZerglingsAndBanelings. Again the agent was able to show the correct actions for the given state but with the limitation that the Deep Q agent is unable to control individual units. This is a necessary skill to achieving a higher score on these games as the agent needs to split the units and surround the enemies. The overall performance is similar to the agent being trained on each of the individual mini-games.
 
 
 \section{Overall comparison}
@@ -247,6 +254,23 @@ to be tested, due to time constraints.
 %TODO: Other additional parts of the network that hasn't been covered yet but
 %wasn't applicable to the implem section. CNN - Filter displays etc. DQN - could
 %we see how the QTable changes? etcetc
+
+The figures below show the Deep Q score during training. We can see the score dip as the epsilon value is reduced due to the epsilon decay. The agent then learns the correct action to take in the given state.
+
+
+\begin{figure}[!tbp]
+  \centering
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{score_MoveToBeacon_train}
+    \caption{Average of every 10 MoveToBeacon score during training}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{score_BuildMarines_train}
+    \caption{Average of every 10 BuildMarines score during training}
+  \end{minipage}
+\end{figure}
+
 
 \section{Conclusion}
 %TODO: Broad conclusions of the networks based on the their performances.
