@@ -168,14 +168,14 @@ scores achieved, as well as the number of episodes the agent trained for.
     \centering
     \begin{tabular}{@{}lrrr@{}}
         \toprule
-        Map                         & Mean & Max & Episode Count \\ \midrule
-        MoveToBeacon                & 26 & 32 & 2000 \\
-        CollectMineralShards        & 84 & 110 & 3500 \\
-        FindAndDefeatZerglings      &      &     &               \\
-        DefeatRoaches               &      &     &               \\
-        DefeatZerglingsAndBanelings &      &     &               \\
-        CollectMineralsAndGas       & 1110 & 2025 & 2500 \\
-        BuildMarines                & 2 & 8 & 2500 \\ \bottomrule
+        Map                         & Mean & Max  & Episode Count \\ \midrule
+        MoveToBeacon                & 26   & 32   & 1200 \\
+        CollectMineralShards        & 84   & 110  & 7500 \\
+        FindAndDefeatZerglings      & 32   & 53   & 70000 \\
+        DefeatRoaches               & 57   & 304  & 70000 \\
+        DefeatZerglingsAndBanelings & 42   & 103  & 70000 \\
+        CollectMineralsAndGas       & 1110 & 2025 & 50000 \\
+        BuildMarines                & 2    & 8    & 50000 \\ \bottomrule
     \end{tabular}
     \caption{Results for the Convolutional Network}%
     \label{tab:cnn_results}%
@@ -201,6 +201,15 @@ human player and the best DeepMind approaches. After this, the other mini-games
 are predominantly close to the values given such that any changes can mostly be
 put down to hyperparameter choices, since only a small sample of values was able
 to be tested, due to time constraints.
+
+The vast difference in episode count needed to converge to a strong score in the
+later mini-games can also be seen. The final two mini-games were cut short as
+looking at the data showed that no or very little learning was occurring and as
+such, there was no point continuing to train them. It should be noted however
+that the Convolutional network is capable of running multiple instances of the
+agent at the same time, before collating the scores. This means the agent was
+trained for up to 10 hours, but covered many times more games in that time
+period due to the simultaneous running of up to 64 games at once.
 
 \subsection{Network comparison}
 
