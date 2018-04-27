@@ -2,9 +2,52 @@
 \label{conclusion}
 
 \section{Expansions of System}
-%TODO: Add expansions of the system.
-%This section covers everything we thought "It would be nice to add X".
-%Focus on the bigger things first.
+
+As mentioned throughout the project, there is many things that could be
+investigated, and other already included features that could be expanded.
+
+To start, as spoken about briefly before, we could expand the Deep Q network,
+such that it has a much richer action space. This would have two advantages.
+Firstly, the agent should be able to learn more complex games and be more
+accurate, as currently the action space is the main thing holding the agent
+back. This should make it score higher and as such, move closer to a more
+intelligent and optimal solution. Secondly, this would have the advantage of
+allowing the agent to behave more like a human. That is, despite the agents
+compound actions giving it an advantage in the learning process, it is also
+unrealistic as compared to a human player, who does not have the option of one
+action that then performs many actions. Hopefully with a large enough action
+space the agent would be able to learn these actions by itself.
+
+Next, the convolutional network could be expanded. Firstly, this should include
+the inclusion of non-spatial information such as resource and unit counts, such
+that they can help influence decisions. This would bring it in-line with the
+`FullyConv' specification that DeepMind speaks about in their paper. Similarly,
+after this, the network could be expanded further to include a Long-term short
+term memory component, which is the next network DeepMind specified. These two
+modifications would allow the network to have more information, as well as
+retain information on past decisions to help make the current decision.
+
+As mentioned during the research, a network that uses a teacher/student mechanic
+could be used, to see if it helps it learn the more complex mini-games, or also
+if it helps time to train on the simpler games. This could be applied to both
+networks, to provide similar comparisons as transfer and curriculum learning were
+used for here.
+
+Finally, something the networks would potentially also benefit from is using a
+later version of the SC2LE, which has pixel level classifications, rather than
+the broad feature maps that are available in the most recent version. This could
+help the convolutional method most, but would also raise many issues. The
+current network architecture performs very well using a very small number of
+convolutional layers since the images it uses are feature maps with very
+distinct features. If this was instead swapped to pixel level data, then the
+network could potentially be able to become more accurate as it would have the
+smaller models rather than the blobs produced by the feature maps, but the
+network would also need to be expanded suitably to be able to process the
+images rather than feature maps.
+
+Any of the features mentioned here could provide interesting further work for
+a project, with the chance of also increasing the performance of the networks
+outlined here.
 
 \section{Deliverables}
 %TODO: Link this back to the deliverables we outlined at the start of the paper,
