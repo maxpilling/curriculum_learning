@@ -395,24 +395,52 @@ scores. %TODO: Add DeepMind comparison, or at least against Random agents.
 %wasn't applicable to the implem section. CNN - Filter displays etc. DQN - could
 %we see how the QTable changes? etcetc
 
-The figures below show the Deep Q score during training. We can see the score
-dip as the epsilon value is reduced due to the epsilon decay. The agent then
-learns the correct action to take in a given state.
+Figures~\ref{fig:dqn-scores-1} and~\ref{fig:dqn-scores-2} show the Deep Q score
+during training. We can see the score dip as the epsilon value is reduced due to
+the epsilon decay. The agent then learns the correct action to take in a given
+state.
+
+Figures~\ref{fig:cnn-filter1} and~\ref{fig:cnn-filter2} show the output of the
+combined convolutional layer that is used to generate the spatial actions. The
+images are given in grey scale, where the predicted best location is given in
+white and gets darker the lower the probability. As can be seen, the
+probability starts off very murky, with lots of noise, but after training
+converges such that the only choice is moving to the target location. This can
+be seen in the MoveToBeacon output as a single large point relating to the
+current beacon position, and multiple small points for the CollectMineralShards
+mini-game relating to the current shards.
 
 \begin{figure}[h]
   \centering
-  \begin{minipage}[b]{0.4\textwidth}
+  \begin{minipage}[b]{0.45\textwidth}
     \includegraphics[width=\textwidth]{score_MoveToBeacon_train}
-    \caption{Average of every 10 MoveToBeacon score during training}
+    \caption{Average of every 10 MoveToBeacon score during training}%
+    \label{fig:dqn-scores-1}%
   \end{minipage}
   \hfill
-  \begin{minipage}[b]{0.4\textwidth}
+  \begin{minipage}[b]{0.45\textwidth}
     \includegraphics[width=\textwidth]{score_BuildMarines_train}
     \caption{Average score of BuildMarines runs during training, grouped over 10
-    runs}
+    runs}%
+    \label{fig:dqn-scores-2}
   \end{minipage}
 \end{figure}
 
+\begin{figure}[h]
+    \centering
+    \subfloat[Before training]{{\includegraphics[width=0.45\textwidth]{Move_SmallTrain}}}%
+    \subfloat[After training]{{\includegraphics[width=0.45\textwidth]{Move_LotsOfTrain}}}%
+    \caption{MoveToBeacon spatial action output before and after training.}%
+    \label{fig:cnn-filter1}%
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \subfloat[Before training]{{\includegraphics[width=0.45\textwidth]{Minerals_SmallTrain}}}%
+    \subfloat[After training]{{\includegraphics[width=0.45\textwidth]{Minerals_LotsOfTrain}}}%
+    \caption{CollectMineralShards spatial action output before and after training.}%
+    \label{fig:cnn-filter2}%
+\end{figure}
 
 \section{Conclusion}
 %TODO: Broad conclusions of the networks based on the their performances.
