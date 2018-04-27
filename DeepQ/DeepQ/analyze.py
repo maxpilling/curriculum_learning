@@ -22,7 +22,7 @@ result = file[0].split(",")
 # Remove the last comma and empty gap
 results = np.array(result[:-1]).astype(np.float)
 
-results = np.add.reduceat(results, np.arange(0, len(results), 10)) / 10
+results = np.add.reduceat(results, np.arange(0, len(results), 1)) / 1
 
 plt.plot(results)
 plt.show()
