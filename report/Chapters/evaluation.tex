@@ -81,10 +81,6 @@ for Reinforcement Learning'' paper.
 \end{table}
 
 \subsection{Deep Q Network}
-%TODO: Evaluate all mini-games under DQN. As there is 8 I wouldn't go into
-%detail for them all, mainly maybe 2 successes and 2 failures? The interesting
-%ones basically. Give table of all results. Try not to do anything on curriculum
-%learning etc.
 
 Starting off with the Deep Q network, the mini-games that are to be used must
 correlate with the network's state inputs. Since this network does not use an
@@ -149,10 +145,6 @@ limiting factor is that the agent cannot create more SCV units, the units that
 farm and extract resources, due to the complexity of the action space.
 
 \subsection{Convolutional Network}
-%TODO: Evaluate all mini-games under CNN. As there is 8 I wouldn't go into
-%detail for them all, mainly maybe 2 successes and 2 failures? The interesting
-%ones basically. Give table of all results. Try not to do anything on curriculum
-%learning etc.
 
 In contrast to the Deep Q network, the Convolutional network does not have to
 consider the state inputs, due to the only input being the screen and mini-map
@@ -300,11 +292,11 @@ map alone.
 Similarly, the Convolutional agent was trained first on the MoveToBeacon
 mini-game and then tested on CollectMineralShards. The agent managed to achieve
 a score of 9 with no additional training. This is lower than a score achieved
-with no training of 15 and much lower than the score achieved after
-training. Next, and in a more realistic situation, a network was trained on
-MoveToBeacon for 2 hours and then on CollectMineralShards for 2 hours. This was
-then compared to a network that was trained solely on the CollectMineralShards
-mini-game for 4 hours. This then gave a score of 60 with transfer learning,
+with no training of 15 and much lower than the score achieved after training.
+Next, and in a more realistic situation, a network was trained on MoveToBeacon
+for 30 minutes and then on CollectMineralShards for 90 minutes. This was then
+compared to a network that was trained solely on the CollectMineralShards
+mini-game for 2 hours. This then gave a score of 60 with transfer learning,
 compared to YYY without. Figure~\ref{transfer_cnn_move} shows the relative
 difference in learning.
 
@@ -372,7 +364,6 @@ strategies of attacking different enemy unit types. But this would also increase
 the state space.
 
 \section{Overall comparison}
-%TODO: Overall comparison over both Accuracy and Generalisation still needed.
 
 Comparing the 2 networks, we can see that the Deep Q network is able to perform
 well in mini-games that do not require a large action space, due to the complex
