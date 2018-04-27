@@ -312,7 +312,9 @@ find a route to the solution with the least cost as the agent moves in a grid.
 
 Figure~\ref{fig:negative_reward} shows how the agent will receive a negative
 reward if it takes more actions to reach the goal. This will also stop the agent
-from looping by going left and right multiple times before it goes for the goal.
+from looping by going left and right multiple times before it goes for the goal. 
+
+Since each incorrect action will have its weights reduced, the trained model will have to be retrained on the new mini-game since the previous training session reduced the expected action. For example, the agent is trained to play the MoveToBeacon mini-game. When the agent is training, any actions such as building will be useless as there is no reward for building in the MoveToBeacon map. The agent is then moved to the BuildMarines mini-game, where the expected action is to build. The agent will not build due to the weights of those actions being small because of the previous training session. This is reduced by improving the state space so that the agent has enough information to distinguish the differences in actions needed.
 
 \subsection{Learning}
 
