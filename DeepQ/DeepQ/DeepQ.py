@@ -1,10 +1,10 @@
-# python -m pysc2.bin.agent \ --map FindAndDefeatZerglings \ --agent DeepQ.Agent \ --agent_race T \ --max_agent_steps 0 \ --norender
+# python -m pysc2.bin.agent \ --map Simple64 \ --agent DeepQ.Agent \ --agent_race T \ --max_agent_steps 0 \ --norender
 # Code segments used from: https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow
 
 import random
 import math
 import os.path
-import time, shutil
+import time
 
 import numpy as np
 import pandas as pd
@@ -14,6 +14,8 @@ from sklearn import preprocessing
 from pysc2.agents import base_agent
 from pysc2.lib import actions
 from pysc2.lib import features
+
+LEARN = True    # Change to make agent learn or play without learning
 
 _NO_OP = actions.FUNCTIONS.no_op.id
 _SELECT_POINT = actions.FUNCTIONS.select_point.id
@@ -60,20 +62,13 @@ smart_actions = [
 ]
 
 # Since we are using the minimap we would have a 64x64 grid
-#for mm_x in range(0, 64):
-#    for mm_y in range(0, 64):
-#        if (mm_x + 1) % 16 == 0 and (mm_y + 1) % 16 == 0:
-#            # Create every possible attack position. Will look like: "attack_5_10"
-#            smart_actions.append(ACTION_ATTACK + '_' + str(mm_x - 8) + '_' + str(mm_y - 8)) # Subtract 8 bec we want to select the middle vertex of grid
 for mm_x in range(0, 64):
     for mm_y in range(0, 64):
         if (mm_x + 1) % 32 == 0 and (mm_y + 1) % 32 == 0:
-            # Create every possible attack position. Will look like: "attack_5_10"
-            smart_actions.append(ACTION_ATTACK + '_' + str(mm_x - 16) + '_' + str(mm_y - 16)) # Subtract 8 bec we want to select the middle vertex of grid
-
+            smart_actions.append(ACTION_ATTACK + '_' + str(mm_x - 16) + '_' + str(mm_y - 16))
 
 class QLearning:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.2):
+    def __init__(self, actions, learning_rate=0.001, reward_decay=0.9, e_greedy=0.3):
         self.actions = actions  # list of int
         self.lr = learning_rate
         self.gamma = reward_decay
@@ -84,10 +79,10 @@ class QLearning:
 
         # ------ Setup NN ---------
         self.n_input = 13          # Number of nodes on first layer (the input)
-        self.n_hidden1 = 400        # Number of nodes on hidden layer 1
-        self.n_hidden2 = 200        # Number of nodes on hidden layer 2
-        self.n_hidden3 = 100        # Number of nodes on hidden layer 3
-        self.n_hidden4 = 25        # Number of nodes on hidden layer 4
+        self.n_hidden1 = 200        # Number of nodes on hidden layer 1
+        self.n_hidden2 = 300        # Number of nodes on hidden layer 2
+        self.n_hidden3 = 200        # Number of nodes on hidden layer 3
+        self.n_hidden4 = 100        # Number of nodes on hidden layer 4
         self.n_target = 8         # Number of nodes on final layer (the output)
 
 
@@ -102,58 +97,35 @@ class QLearning:
             self.Y = tf.placeholder(tf.float32, shape=[None, self.n_target], name='output')                           # Create output node which is a single value
 
             # Create Weights
-            #self.W1 = tf.Variable(tf.random_normal(shape=[self.n_input, self.n_hidden1], dtype=tf.float32, stddev=0.5), dtype=tf.float32)       # Weights for first hidden layer
-            #self.b1 = tf.Variable(tf.zeros([self.n_hidden1]), name='b1') 
+            self.W1 = tf.Variable(tf.random_normal(shape=[self.n_input, self.n_hidden1], dtype=tf.float32, stddev=0.5), dtype=tf.float32)       # Weights for first hidden layer
+            # self.b1 = tf.Variable(tf.zeros([self.n_hidden1]), name='b1') 
 
-            #self.W2 = tf.Variable(tf.random_normal(shape=[self.n_hidden1, self.n_hidden2], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
-            #self.b2 = tf.Variable(tf.zeros([self.n_hidden2]), name='b2')
+            self.W2 = tf.Variable(tf.random_normal(shape=[self.n_hidden1, self.n_hidden2], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
+            # self.b2 = tf.Variable(tf.zeros([self.n_hidden2]), name='b2')
             
-            #self.W3 = tf.Variable(tf.random_normal(shape=[self.n_hidden2, self.n_hidden3], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
-            #self.b3 = tf.Variable(tf.zeros([self.n_hidden3]), name='b3')
+            self.W3 = tf.Variable(tf.random_normal(shape=[self.n_hidden2, self.n_hidden3], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
+            # self.b3 = tf.Variable(tf.zeros([self.n_hidden3]), name='b3')
 
-            ##self.W4 = tf.Variable(tf.random_normal(shape=[self.n_hidden3, self.n_hidden4], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
-            ##self.b4 = tf.Variable(tf.zeros([self.n_hidden4]), name='b2')
+            self.W4 = tf.Variable(tf.random_normal(shape=[self.n_hidden3, self.n_hidden4], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
+            # #self.b4 = tf.Variable(tf.zeros([self.n_hidden4]), name='b2')
 
-            ##self.W_out = tf.Variable(tf.random_normal(shape=[self.n_hidden4, self.n_target], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
-            ##self.b_out = tf.Variable(tf.zeros([self.n_target]), name='b_out')
+            self.W_out = tf.Variable(tf.random_normal(shape=[self.n_hidden4, self.n_target], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
+            # #self.b_out = tf.Variable(tf.zeros([self.n_target]), name='b_out')
 
-            #self.W_out = tf.Variable(tf.random_normal(shape=[self.n_hidden3, self.n_target], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
-            #self.b_out = tf.Variable(tf.zeros([self.n_target]), name='b_out')
+            # self.W_out = tf.Variable(tf.random_normal(shape=[self.n_hidden3, self.n_target], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
+            # self.b_out = tf.Variable(tf.zeros([self.n_target]), name='b_out')
 
-            ## Connect the nodes
-            #self.hidden_1 = tf.nn.relu(tf.add(tf.matmul(self.X, self.W1), self.b1))
-            #self.hidden_2 = tf.nn.relu(tf.add(tf.matmul(self.hidden_1, self.W2), self.b2))
-            #self.hidden_3 = tf.nn.relu(tf.add(tf.matmul(self.hidden_2, self.W3), self.b3))
-            ##self.hidden_4 = tf.nn.relu(tf.add(tf.matmul(self.hidden_3, self.W4), self.b4))
+            # Connect the nodes
+            self.hidden_1 = tf.nn.relu(tf.matmul(self.X, self.W1))
+            self.hidden_2 = tf.nn.relu(tf.matmul(self.hidden_1, self.W2))
+            self.hidden_3 = tf.nn.relu(tf.matmul(self.hidden_2, self.W3))
+            self.hidden_4 = tf.nn.relu(tf.matmul(self.hidden_3, self.W4))
 
-            ##self.Qout = tf.add( tf.matmul(self.hidden_4, self.W_out), self.b_out)   # Multiply weights by nodes
+            self.Qout = tf.matmul(self.hidden_4, self.W_out)   # Multiply weights by nodes
 
-            #self.Qout = tf.add( tf.matmul(self.hidden_3, self.W_out), self.b_out)
+            self.loss = tf.reduce_sum(tf.abs(self.Y - self.Qout))    # Loss function
 
-            #self.loss = tf.reduce_sum(tf.abs(self.Y - self.Qout))    # Loss function
-
-            ##self.loss = tf.abs(self.Y - self.Qout)
-
-            #self.trainer = tf.train.GradientDescentOptimizer(self.lr)   # Update the network
-            #self.updateModel = self.trainer.minimize(self.loss)         # Minimize loss
-
-            #self.updateModel = tf.train.GradientDescentOptimizer(self.lr).minimize(self.loss)
-
-
-            #!!!!!!!!!!! TESTING NEW NETWORK!!!!!!!!!!!!!
-            net = self.X
-            net = tf.layers.dense(net, 600, activation=tf.nn.relu)
-            net = tf.layers.dense(net, 800, activation=tf.nn.relu)
-            net = tf.layers.dense(net, 400, activation=tf.nn.relu)
-            net = tf.layers.dense(net, 200, activation=tf.nn.relu)
-            net = tf.layers.dense(net, self.n_target)
-            self.Qout = net
-
-
-            self.loss = tf.losses.mean_squared_error(self.Y, self.Qout)
-
-            self.optimizer = tf.train.AdamOptimizer(learning_rate=self.lr).minimize(self.loss)
-            #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.optimizer = tf.train.GradientDescentOptimizer(self.lr).minimize(self.loss)
 
             self.predict = tf.argmax(self.Qout, 1)                      # Predicted value
             
@@ -178,18 +150,20 @@ class QLearning:
                 states_T = np.reshape(states, (-1, self.n_input) )  # Reshape to make rows instead
 
                 output, allQ = self.sess.run( [ self.predict, self.Qout ], feed_dict={self.X: states_T }) # Run network and get value for action in state
-
-            return output[0]       # Return index with max value action
+                return output[0]       # Return index with max value action
 
         else:
-            # choose random action
-            action = np.random.randint(low=0, high=self.n_target-1)  # Take a random action
+            if LEARN == True:
+                # choose random action
+                action = np.random.randint(low=0, high=self.n_target-1)  # Take a random action
 
-            # Makes sure that it is never less than 1
-            if self.epsilon > .02:
-                self.epsilon *= self.epsilon_decay         # Reduces the value of epsilon everytime we take a random step
-            
-            return action
+                # Makes sure that it is never less than 1
+                if self.epsilon > .015:
+                    self.epsilon *= self.epsilon_decay         # Reduces the value of epsilon everytime we take a random step
+
+                return action
+            else:
+                return 0
 
     """ Adds the state, action, reward recieved, and next state is terminal or normal state. """
     def remember(self, s, a, r, next_s):
@@ -230,14 +204,12 @@ class QLearning:
                 updateM, updateL = self.sess.run( [self.optimizer, self.loss] , feed_dict={self.X: states_P, self.Y: q_target })
                 total_loss += updateL   # Accumulate
         # Get average loss
-        #total_loss = np.sum(total_loss) / len(self.memory)
         total_loss = total_loss / len(self.memory)
         self.memory = []
 
         # Save the total loss to a file for analysis
         with open("loss.txt", "a") as myfile:
             myfile.write( str(total_loss) + "," )
-
 
 class Agent(base_agent.BaseAgent):
     def __init__(self):
@@ -261,8 +233,6 @@ class Agent(base_agent.BaseAgent):
 
         # Step counter for learning every certain count
         self.turn_counter = 0
-        self.threshold_learn = 30
-
 
     # Used for the case when base is at bottom right
     def transformDistance(self, x, x_distance, y, y_distance):
@@ -295,19 +265,23 @@ class Agent(base_agent.BaseAgent):
         # Checks that game has ended if so then get final reward
         if obs.last():
             # When using simple 64 map use this reward
-            #reward = obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
+            reward = obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
 
             # When using minigames use below reward            
-            #reward = obs.observation['score_cumulative'][0]
+            # reward = obs.observation['score_cumulative'][0]
 
-            reward = 0
-            if obs.observation['score_cumulative'][0] > self.previous_score:
-                reward = 1
-            else:
-                reward = -0.1
+            # reward = 0
+            # if obs.observation['score_cumulative'][0] > self.previous_score:
+            #     reward = 1
+            # else:
+            #     reward = -0.5
 
-            self.qlearn.remember(self.previous_state, self.previous_action, reward, [-1])
-            self.qlearn.learn()
+            if LEARN == True:
+                self.qlearn.remember(self.previous_state, self.previous_action, reward, [-1])
+                self.qlearn.learn()
+                # Save the model
+                with self.qlearn.sess.as_default(): 
+                    self.qlearn.saver.save(self.qlearn.sess, "./model/agent_model.ckpt")
 
             # Reset values
             self.previous_action = None
@@ -315,18 +289,11 @@ class Agent(base_agent.BaseAgent):
 
             self.move_number = 0
             self.previous_score = 0
-
-            # Save the model
-            with self.qlearn.sess.as_default():
-                #shutil.rmtree("./model")
-                self.qlearn.saver.save(self.qlearn.sess, "./model/agent_model.ckpt")
-
-            #self.sess.close()
             
             # Save the score to a file
             with open("score.txt", "a") as scoreFile:
-                scoreFile.write( str(obs.observation['score_cumulative'][0]) + "," )
-                #scoreFile.write( str(obs.reward) + "," )
+                # scoreFile.write( str(obs.observation['score_cumulative'][0]) + "," )
+                scoreFile.write( str(obs.reward) + "," )
 
             return actions.FunctionCall(_NO_OP, [])
 
@@ -339,7 +306,8 @@ class Agent(base_agent.BaseAgent):
 
             # Take from list the mean value and check position. If mean is greater than 31 chances are the units are on bottom right
             self.base_top_left = 1 if player_y.any() and player_y.mean() <= 31 else 0
-            #self.base_top_left = 1 # Make the agent always play minigames with base top left
+
+            # self.base_top_left = 1 # Make the agent always play minigames with base top left
 
             self.cc_y, self.cc_x = (unit_type == _TERRAN_COMMANDCENTER).nonzero()
 
@@ -374,7 +342,7 @@ class Agent(base_agent.BaseAgent):
                 x = int(math.ceil((enemy_x[i] + 1) / 32))
 
                 hot_squares[((y - 1) * 2) + (x - 1)] = 1
-                
+
             if not self.base_top_left:
                 hot_squares = hot_squares[::-1]
 
@@ -390,7 +358,6 @@ class Agent(base_agent.BaseAgent):
                 x = int(math.ceil((shards_x[i] + 1) / 32))
 
                 hot_squares[((y - 1) * 2) + (x - 1)] = 1    # Center the attack to the middle coordinate so agent attacks surrounding
-                #hot_squares[(y - 1) + (x - 1)] = 1
 
             if not self.base_top_left:
                 hot_squares = hot_squares[::-1]
@@ -425,15 +392,19 @@ class Agent(base_agent.BaseAgent):
                 #self.previous_killed_building_score = killed_building_score
 
                 # For mini game rewards
-                if obs.observation['score_cumulative'][0] > self.previous_score:
-                    #r = obs.observation['score_cumulative'][0] - self.previous_score
-                    #r = obs.observation['score_cumulative'][0]
-                    r = 1
-                    self.previous_score = obs.observation['score_cumulative'][0]
-                else:
-                    r = -0.1
+                # if obs.observation['score_cumulative'][0] > self.previous_score:
+                #     #r = obs.observation['score_cumulative'][0] - self.previous_score
+                #     #r = obs.observation['score_cumulative'][0]
+                #     r = 1
+                #     self.previous_score = obs.observation['score_cumulative'][0]
+                # else:
+                #     r = -0.5
 
-                self.qlearn.remember(self.previous_state, self.previous_action, r, current_state)
+                # if obs.observation['score_cumulative'][0] < self.previous_score:
+                #     r = -1
+
+                if LEARN == True:
+                    self.qlearn.remember(self.previous_state, self.previous_action, r, current_state)
         
             # Get action to do
             rl_action = self.qlearn.choose_action(current_state)
@@ -541,6 +512,7 @@ class Agent(base_agent.BaseAgent):
                         target = [int(m_x), int(m_y)]
 
                         return actions.FunctionCall(_HARVEST_GATHER, [_QUEUED, target]) # Send SCV to harvest. NOTICE it is queued so SCV will finish building first
-
+    
         return actions.FunctionCall(_NO_OP, [])
+
 
