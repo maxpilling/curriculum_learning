@@ -325,6 +325,8 @@ The best example is in the BuildMarines and CollectMineralAndGas. The 2 maps are
 %TODO: Overall comparison over both Accuracy and Generalisation and the networks as a
 % whole, probably also including mention of training time.
 
+Comparing the 2 networks, we can see that the Deep Q network is able to perform well in mini-games that do not require a large action space, due to the complex action sequences used by the Deep Q network. This makes the agent perform better in BuildMarines but worse in MoveToBeacon. The Deep Q network also requires more training due to the single instance learning of the value aproximator. The agent needs to test different actions to find the optimal value for a given state by playing the state multiple times. The A3C method used in the Convolutional network is asynchronous and so can test different instances of models being trained. A3C then takes advantage of each of the instances by taking the relevant weights and focusing on the predictions that were incorrect. Both networks have been trained for nearly the same number of episodes but the A3C method utilizes multiple game runs per episode by creating workers to test each instance of a single run.
+
 \section{Network Information}
 %TODO: Other additional parts of the network that hasn't been covered yet but
 %wasn't applicable to the implem section. CNN - Filter displays etc. DQN - could
