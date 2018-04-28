@@ -177,14 +177,15 @@ Q-Learning update function and policy evaluation.
 
 \subsection{Network Architecture}
 
-The network used for running the agent is comprised of the following layers:
+The network used for running the agent is comprised of the following layers all using a relu activation function:
 
 \begin{enumerate}
-    \item Input layer with 37 inputs for the state representation.
-    \item First hidden layer with 50 nodes and a bias node.
-    \item Second hidden layer with 40 nodes and a bias node.
-    \item Third hidden layer with 25 nodes and a bias node.
-    \item Output layer with 20 nodes (one for each possible action).
+    \item Input layer with 13 inputs for the state representation.
+    \item First hidden layer with 200 nodes and a bias node.
+    \item Second hidden layer with 300 nodes and a bias node.
+    \item Third hidden layer with 200 nodes and a bias node.
+    \item Fourth hidden layer with 100 nodes and a bias node.
+    \item Output layer with 8 nodes (one for each possible action).
 \end{enumerate}
 
 The weights of each of the layers use a random normal distribution with a
