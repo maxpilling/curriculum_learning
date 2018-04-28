@@ -258,11 +258,56 @@ either one of these inputs.
 \section{The Simple64 Map}
 %TODO: Tiny bit on what, like 1 or 2 lines.
 
+The Simple64 map is a 2 player map designed for 2 players to play until one of them is victorious, defeated or the timer ends with a draw. The players are randomly placed at the top left corner or bottom right corner of the map. The game will also randomly generate an opponent race for the agent to play against. This makes the agent face different types of opponents while training.
+
+There are 2 scoring systems to this mini-game:
+\begin{itemize}
+\item The final reward: 1 for win, -1 for loss and 0 for draw.
+
+\item In-game score: accumulated score of how many building and units the agent has and each enemy unit killed or building destroyed.
+
+\end{itemize}
+
+
 \subsection{Deep Q Network}
 %TODO: Evaluate a number of games of the simple64 map under the DQN network.
 %Give table of results, then a play by play of why it did good or bad across the
 %games. Try not to do too much on the mini-games and then S64, since that is
 %covered later.
+
+The Simple64 map requires a complex sequence of actions for the agent to win a given game. The difficulty is in the agents diversity to adapt to the changing real-time world. In this map, the agent will be randomly placed in the top left or lower right corner. The agent will not be able to see the map, due to the fog of war, and will be facing different opponents every run. 
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{@{}lrrrr@{}}
+        \toprule
+        Simple64                    & Win & Lose &Draw  & Episode Count \\
+        Final Reward                & 7 & 40  & 53 & 100 \\
+        \midrule
+        In-game         		       & Mean & Max  \\
+        Score      				   & 5020   & 7100 \\
+ \bottomrule
+    \end{tabular}
+    \caption{Results for Deep Q on Simple64}%
+    \label{tab:dqn_simple}%
+\end{table}
+
+The agent started by losing every game played for about 15 episodes until it began to attack the enemy and draw more often. After 100 training games the agent has begun to draw and win 60 percent of the games. From Table \ref{tab:dqn_simple}, we can see that the agent lost 40 games, tied for 53 and won 7.
+
+The Deep Q network was able to identify the requirements for achieving a higher score in the game. The agent had learnt the sequence of events required for a minimal win in the mini-game:
+
+\begin{itemize}
+\item Mine the resources to gather minerals
+
+\item Build barracks to start training an army
+
+\item Build supply depots to create more army units
+
+\item Issue attacking commands to a location with an enemy
+\end{itemize}
+
+The main difficulties the agent faced were with the amount of time it took to achieve the given sequence above. If the agent built the barracks too late into the game then the enemy would have amounted a larger army would be able to win the episode. Another issue is that the agent can only build a basic attacking unit the marine. The opponent is able to create higher level units that augment the strength of the army. For example, the enemy unit is able to create tanks and planes. But the agent can only create a marine due to the complex actions required to manipulate the plane and higher level units. The tank needs to be driven to the area and then set to attack mode. In attack mode, the tank is unable to move and can only attack. This means that the agent would need to learn how to control the tank and maneuver its placements so that it is a viable option of attack.
+
 
 \subsection{Convolutional Network}
 %TODO: Evaluate a number of games of the simple64 map under the CNN network.
@@ -453,3 +498,7 @@ mini-game relating to the current shards.
 
 \section{Conclusion}
 %TODO: Broad conclusions of the networks based on the their performances.
+
+Both networks were able to show a learning ability within each subsequent task. They were both able to improve upon the base scores from the beginning of each training episodes and showed learning behavior towards improving the scores to the networks capacity. The networks were able to learn certain behaviors from different maps and apply the same abilities to some of the other maps. 
+
+However, the networks were limited by the size of the action space and the input space. When both networks were increased to allow for more information, the networks were unable to reasonably pick up the desired outcomes. Due to the combinational possibilities of the input and output space, the networks would need a much longer time of training to be able to learn and achieve a reasonable score. 
