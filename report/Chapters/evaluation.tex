@@ -370,10 +370,47 @@ The results for the 100 games can be seen in Table~\ref{tab:cnn_simple}.
 % well as only the Simple64 map.
 % Compare how well it does, time to learn, etc.
 
-First, the networks were tested on the MoveToBeacon mini-game and then the
-CollectMineralShards game. These games were chosen due to the same action,
-movement to a point, being used in both, but with the second game requiring the
-control of two units and the target changing from a beacon to a mineral shard.
+As both of the agents use reward functions, they reduce the likelihood of
+actions that are deemed wrong for a certain task. This means when an action is
+not used in a mini-game or is the incorrect action to take, it gets its chance
+of use reduced. Because of this, mini-games that do not intersect much in
+play style are useful, since they can be trained across without worry. These
+include:
+
+\begin{itemize}
+    \item MoveToBeacon
+    \item BuildMarines
+    \item FindAndDefeatZerglings
+    \item CollectMineralShards
+\end{itemize}
+
+These mini-games provide different state and action requirements that the
+agent can benefit from training on separately without reducing the weights of
+other actions.
+
+Similarly, the following mini-games are difficult for the network to train on
+due to the overlap in state and actions:
+
+\begin{itemize}
+    \item DefeatRoaches
+    \item FindAndDefeatZerglings
+    \item DefeatZerglingsAndBanelings
+    \item CollectMineralsAndGas
+\end{itemize}
+
+The issue with these mini-games is that due to the large overlap in states and
+actions, the agent will be less able to move between these games easily. For
+example, in CollectMineralsAndGas the agent is rewarded for hoarding resources,
+whereas in BuildMarines the agent needs to spend resources to score points. This
+opposing logic makes the two games hard to move between, and as such would most
+likely make curriculum learning less effective.
+
+
+Bearing this in mind, first the networks were tested on the MoveToBeacon
+mini-game and then the CollectMineralShards game. These games were chosen due to
+the same action, movement to a point, being used in both, but with the second
+game requiring the control of two units and the target changing from a beacon to
+a mineral shard.
 
 Firstly, the Deep Q agent was trained on the MoveToBeacon mini-game, before the
 training was stopped and the agent was tested on the mini-game to show that the
@@ -420,57 +457,6 @@ unable to control individual units. This is a necessary skill to achieving a
 higher score on these games as the agent needs to split the units and surround
 the enemies. The overall performance was similar to the agent being trained on
 each of the individual mini-games.
-
-The Deep Q network uses a negative reward function to make the agent try to
-minimize the negative reward it achieves. This makes the agent likely to reduce
-the expected value of a wrong action. If the agent is given a 0 for each action
-that does not return a reward then the agent will tend to take those actions
-more often. A negative reward reduces this behaviour but at the cost of the
-values being reduced for every incorrect action taken. This increases the
-difficulty of teaching an agent specific skills using curriculum learning. The
-agent performs well with curriculum learning that has distinct different states.
-Otherwise the agent confuses the states and actions. Below are the maps that the
-agent can use curriculum learning to get the right actions without affecting the
-other weights:
-
-\begin{itemize}
-    \item MoveToBeacon
-    \item BuildMarines
-    \item FindAndDefeatZerglings
-    \item CollectMineralShards
-\end{itemize}
-
-The mini-games above provide different state and action requirements that the
-agent can benefit from training on separately without reducing the weights of
-other actions. When the agent is trained on one of these mini-games, there is
-minimal impact to the rest of the weights.
-
-The following mini-games are difficult for the network to train on due to the
-overlap in state and actions:
-
-\begin{itemize}
-    \item DefeatRoaches
-    \item FindAndDefeatZerglings
-    \item DefeatZerglingsAndBanelings
-    \item CollectMineralsAndGas
-\end{itemize}
-
-The best example is in the BuildMarines and CollectMineralsAndGas. The 2 maps
-are different and require different actions be taken by the agent. In the
-BuildMarines, the agent is encouraged and rewarded for creating more marines by
-using up the available resources and farming more. However, the
-CollectMineralsAndGas has the opposite effect. The agent is instead encouraged
-to collect the resources and save them up rather than spending them to make
-marine units. This means the agent is told to make units in one but is punished
-in the other. The state space is also the same for the agent. In both maps the
-agent has SCV units and a base with minerals around the map. The attacking maps
-also have the same effect of requiring different strategies be used when
-attacking the enemy units. The agent then needs to forget the previous strategy
-it learnt and rewrite the weights with the new strategy. In order to avoid this
-issue, the state space would need to include what type of enemy is being seen by
-the agent in the state space. This will allow the agent to learn different
-strategies of attacking different enemy unit types. But this would also increase
-the state space.
 
 \section{Overall comparison}
 
