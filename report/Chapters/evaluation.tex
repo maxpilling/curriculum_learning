@@ -167,7 +167,7 @@ scores achieved, as well as the number of episodes the agent trained for.
         \toprule
         Map                         & Mean & Max  & Episode Count \\ \midrule
         MoveToBeacon                & 26   & 32   & 1200  \\
-        CollectMineralShards        & 84   & 110  & 7500  \\
+        CollectMineralShards        & 84   & 110  & 27500 \\
         FindAndDefeatZerglings      & 32   & 53   & 70000 \\
         DefeatRoaches               & 57   & 304  & 70000 \\
         DefeatZerglingsAndBanelings & 42   & 103  & 70000 \\
@@ -269,7 +269,6 @@ There are two scoring systems in this mini-game:
         agent has and each enemy unit killed or building destroyed.
 \end{itemize}
 
-
 \subsection{Deep Q Network}
 
 The Simple64 map requires a complex sequence of actions for the agent to win a
@@ -282,15 +281,15 @@ of war, and will be facing different opponents every run.
     \centering
     \begin{tabular}{@{}lrrrr@{}}
         \toprule
-        Simple64      & Win  & Lose  & Draw & Episode Count \\
-        Final Reward  & 7    & 40    & 53   & 100           \\
+        Simple64        & Win  & Lose  & Draw & Episode Count \\
+        Win Statistics  & 7    & 40    & 53   & 100           \\
         \midrule
         \midrule
                       & Mean & Max  \\
         In-game Score & 5020 & 7100 \\
  \bottomrule
     \end{tabular}
-    \caption{Results for Deep Q on Simple64}%
+    \caption{Results for the Deep Q network on Simple64}%
     \label{tab:dqn_simple}%
 \end{table}
 
@@ -330,6 +329,33 @@ viable option for attacking.
 %games. Try not to do too much on the mini-games and then S64, since that is
 %covered later.
 
+Following on from the mini-games results, we can assume that the convolutional
+network will struggle with playing the Simple64 map. That is because it contains
+the same complex action sequences that the BuildMarines and
+CollectMineralsAndGas mini-games contain, along with attacking states and more.
+This makes it unlikely the agent will be able to perform well here, as it
+struggled on the simpler mini-games. However, its more precise control of its
+units may give it an advantage if it manages to reach the later stages of the
+map where it is controlling groups of units.
+
+The results for the 100 games can be seen in Table~\ref{tab:cnn_simple}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{@{}lrrrr@{}}
+        \toprule
+        Simple64        & Win  & Lose  & Draw & Episode Count \\
+        Win Statistics  &      &       &      & 100           \\
+        \midrule
+        \midrule
+                      & Mean & Max  \\
+        In-game Score &      &      \\
+ \bottomrule
+    \end{tabular}
+    \caption{Results for the Convolutional network on Simple64}%
+    \label{tab:cnn_simple}%
+\end{table}
+
 \subsection{Network comparison}
 %TODO: Compare the networks again, explain why this time one did well and one
 %did badly. Maybe talk about consistency here, how often they won, how their in
@@ -355,8 +381,11 @@ agent had learnt the correct actions to take. The same model was then tested on
 the CollectMineralShards mini-game without any training on the new map. The
 agent was able to collect the shards and perform well without the need to be
 retrained on the new mini-game. Scoring an average of 9, the agent performed
-almost as well as it would have been trained only on the CollectMineralShards
-map alone.
+almost as well as being trained only on the CollectMineralShards map, though it
+should be noted that this score is lower than a random policy, as shown in the
+DeepMind scores. This implies that whilst the learning was somewhat transferred,
+the Deep Q agent struggles on this map due to its need for accurate spatial
+movements.
 
 Similarly, the Convolutional agent was trained first on the MoveToBeacon
 mini-game and then tested on CollectMineralShards. The agent managed to achieve
@@ -369,7 +398,9 @@ mini-game for 2 hours. This then gave a score of 60 with transfer learning,
 compared to 21 without. Figure~\ref{fig:transfer_cnn_move} shows the relative
 difference in learning. The transfer learning rolling average is offset by the
 number of episodes it was trained on the MoveToBeacon mini-game, which is why it
-does not start at 0.
+does not start at 0. It does highlight that the agent is able to reach a high
+score very quickly, where on average an agent would take 20,000+ episodes to
+reach an equivalent score without transfer learning.
 
 \begin{figure}[h]
     \centering
@@ -379,16 +410,15 @@ does not start at 0.
     \label{fig:transfer_cnn_move}%
 \end{figure}
 
-The Deep Q agent is then tested on its ability to attack on multiple mini-games.
-The agent is trained on the FindAndDefeatZerglings mini-game. This map required
+The Deep Q agent was then tested on its ability to attack on multiple mini-games.
+The agent was first trained on the FindAndDefeatZerglings mini-game. This map required
 the agent to learn to search the map and kill the enemy units with little
-strategy required. The agent only needed to issue the attack command to increase
-the overall score. The agent is then tested on the DefeatRoaches and
-DefeatZerglingsAndBanelings. Again the agent was able to show the correct
+strategy required. Next, the agent was tested on the DefeatRoaches and
+DefeatZerglingsAndBanelings mini-games. The agent was able to show the correct
 actions for the given state but with the limitation that the Deep Q agent is
 unable to control individual units. This is a necessary skill to achieving a
 higher score on these games as the agent needs to split the units and surround
-the enemies. The overall performance is similar to the agent being trained on
+the enemies. The overall performance was similar to the agent being trained on
 each of the individual mini-games.
 
 The Deep Q network uses a negative reward function to make the agent try to
@@ -535,7 +565,7 @@ mini-game relating to the current shards.
 Both networks were able to show a learning ability within each subsequent task.
 They both were able to improve upon the base scores achieved at the beginning of
 each training episode, and showed they were learning towards improving their
-scores.  Additionally, the networks were able to learn certain behaviours from
+scores. Additionally, the networks were able to learn certain behaviours from
 different maps and apply the same abilities to some of the other maps.
 
 The convolutional network required much more training time but was able to
@@ -553,5 +583,5 @@ score. Additionally, the bigger the action space the harder it is for the agent
 to find a smart set of actions to use.
 
 Despite these issues, we can see that the agents were able to learn the
-mini-games provided, and in some cases match  or beat the performance of a human
+mini-games provided, and in some cases match or beat the performance of a human
 player in those same games.
