@@ -9,20 +9,20 @@ described in Chapter~\ref{eval_method}.
 Each section will be split into three, first evaluating the Deep Q network,
 second the Convolutional network, and then finally comparing the two. The
 results will mainly focus around the score achieved, which is the in-game is the
-final score for the mini-game at hand, and for the Simple64 map this will
+final score for the mini-game at hand, and for the Simple64 map, this will
 compare how the bot fairs across 100 games against various bots. For the
-mini-games the overall comparison will allow comparisons with known baselines,
+mini-games, the overall comparison will allow comparisons with known baselines,
 such that we can show how the agents stack up. For the Simple64 game where this
 is not possible, it will instead focus on how the agent plays.
 
 After this has been done for both the mini-games and the Simple64 map, the
-results will compared overall to see what the advantages and disadvantages of
+results will be compared overall to see what the advantages and disadvantages of
 each network is, as well as comparing other parts of the networks such as
 training time, and robustness.
 
 Finally, before the conclusion, some of the additional parts of the trained
 networks which are not directly linked to the performance of the network, but
-do give insight into how the networks works will be shown. For example the
+do give insight into how the networks works will be shown. For example, the
 filters for the Convolutional network will be given here, as well as some
 example outputs.
 
@@ -84,12 +84,12 @@ correlate with the network's state inputs. Since this network does not use an
 image as the entire state input for the game, the mini-games chosen need to
 relate the states that the network is designed to use. An example would be the
 ability to move individual units. The Deep Q network does not yet support the
-ability to move individual units since this is not in the networks available actions and
-requires a much more complex actions to control individual units. This means
-that the agent may perform sub-optimally in certain games.
-On the other hand, due to the networks action space including actions that are
-built up of multiple actions, this does also mean that in certain games the
-agent has an advantage in that it can take a complicated action sequence.
+ability to move specific units since this is not in the networks available
+actions and requires much more complex actions. This means that the agent may
+perform sub-optimally in certain games. On the other hand, due to the networks
+action space including actions that are built up of multiple actions, this does
+also mean that in certain games the agent has an advantage in that it can take a
+complicated action sequence.
 
 Results are given in Table~\ref{tab:dqn_results}, where the mean and max score
 achieved is given, as well as the number of episodes the agent was trained for
@@ -114,32 +114,32 @@ to achieve that score.
 
 Looking at the table above, the Deep Q agent struggles with the action space
 available. Due to the way the agent needs to test all combinations of state and
-actions to identify the best action sequence, the agent is limited in the amount
-of actions it is able to take and as so is unable to select specific units or
+actions to identify the best action sequence, the agent is limited in the number
+of actions it can take and as so is unable to select specific units or
 specific locations to send the units to. This meant that the agent struggles
 with maps that require a complex action sequence of splitting units or moving
-units to specific position.
+units to a specific position.
 
 The MoveToBeacon map is an example where the agent is unable to send the units
-to the beacon, if the beacon is on the corners of the quads that the agent can
+to the beacon if the beacon is on the corners of the quads that the agent can
 select. Q-Learning requires the agent to test different actions in a state to
 identify the optimal action to take. If the action space is too large than the
-agent will require a huge amount of training time such that the agent takes a
+agent will require a vast amount of training time such that the agent takes a
 possible combination of actions to the goal.
 
 However, it is possible to see the agent performs well on the
 FindAndDefeatZerglings and BuildMarines map. Because the Deep Q actions are made
-of multiple smaller action sets, the agent is able to execute the complex
+of multiple smaller action sets, the agent can execute the complex
 commands with a single action. This makes it possible for the agent to take a
 given action and evaluate the action without needing a large action space.
 
-The agent is all the cases has learnt the correct sequence of actions to be
-taken for an optimal value approximation. The only limiting factor comes down
-the action space available to the agent. In the CollectMineralsAndGas mini-game,
-the agent has learnt to issue a command to the units to extract resources
-without calling any other actions that would use up these resources. The
-limiting factor is that the agent cannot create more SCV units, the units that
-farm and extract resources, due to the complexity of the action space.
+The agent has learnt the correct sequence of actions to be taken for an optimal
+value approximation in most of the mini-games. The only limiting factor comes
+down the action space available to the agent. In the CollectMineralsAndGas
+mini-game, the agent has learnt to issue a command to the units to extract
+resources without calling any other actions that would use up these resources.
+The limiting factor is that the agent cannot create more SCV units, the units
+that farm and extract resources, due to the complexity of the action space.
 
 \subsection{Convolutional Network}
 
@@ -152,9 +152,9 @@ mini-games require the usage of resource management and knowing when to spend
 resources to build units or buildings. Since the current number of resources is
 not shown on the screen to the agent, it is unable to make decisions based on
 this and as such suffers in these mini-games.
-Similarly, there is no issues with action space due to having access to the
-entire game action space. This means the agent is able to move multiple units
-independently, and perform many actions. However, as there is no compound
+Similarly, there are no issues with action space due to having access to the
+entire game action space. This means the agent can move multiple units
+independently, and perform many actions. However, as there are no compound
 actions, it is much harder for the network to perform complex actions, which
 puts it at a disadvantage in later mini-games.
 
@@ -182,18 +182,18 @@ The scores above highlight one of the known weakness of the network. Both of the
 final two mini-games depend heavily on the current resources. Since this is
 never passed to the network, the agent struggles heavily in these challenges.
 That is because the agent never knows the state of the current resources, and as
-such can not react to it. For a player, they can see they are able to build a
-new gathering unit to increase their production, or to build a new building such
-that they are able to store more resources, or a second command centre to build
+such cannot react to it. For a player, they can see they can build a
+new gathering unit to increase their production or to build a new building such
+that they can store more resources, or a second command centre to build
 units even faster. Since the agent never knows how many resources it has, it is
 unable to formulate the concept of ``There is enough resources to build a new
-unit/building'', so it struggles massively and the end result is worse than the
-random policies DeepMind show. Similarly for BuildMarines, the agent never knows
+unit/building'', so it struggles, and the result is worse than the
+random policies DeepMind show. Similarly, for BuildMarines, the agent never knows
 to build marines or buildings to increase the unit cap and so on. This is why
 the passing of additional variables is an important addition.
 
 On the other side, the mini-games that depend solely on the screen input do very
-well. The first mini-game is able to be completed to the level of an average
+well. The first mini-game can be completed to the level of an average
 human player and the best DeepMind approaches. After this, the other mini-games
 are predominantly close to the values given such that any changes can mostly be
 put down to hyperparameter choices, since only a small sample of values was able
@@ -205,8 +205,8 @@ looking at the data showed that no or very little learning was occurring and as
 such, there was no point continuing to train them. It should be noted however
 that the Convolutional network is capable of running multiple instances of the
 agent at the same time, before collating the scores. This means the agent was
-trained for up to 10 hours, but covered many times more games in that time
-period due to the simultaneous running of up to 64 games at once.
+trained for up to 10 hours but covered many times more games in that period due
+to the simultaneous running of up to 64 games at once.
 
 \subsection{Network comparison}
 
@@ -216,17 +216,17 @@ favourable to make the agent learn the entire base sequence of the smaller
 action sets rather than giving an abstracted action such as build. In the
 implementation of the Q-Learning action space, the agent was designed to show an
 ability to learn using a deep neural network and not the complexity of its
-action space. To show the agents ability to learn, the actions needed to be
+action space. To display the agent's ability to learn, the actions needed to be
 simplified to a single command that would issue the sequence. For example, when
 the agent calls the attack action, a sequence of actions is executed. This
-includes selecting the marine units by issuing a select point on the map, a
-select second point on map and then issuing the attack to the selected units.
-Such complex sequences, will require a lager network and more training episodes.
-If instead, the agent had a larger action space without these compound actions,
-the agent may have been able to perform better in the maps it struggles with
-such as the MoveToBeacon map.
+includes selecting the marine units by issuing to select a point on the map, a
+second select point on the map and then issuing the attack to the selected
+units. Such complex sequences will require a more extensive network and more
+training episodes. If instead, the agent had a larger action space without
+these compound actions, the agent may have been able to perform better in the
+maps it struggles with such as the MoveToBeacon map.
 
-However, this approach was taken for the Convolutional network, and showed the
+However, this approach was taken for the Convolutional network and showed the
 issues with taking an approach that uses the full action space. The
 convolutional network was able to play the MoveToBeacon map to the same level as
 normal human players, as well as the DeepMind agents. However, it also struggled
@@ -234,17 +234,17 @@ greatly on the later mini-games, failing to learn either of the last two games
 and performing worse than a random search policy. Using a compound action here
 may have improved the performance greatly, but does have additional issues as it
 strays away from how a normal human player must play the game. Additionally,
-the issues with learning here however may not be due to the simple versus
+the issues with learning here, however, may not be due to the simple versus
 compound action space, but instead due to the differences of input.
 
 The Deep Q network takes input solely from additional data built up from the
-\texttt{obs} object, and the Convolutional network solely takes input of screen
-and mini-map data, which could also explain these differences. The screen and
-mini-map data provides useful data across every map, since it is the same data
-that a human would use. That said, due to the missing data such as resource and
-unit counts, the agent struggles for any tasks involving them. Similarly, the
-Deep Q network excels on tasks that use these values, but struggles for tasks
-that require accurate positioning of the unit.
+\texttt{obs} object and the Convolutional network solely takes input the of
+screen and mini-map data, which could also explain these differences. The screen
+and mini-map data provide useful data across every map since it is the same
+data that a human would use. That said, due to the missing data such as resource
+and unit counts, the agent struggles for any tasks involving them. Similarly,
+the Deep Q network excels on tasks that use these values, but struggles for
+tasks that require accurate positioning of the unit.
 
 Broadly, this proves experimentally what was assumed earlier in the project;
 The combining of the two input spaces, such that the agent had both
@@ -332,7 +332,7 @@ network will struggle with playing the Simple64 map. That is because it contains
 the same complex action sequences that the BuildMarines and
 CollectMineralsAndGas mini-games contain, along with attacking states and more.
 This makes it unlikely the agent will be able to perform well here, as it
-struggled on the simpler mini-games. However, its more precise control of its
+struggled on the simpler mini-games. However, the more precise control of its
 units may give it an advantage if it manages to reach the later stages of the
 map where it is controlling groups of units.
 
@@ -366,25 +366,25 @@ during the training period.
 \subsection{Network comparison}
 
 The results here are very similar to the mini-games. That is, the Deep Q network
-and its compound actions allow it to win more games, as it is able to perform
+and its compound actions allow it to win more games, as it can perform
 the complex action sequences needed to win or draw.
 
 If the convolutional network was able to learn this game, it is expected it
 would be able to perform better due to its larger action space. For example the
-convolutional network can be seen building more advanced units whilst playing,
-but does not use them at all, whilst the Deep Q agent can not produce these
-later stage units, but is able to use the basic units it does have.
+convolutional network can be seen building more advanced units while playing,
+but does not use them at all, while the Deep Q agent cannot produce these
+later stage units, but can use the basic units it does have.
 
-Both agents exhibit behaviour that make it hard to identify their behaviour as
+Both agents exhibit behaviour that makes it hard to identify their behaviour as
 intelligent. The convolutional agent mixes up resources when it looks around the
-map, and will attempt to send gatherer units to go and extract resources on the
-other side of the map instead of the ones near by. Additionally, earlier form of
-the Q Learning method would allow the enemy to destroy its base, just so it
+map and will attempt to send gatherer units to go and extract resources on the
+other side of the map instead of the ones nearby. Additionally, an earlier form
+of the Q Learning method would allow the enemy to destroy its base, just so it
 could get a reward both for killing the enemy units and building a new base,
 rather than protecting the base and only getting one reward. Finally, due to the
 API there is the fact the agents are unable to respond to a surrender, making
-them get a draw rather than a win, which can not be seen as intelligent, even if
-it is not the agents fault.
+them get a draw rather than a win, which cannot be seen as intelligent, even if
+it is not the agent's fault.
 
 \section{Transfer and Curriculum Learning}
 
@@ -423,7 +423,7 @@ whereas in BuildMarines the agent needs to spend resources to score points. This
 opposing logic makes the two games hard to move between, and as such would most
 likely make curriculum learning less effective.
 
-Bearing this in mind, first the networks were tested on the MoveToBeacon
+Bearing this in mind, first, the networks were tested on the MoveToBeacon
 mini-game and then the CollectMineralShards game. These games were chosen due to
 the same action, movement to a point, being used in both, but with the second
 game requiring the control of two units and the target changing from a beacon to
@@ -437,7 +437,7 @@ agent was able to collect the shards and perform well without the need to be
 retrained on the new mini-game. Scoring an average of 9, the agent performed
 almost as well as being trained only on the CollectMineralShards map, though it
 should be noted that this score is lower than a random policy, as shown in the
-DeepMind scores. This implies that whilst the learning was somewhat transferred,
+DeepMind scores. This implies that while the learning was somewhat transferred,
 the Deep Q agent struggles on this map due to its need for accurate spatial
 movements.
 
@@ -452,7 +452,7 @@ mini-game for 2 hours. This then gave a score of 60 with transfer learning,
 compared to 21 without. Figure~\ref{fig:transfer_cnn_move} shows the relative
 difference in learning. The transfer learning rolling average is offset by the
 number of episodes it was trained on the MoveToBeacon mini-game, which is why it
-does not start at 0. It does highlight that the agent is able to reach a high
+does not start at 0. It does highlight that the agent can reach a high
 score very quickly, where on average an agent would take 20,000+ episodes to
 reach an equivalent score without transfer learning.
 
@@ -478,22 +478,22 @@ each of the individual mini-games.
 Finally, the convolutional network was also tested in its ability to move
 between combat focused mini-games. However, like the Deep Q network, this did
 not give any advantage in training time or performance as compared to the agent
-trained solely on the DefeatZerglingsAndBanelings. In both cases it is assumed
-the reason there was no benefit is due to the differing strategies used to
+trained solely on the DefeatZerglingsAndBanelings. In both cases, it is assumed
+the reason there was no benefit is due to the different strategies used to
 defeat each of the enemies. This meant a model trained to defeat Zerglings was
 unable to defeat Banelings without a lot of training.
 
 \section{Overall comparison}
 
-Comparing the 2 networks, we can see that the Deep Q network is able to perform
+Comparing the two networks, we can see that the Deep Q network can perform
 well in mini-games that do not require a large action space, due to the complex
-action sequences used by the Deep Q network. The Convolutional network on the
-other hand is able to deal with games that have a large action space, but is
+action sequences used by the Deep Q network. The Convolutional network, on the
+other hand, can deal with games that have a large action space, but is
 unable to easily formulate the more complex strategies needed for the later
 mini-games.
 
 This means the agents perform very differently in BuildMarines versus MoveToBeacon.
-The Deep Q network is able to effectively use its more complex action space in
+The Deep Q network can effectively use its more complex action space in
 the BuildMarines game, but falls flat when it comes to the precise spatial
 ability needed for the MoveToBeacon mini-game.
 
@@ -510,11 +510,11 @@ example.
 Finally, it should be mentioned how the two networks compared to the published
 scores. The MoveToBeacon game is the only game where the Convolutional network
 matches the published DeepMind scores. After this, the scores are in a similar
-range for the most part, but do not match them exactly. As explained previously,
+range for the most part but do not match them exactly. As explained previously,
 this is most likely due to the difference in hyperparameters and also in
 training time. The network was able to beat the human player at the
 DefeatRoaches mini-game however. The Deep Q network was able to beat the
-DeepMind scores for the BuildMarines mini-game, however both DeepMind and our
+DeepMind scores for the BuildMarines mini-game. However, both DeepMind and our
 agents were drastically under either the human or professional players score.
 That said, the Deep Q network was able to beat the Random Search policy, where
 the Convolutional network did not.
@@ -528,7 +528,7 @@ state.
 
 Figures~\ref{fig:cnn-filter1} and~\ref{fig:cnn-filter2} show the output of the
 combined convolutional layer that is used to generate the spatial actions. The
-images are given in grey scale, where the predicted best location is given in
+images are given in greyscale, where the predicted best location is given in
 white and gets darker the lower the probability. As can be seen, the
 probability starts off very murky, with lots of noise, but after training
 converges such that the only choice is moving to the target location. This can
@@ -571,23 +571,23 @@ mini-game relating to the current shards.
 \section{Conclusion}
 
 Both networks were able to show a learning ability within each subsequent task.
-They both were able to improve upon the base scores achieved at the beginning of
-each training episode, and showed they were learning towards improving their
+They both were able to improve the base scores achieved at the beginning of
+each training episode and showed they were learning towards improving their
 scores. Additionally, the networks were able to learn certain behaviours from
 different maps and apply the same abilities to some of the other maps.
 
 The convolutional network required much more training time but was able to
-outperform in any mini-game that required precise location based actions such as
-attacking and moving the units. In comparison, the Deep Q network generally had
-less time but was able to perform better in maps that require a sequence of
-actions to increase the score.
+outperform in any mini-game that required precise location-based actions such as
+attacking and moving the units. In comparison, the Deep Q network had less time
+but was able to perform better in maps that require a sequence of actions to
+increase the score.
 
 However, the networks were both limited by the size of the action and input
 space. When both networks were increased to allow for more information, the
 networks were unable to reasonably pick up the desired outcomes. Due to the
 combinational possibilities of the input and output space, the networks would
 need a much longer time of training to be able to learn and achieve a reasonable
-score. Additionally, the bigger the action space the harder it is for the agent
+score. Additionally, the bigger the action space, the harder it is for the agent
 to find a smart set of actions to use.
 
 Despite these issues, we can see that the agents were able to learn the
