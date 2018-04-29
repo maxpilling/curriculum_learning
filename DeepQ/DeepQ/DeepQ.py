@@ -1,4 +1,4 @@
-# python -m pysc2.bin.agent \ --map Simple64 \ --agent DeepQ.Agent \ --agent_race T \ --max_agent_steps 0 \ --norender
+# To run the agent and game: python -m pysc2.bin.agent \ --map Simple64 \ --agent DeepQ.Agent \ --agent_race T \ --max_agent_steps 0 \ --norender
 # Code segments used from: https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow
 
 import random
@@ -62,11 +62,13 @@ smart_actions = [
 ]
 
 # Since we are using the minimap we would have a 64x64 grid
+# Break the entire map into 4 quads
 for mm_x in range(0, 64):
     for mm_y in range(0, 64):
         if (mm_x + 1) % 32 == 0 and (mm_y + 1) % 32 == 0:
-            smart_actions.append(ACTION_ATTACK + '_' + str(mm_x - 16) + '_' + str(mm_y - 16))
+            smart_actions.append(ACTION_ATTACK + '_' + str(mm_x - 16) + '_' + str(mm_y - 16))   # Subtract to aim for the center of the quads
 
+""" The Deep Q Learning Class uses a neural network to evaluate state and actions. """
 class QLearning:
     def __init__(self, actions, learning_rate=0.001, reward_decay=0.9, e_greedy=0.3):
         self.actions = actions  # list of int
@@ -85,12 +87,6 @@ class QLearning:
         self.n_hidden4 = 100        # Number of nodes on hidden layer 4
         self.n_target = 8         # Number of nodes on final layer (the output)
 
-
-        """ 
-            A better method would to implement an output layer with an putput per action. 
-            This reduces the number of feedforward passes needed and improves the overall performance.
-        """
-
         self.graph = tf.Graph()
         with self.graph.as_default():
             self.X = tf.placeholder(tf.float32, shape=[None, self.n_input], name='Input')         # Create 16 nodes input array for states and actions
@@ -98,30 +94,27 @@ class QLearning:
 
             # Create Weights
             self.W1 = tf.Variable(tf.random_normal(shape=[self.n_input, self.n_hidden1], dtype=tf.float32, stddev=0.5), dtype=tf.float32)       # Weights for first hidden layer
-            # self.b1 = tf.Variable(tf.zeros([self.n_hidden1]), name='b1') 
+            self.b1 = tf.Variable(tf.zeros([self.n_hidden1]), name='b1') 
 
             self.W2 = tf.Variable(tf.random_normal(shape=[self.n_hidden1, self.n_hidden2], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
-            # self.b2 = tf.Variable(tf.zeros([self.n_hidden2]), name='b2')
+            self.b2 = tf.Variable(tf.zeros([self.n_hidden2]), name='b2')
             
             self.W3 = tf.Variable(tf.random_normal(shape=[self.n_hidden2, self.n_hidden3], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
-            # self.b3 = tf.Variable(tf.zeros([self.n_hidden3]), name='b3')
+            self.b3 = tf.Variable(tf.zeros([self.n_hidden3]), name='b3')
 
             self.W4 = tf.Variable(tf.random_normal(shape=[self.n_hidden3, self.n_hidden4], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
-            # #self.b4 = tf.Variable(tf.zeros([self.n_hidden4]), name='b2')
+            self.b4 = tf.Variable(tf.zeros([self.n_hidden4]), name='b4')
 
             self.W_out = tf.Variable(tf.random_normal(shape=[self.n_hidden4, self.n_target], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
-            # #self.b_out = tf.Variable(tf.zeros([self.n_target]), name='b_out')
-
-            # self.W_out = tf.Variable(tf.random_normal(shape=[self.n_hidden3, self.n_target], dtype=tf.float32, stddev=0.5), dtype=tf.float32)
-            # self.b_out = tf.Variable(tf.zeros([self.n_target]), name='b_out')
+            self.b_out = tf.Variable(tf.zeros([self.n_target]), name='b_out')
 
             # Connect the nodes
-            self.hidden_1 = tf.nn.relu(tf.matmul(self.X, self.W1))
-            self.hidden_2 = tf.nn.relu(tf.matmul(self.hidden_1, self.W2))
-            self.hidden_3 = tf.nn.relu(tf.matmul(self.hidden_2, self.W3))
-            self.hidden_4 = tf.nn.relu(tf.matmul(self.hidden_3, self.W4))
+            self.hidden_1 = tf.nn.relu( tf.add(tf.matmul(self.X, self.W1), self.b1 ))
+            self.hidden_2 = tf.nn.relu( tf.add(tf.matmul(self.hidden_1, self.W2), self.b2 ))
+            self.hidden_3 = tf.nn.relu( tf.add(tf.matmul(self.hidden_2, self.W3), self.b3 ))
+            self.hidden_4 = tf.nn.relu( tf.add(tf.matmul(self.hidden_3, self.W4), self.b4 ))
 
-            self.Qout = tf.matmul(self.hidden_4, self.W_out)   # Multiply weights by nodes
+            self.Qout = tf.add( tf.matmul(self.hidden_4, self.W_out), self.b_out)   # Multiply weights by nodes
 
             self.loss = tf.reduce_sum(tf.abs(self.Y - self.Qout))    # Loss function
 
@@ -157,30 +150,27 @@ class QLearning:
                 # choose random action
                 action = np.random.randint(low=0, high=self.n_target-1)  # Take a random action
 
-                # Makes sure that it is never less than 1
-                if self.epsilon > .015:
+                # The epsilon value for a random action
+                if self.epsilon > .011:
                     self.epsilon *= self.epsilon_decay         # Reduces the value of epsilon everytime we take a random step
 
                 return action
             else:
                 return 0
 
-    """ Adds the state, action, reward recieved, and next state is terminal or normal state. """
+    """ Adds the state, action, reward recieved, and if next state is terminal or normal state. """
     def remember(self, s, a, r, next_s):
         
         # Save to memory 
         self.memory.append([s, a, r, next_s])
 
-    """ Update the wieghts based on the memory. """
+    """ Updates the wieghts based on the memory array. """
     def learn(self):
-        # May not be able to use minibatch since we need to update the q target in every run
 
         with self.sess.as_default():
 
             total_loss = 0  # Accumulates the total loss of a run
             sample_memory = np.random.permutation(self.memory)
-            #sample_memory = self.memory
-            #sample_memory = np.random.choice(self.memory, int(0.7*len(self.memory)), replace=False)
 
             for mem in sample_memory:
                 # Get prediction
@@ -267,9 +257,10 @@ class Agent(base_agent.BaseAgent):
             # When using simple 64 map use this reward
             reward = obs.reward     # Returned by the game: 1 if win, -1 for loss and 0 for tie (reached at 28000 steps defualt)
 
-            # When using minigames use below reward            
+            # When using minigames use below reward for score          
             # reward = obs.observation['score_cumulative'][0]
 
+            # Use a negative reward for some tasks
             # reward = 0
             # if obs.observation['score_cumulative'][0] > self.previous_score:
             #     reward = 1
@@ -279,7 +270,7 @@ class Agent(base_agent.BaseAgent):
             if LEARN == True:
                 self.qlearn.remember(self.previous_state, self.previous_action, reward, [-1])
                 self.qlearn.learn()
-                # Save the model
+                # Save the model to a folder
                 with self.qlearn.sess.as_default(): 
                     self.qlearn.saver.save(self.qlearn.sess, "./model/agent_model.ckpt")
 
@@ -292,8 +283,8 @@ class Agent(base_agent.BaseAgent):
             
             # Save the score to a file
             with open("score.txt", "a") as scoreFile:
-                # scoreFile.write( str(obs.observation['score_cumulative'][0]) + "," )
-                scoreFile.write( str(obs.reward) + "," )
+                # scoreFile.write( str(obs.observation['score_cumulative'][0]) + "," )  # Use for logging in-game score
+                scoreFile.write( str(obs.reward) + "," )    # Use for logging final win, draw or loss
 
             return actions.FunctionCall(_NO_OP, [])
 
@@ -365,19 +356,12 @@ class Agent(base_agent.BaseAgent):
             for i in range(0, len(hot_squares)):
                 current_state[i + 9] = hot_squares[i]       # +8 bec we already have 8 states before
 
-            # Save to memory for learning later
+            # Save state, action, reward and next state to memory
             if self.previous_action is not None:
                 r = 0      # R is rewards from enviroment
             
-                #if current_state[1] > self.previous_state[1]:           # Check for new supply depots built
-                    #   r += 10 /( current_state[4] - current_state[3] + 1 )    # Supply limit - current number of units in army. If values get close than more reward
-
-                #if current_state[2] > self.previous_state[2]:           # Check for new barracks built
-                #    r += 5
-                #if current_state[3] > self.previous_state[3]:            # Check for new army units
-                #    r += 2*current_state[3]
-            
                 # Using cumulative score we can tell if agent killed or destroyed a building
+
                 #killed_unit_score = obs.observation['score_cumulative'][5]
                 #killed_building_score = obs.observation['score_cumulative'][6]
 
@@ -392,16 +376,16 @@ class Agent(base_agent.BaseAgent):
                 #self.previous_killed_building_score = killed_building_score
 
                 # For mini game rewards
+                r = obs.observation['score_cumulative'][0] - self.previous_score
+
+                # Below are different rewards that can be used
                 # if obs.observation['score_cumulative'][0] > self.previous_score:
-                #     #r = obs.observation['score_cumulative'][0] - self.previous_score
                 #     #r = obs.observation['score_cumulative'][0]
                 #     r = 1
-                #     self.previous_score = obs.observation['score_cumulative'][0]
                 # else:
                 #     r = -0.5
 
-                # if obs.observation['score_cumulative'][0] < self.previous_score:
-                #     r = -1
+                self.previous_score = obs.observation['score_cumulative'][0]
 
                 if LEARN == True:
                     self.qlearn.remember(self.previous_state, self.previous_action, r, current_state)
@@ -419,7 +403,6 @@ class Agent(base_agent.BaseAgent):
                 - The action to take
                 - A follow up action
             """
-
             # Build Barracks
             if smart_action == ACTION_BUILD_BARRACKS or smart_action == ACTION_BUILD_SUPPLY_DEPOT:
                 unit_y, unit_x = (unit_type == _TERRAN_SCV).nonzero()   # Get list of scv units
