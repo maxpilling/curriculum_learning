@@ -3,27 +3,27 @@
 
 \section{Expansions of System}
 
-As mentioned throughout the project, there are many things that could be
-investigated, and other already included features that could be expanded.
+As mentioned throughout the project, many things could be investigated further,
+and other already included features that could be expanded.
 
 To start, as spoken about briefly before, we could expand the Deep Q network,
 such that it has a much richer action space. This would have two advantages.
 Firstly, the agent should be able to learn more complex games and be more
-accurate, as currently the action space is the main thing limiting the agents
+accurate, as currently, the action space is the main thing limiting the agent's
 abilities. This should make it score higher and as such, move closer to a more
 intelligent and optimal solution. Secondly, this would have the advantage of
-allowing the agent to behave more like a human. That is, despite the agents
+allowing the agent to behave more like a human. That is, despite the agent's
 compound actions giving it an advantage in the learning process, it is also
 unrealistic as compared to a human player, who does not have the option of one
-action that then performs many actions. Hopefully with a large enough action
-space the agent would be able to learn these actions by itself.
+action that then performs many actions. Hopefully, with a large enough action
+space, the agent would be able to learn these actions by itself.
 
 Next, the convolutional network could be expanded. Firstly, this should include
 the inclusion of non-spatial information such as resource and unit counts, such
 that they can help influence decisions. This would bring it in-line with the
 `FullyConv' specification that DeepMind speaks about in their paper. Similarly,
-after this, the network could be expanded further to include a Long-term short
-term memory component, which is the next network DeepMind specified. These two
+after this, the network could be expanded further to include a Long short-term
+memory component, which is the next network DeepMind specified. These two
 modifications would allow the network to have more information, as well as
 retain information on past decisions to help make the current decision.
 
@@ -34,7 +34,7 @@ networks, to provide similar comparisons as transfer and curriculum learning wer
 used for here.
 
 Finally, something the networks would potentially also benefit from is using a
-later version of the SC2LE, which has pixel level classifications, rather than
+later version of the SC2LE, which has pixel-level classifications, rather than
 the broad feature maps that are available in the most recent version. This could
 help the convolutional method most, but would also raise many issues. The
 current network architecture performs very well using a very small number of
@@ -53,7 +53,7 @@ outlined here.
 
 \section{Deliverables}
 
-In Chapter~\ref{intro} a number of objectives and deliverables were defined, and
+In Chapter~\ref{intro} some objectives and deliverables were defined, and
 can now be assessed. The objectives the project set out to achieve are as
 follows:
 
@@ -83,16 +83,16 @@ And the deliverables outlined were:
 
 Now at the conclusion of the project, these objectives can be reflected upon. Of
 the three objectives outlined, all of them were met. This includes a full
-chapter outlining both the current methods used for reinforcement learning in
+chapter describing both the current methods used for reinforcement learning in
 games, as well as the theory behind the techniques. This was used as the basis
 for the associated prototypes that were then made for the second objective. This
 ended up being two main prototypes, with various tweaks applied to both to
 optimise performance. The effectiveness and subjective intelligence of these
-agents depends on the scenario at hand, but each are able to act intelligently
+agents depends on the scenario at hand, but each can act intelligently
 in given situations. Finally, to prove the intelligence of the agents beyond
 simply subjectively watching them play, performance metrics were gathered from
 the mini-games and Simple64 map, such that the performance could be more easily
-compared. These scores were compared against published scores when possible, and
+compared. These scores were compared with published scores when possible, and
 also subjectively analysed to ensure they were acting intelligently.
 
 Similarly, the deliverables outlined were all met. All code throughout the
@@ -109,13 +109,13 @@ appropriate.
 
 In conclusion, this project achieved the aims that it set out to reach,
 producing agents that were able to exhibit intelligent behaviour in the game
-StarCraft II, and also experiment with the usage of transfer and curriculum
+StarCraft II, and also experiment with the use of transfer and curriculum
 learning with them.
 
-The project focused on the implementation and feasibility of 2 agent
-architectures. The main focus was on the different aspects of running these 2
+The project focused on the implementation and feasibility of two agent
+architectures. The main focus was on the different aspects of running these two
 architectures with the usage of curriculum and transfer learning. We were able
-to implement and design 2 networks that would play and learn from an in-game
+to implement and design two networks that would play and learn from an in-game
 environment. The most difficult aspect of the implementations was in the reward
 engineering of a real-time game. This required the most time in development and
 was never a complete aspect, as more possible functions could be created and
@@ -124,7 +124,7 @@ to transfer and learn from different maps, the reward needed to be generalised
 so that the agent could use the same function on all the mini-games.
 
 Using PySC2 and TensorFlow also introduced some difficulties with developing the
-agents. Some of the runs gave internal errors from the TensorFlow API and the
+agents. Some of the runs gave internal errors from the TensorFlow API, and the
 usage of PySC2 required more research due to the poor documentation on the API's
 implementation and feature system.
 
@@ -135,9 +135,9 @@ more easily, allowing research to happen faster.
 
 Throughout the project, we could see that the networks required the minimal
 amount of complexity such that the agents can still perform well. Features
-needed to be especially selected so that the agent can benefit from the given
+needed to be specially selected so that the agent can benefit from the given
 information without making the network too large in its inputs. This difficulty
-can been throughout the architecture of the Deep Q network. StarCraft II is a
+can be seen throughout the architecture of the Deep Q network. StarCraft II is a
 real-time strategy game and is difficult for any form of machine learning. There
 were no turns and the agent needed to identify the optimal move every step of
 the game. However, we have shown that an agent can be taught to play the game.
