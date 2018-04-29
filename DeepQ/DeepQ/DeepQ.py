@@ -7,9 +7,7 @@ import os.path
 import time
 
 import numpy as np
-import pandas as pd
 import tensorflow as tf
-from sklearn import preprocessing
 
 from pysc2.agents import base_agent
 from pysc2.lib import actions
