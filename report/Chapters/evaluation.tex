@@ -363,14 +363,7 @@ The results for the 100 games can be seen in Table~\ref{tab:cnn_simple}.
 %did badly. Maybe talk about consistency here, how often they won, how their in
 %game strategies compare etc.
 
-
 \section{Transfer and Curriculum Learning}
-%TODO: Add a few examples of the above, and show how it changes the results.
-% I.e. show a bot going from MoveToBeacon -> CollectMinerals ->
-% FindAndDefeatZerglings and compare that to learning with FindAndDefeatZerglings only.
-% Similarly, compare learning a/many mini-games and then the Simple64 map as
-% well as only the Simple64 map.
-% Compare how well it does, time to learn, etc.
 
 As both of the agents use reward functions, they reduce the likelihood of
 actions that are deemed wrong for a certain task. This means when an action is
@@ -406,7 +399,6 @@ example, in CollectMineralsAndGas the agent is rewarded for hoarding resources,
 whereas in BuildMarines the agent needs to spend resources to score points. This
 opposing logic makes the two games hard to move between, and as such would most
 likely make curriculum learning less effective.
-
 
 Bearing this in mind, first the networks were tested on the MoveToBeacon
 mini-game and then the CollectMineralShards game. These games were chosen due to
@@ -460,6 +452,14 @@ higher score on these games as the agent needs to split the units and surround
 the enemies. The overall performance was similar to the agent being trained on
 each of the individual mini-games.
 
+Finally, the convolutional network was also tested in its ability to move
+between combat focused mini-games. However, like the Deep Q network, this did
+not give any advantage in training time or performance as compared to the agent
+trained solely on the DefeatZerglingsAndBanelings. In both cases it is assumed
+the reason there was no benefit is due to the differing strategies used to
+defeat each of the enemies. This meant a model trained to defeat Zerglings was
+unable to defeat Banelings without a lot of training.
+
 \section{Overall comparison}
 
 Comparing the 2 networks, we can see that the Deep Q network is able to perform
@@ -497,9 +497,6 @@ That said, the Deep Q network was able to beat the Random Search policy, where
 the Convolutional network did not.
 
 \section{Network Information}
-%TODO: Other additional parts of the network that hasn't been covered yet but
-%wasn't applicable to the implem section. CNN - Filter displays etc. DQN - could
-%we see how the QTable changes? etcetc
 
 Figures~\ref{fig:dqn-scores-1} and~\ref{fig:dqn-scores-2} show the Deep Q score
 during training. We can see the score dip as the epsilon value is reduced due to
