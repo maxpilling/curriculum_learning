@@ -364,9 +364,27 @@ Simple64 map. Additionally, due to no time limit not as many games are played
 during the training period.
 
 \subsection{Network comparison}
-%TODO: Compare the networks again, explain why this time one did well and one
-%did badly. Maybe talk about consistency here, how often they won, how their in
-%game strategies compare etc.
+
+The results here are very similar to the mini-games. That is, the Deep Q network
+and its compound actions allow it to win more games, as it is able to perform
+the complex action sequences needed to win or draw.
+
+If the convolutional network was able to learn this game, it is expected it
+would be able to perform better due to its larger action space. For example the
+convolutional network can be seen building more advanced units whilst playing,
+but does not use them at all, whilst the Deep Q agent can not produce these
+later stage units, but is able to use the basic units it does have.
+
+Both agents exhibit behaviour that make it hard to identify their behaviour as
+intelligent. The convolutional agent mixes up resources when it looks around the
+map, and will attempt to send gatherer units to go and extract resources on the
+other side of the map instead of the ones near by. Additionally, earlier form of
+the Q Learning method would allow the enemy to destroy its base, just so it
+could get a reward both for killing the enemy units and building a new base,
+rather than protecting the base and only getting one reward. Finally, due to the
+API there is the fact the agents are unable to respond to a surrender, making
+them get a draw rather than a win, which can not be seen as intelligent, even if
+it is not the agents fault.
 
 \section{Transfer and Curriculum Learning}
 
