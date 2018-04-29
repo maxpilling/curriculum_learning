@@ -326,10 +326,6 @@ learn how to control the tank and manoeuvre its placements so that it is a
 viable option for attacking.
 
 \subsection{Convolutional Network}
-%TODO: Evaluate a number of games of the simple64 map under the CNN network.
-%Give table of results, then a play by play of why it did good or bad across the
-%games. Try not to do too much on the mini-games and then S64, since that is
-%covered later.
 
 Following on from the mini-games results, we can assume that the convolutional
 network will struggle with playing the Simple64 map. That is because it contains
@@ -347,16 +343,25 @@ The results for the 100 games can be seen in Table~\ref{tab:cnn_simple}.
     \begin{tabular}{@{}lrrrr@{}}
         \toprule
         Simple64        & Win  & Lose  & Draw & Episode Count \\
-        Win Statistics  &      &       &      & 100           \\
+        Win Statistics  & 0    & 97    & 3 & 100           \\
         \midrule
         \midrule
                       & Mean & Max  \\
-        In-game Score &      &      \\
+        In-game Score & 5400 & 9200 \\
  \bottomrule
     \end{tabular}
     \caption{Results for the Convolutional network on Simple64}%
     \label{tab:cnn_simple}%
 \end{table}
+
+As expected, the convolutional network fails to learn on this map. This is most
+likely due to having such a vast action space, and the network being able to use
+all actions. This results in there being too many choices for the network, so it
+never learns. Similarly, due to this giant action space its possible the network
+needs to train for much much longer than the mini-games. The mini-games were
+usually trained for between eight and ten hours, which may not be enough for the
+Simple64 map. Additionally, due to no time limit not as many games are played
+during the training period.
 
 \subsection{Network comparison}
 %TODO: Compare the networks again, explain why this time one did well and one
