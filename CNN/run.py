@@ -55,6 +55,7 @@ def signal_term_handler(signal, frame):
 
     Process the SIGTERM event by setting a global var to gracefully save and close
     """
+
     print("Received a SIGTERM command, closing!")
     HAVE_BEEN_KILLED = True
 
@@ -69,6 +70,7 @@ def check_existing_folder(folder):
 
     :param folder: The folder to check.
     """
+
     if os.path.exists(folder):
         if FLAGS.if_output_exists == "overwrite":
             shutil.rmtree(folder)
@@ -85,6 +87,7 @@ def print_and_log(data):
 
     :param data: The data to print.
     """
+
     print(datetime.now())
     print(f"Batch number: {data}")
     sys.stdout.flush()
@@ -97,6 +100,7 @@ def save(agent):
 
     :param agent: The agent to save.
     """
+
     if FLAGS.training:
         agent.save(FULL_CHECKPOINT_PATH)
         agent.flush_summaries()
@@ -109,7 +113,6 @@ def main():
     Given the input flags, setup the agent
     and its runner, before starting the main
     running loop.
-
     """
 
     # Check the save folders, before creating a

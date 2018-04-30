@@ -17,6 +17,7 @@ def log_transform(x, scale):
     :param x: The input variable.
     :param scale: How much to scale the value by.
     """
+
     # 8 is a "feel good" magic number and doesn't mean anything here.
     return np.log(8 * x / scale + 1)
 
@@ -28,6 +29,7 @@ def get_visibility_flag(visibility_feature):
 
     :param visibility_feature: The current visibility feature.
     """
+
     # 0 = Hidden
     # 1 = Fogged
     # 2 = Visible
@@ -41,6 +43,7 @@ def numeric_idx_and_scale(input_set):
 
     :param input_set: The input set.
     """
+
     # Get the scalar values, before zipping the id and value up.
     idx_and_scale = [
         (k.index, k.scale) for k in input_set
@@ -61,6 +64,7 @@ def stack_list_of_dicts(d):
 
     :param d: Input dictionary.
     """
+
     return {key: np.stack([a[key] for a in d]) for key in d[0]}
 
 
@@ -72,6 +76,7 @@ def get_available_actions_flags(obs):
 
     :param obs: The StarCraft II Observation object.
     """
+
     # Return only the available actions from the Observation object.
     available_actions_dense = np.zeros(len(actions.FUNCTIONS), dtype=np.float32)
     available_actions_dense[obs['available_actions']] = 1
@@ -84,8 +89,8 @@ class ObsProcessor:
 
     A class dedicated to processing and making interfacing with the
     StarCraft II obs object easier.
-
     """
+
     N_SCREEN_CHANNELS = 13
     N_MINIMAP_CHANNELS = 5
 
@@ -139,6 +144,7 @@ class ObsProcessor:
 
         :param obs: The StarCraft II Observation object.
         """
+
         minimap_obs = obs["minimap"]
 
         # This is only height_map for mini-map.
@@ -161,6 +167,7 @@ class ObsProcessor:
         :param timestep: The current timestep to deal with.
         :type timestep: TimeStep
         """
+
         obs = timestep.observation
 
         pp_obs = {
@@ -201,6 +208,7 @@ class ObsProcessor:
 
         :param mb_obs: A list of Observation dictionaries.
         """
+
         return stack_list_of_dicts(mb_obs)
 
 
@@ -211,6 +219,7 @@ def make_default_args(arg_names):
 
     :param arg_names: A list of argument names.
     """
+
     default_args = []
     spatial_seen = False
     spatial_arguments = ["screen", "minimap", "screen2"]
@@ -236,6 +245,7 @@ def convert_point_to_rectangle(point, delta, dim):
     :param delta: The difference between the point and the point.
     :param dim: The size of the rectangle.
     """
+
     def l(x):
         return max(0, min(x, dim - 1))
 
@@ -248,8 +258,8 @@ def arg_names():
     """arg_names
 
     Return a list of all argument names from the actions list.
-
     """
+
     x = [[a.name for a in k.args] for k in actions.FUNCTIONS]
     assert all("minimap2" not in k for k in x)
     return x
@@ -260,6 +270,7 @@ def find_rect_function_id():
 
     Fine the id of the rectangle function ID, used for selecting units.
     """
+
     x = [k.id for k, names in zip(actions.FUNCTIONS, arg_names()) if "screen2" in names]
     assert len(x) == 1
     return x[0]
@@ -269,7 +280,6 @@ class ActionProcessor:
     """ActionProcessor
 
     Process a given action.
-
     """
 
     def __init__(self, dim, rect_delta=5):
@@ -285,6 +295,7 @@ class ActionProcessor:
         :param action_id: The action id to perform.
         :param spatial_coordinates: The co-ordinates to perform the action at.
         """
+
         args = list(self.default_args[action_id])
         assert all(s < self.dim for s in spatial_coordinates)
 
@@ -305,6 +316,7 @@ class ActionProcessor:
         :param action_ids: The list of action IDs.
         :param spatial_action_2ds: The co-ordinates to perform them all at.
         """
+
         return [self.make_one_action(a_id, coord)
                 for a_id, coord in zip(action_ids, spatial_action_2ds)]
 
@@ -315,6 +327,7 @@ class ActionProcessor:
 
         :param mb_actions: A list of actions and co-ordinates.
         """
+
         d = {}
         d[FEATURE_KEYS.selected_action_id] = np.stack(k[0] for k in mb_actions)
         d[FEATURE_KEYS.selected_spatial_action] = np.stack(k[1] for k in mb_actions)

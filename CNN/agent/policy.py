@@ -30,6 +30,7 @@ class ConvPolicy:
 
         :param input_tensor: The tensor to be clipped and reduced.
         """
+
         return tf.log(tf.clip_by_value(input_tensor, 1e-12, 1.0))
 
     def build_conv_layers_for_input(self, inputs, name):
@@ -37,7 +38,7 @@ class ConvPolicy:
 
         Creates 2 convolutional layers based on an input.
         Changeable parts here are:
-            Num of outputs for both layers
+            Number of outputs for both layers
             Size of the kernel used
             The stride used
             The activation function
@@ -45,6 +46,7 @@ class ConvPolicy:
         :param inputs: The inputs to run the convolutional layers against.
         :param name: The name of the input, to scope the layers.
         """
+
         conv_layer1 = layers.conv2d(
             inputs=inputs,
             data_format="NHWC",

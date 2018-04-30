@@ -156,8 +156,8 @@ class A2C:
         """init
 
         Start the session with the initial operation.
-
         """
+
         self.session.run(self.init_op)
 
     def get_scalar_summary(self, name, tensor):
@@ -198,7 +198,6 @@ class A2C:
         variables and setting up the policy.
         After this, it sets up the loss value, defines a training
         step and sets up logging for all needed values.
-
         """
 
         # Initialise the placeholders property with some default values.
@@ -338,6 +337,7 @@ class A2C:
 
         :param obs: The observation object, passed from the SC2LE.
         """
+
         return {k + ":0": v for k, v in obs.items()}
 
     def step(self, obs):
@@ -378,6 +378,7 @@ class A2C:
 
         :param obs: The observation object, passed from the SC2LE.
         """
+
         feed_dict = self.organise_obs_for_session(obs)
 
         operations = [self.train_operation]
@@ -416,6 +417,7 @@ class A2C:
 
         :param obs: The observation object, passed from the SC2LE.
         """
+
         feed_dict = self.organise_obs_for_session(obs)
 
         return self.session.run(
@@ -429,8 +431,8 @@ class A2C:
         Simple helper function to flush the summary writer,
         such that the runner can ensure the summary log has been
         fully cleared.
-
         """
+
         self.summary_writer.flush()
 
     def save(self, path, step=None):
@@ -442,6 +444,7 @@ class A2C:
         :param path: The path to save to.
         :param step: The optional step the model is on.
         """
+
         os.makedirs(path, exist_ok=True)
 
         step = step or self.train_step

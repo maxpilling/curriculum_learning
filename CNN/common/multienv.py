@@ -6,6 +6,7 @@ class SingleEnv:
     """
     This works like SubprocVecEnv but runs only one environment in the main process
     """
+
     def __init__(self, env):
         self.env = env
         self.n_envs = 1
@@ -91,6 +92,7 @@ class SubprocVecEnv:
     Links with the worker class to keep track of the timesteps and given
     commands.
     """
+
     def __init__(self, env_fns):
         n_envs = len(env_fns)
 
@@ -138,5 +140,6 @@ def make_sc2env(**kwargs):
 
     :param **kwargs: The supplied arguments.
     """
+
     env = sc2_env.SC2Env(**kwargs)
     return env

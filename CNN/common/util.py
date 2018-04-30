@@ -10,6 +10,7 @@ def weighted_random_sample(weights):
 
     :param weights: 2D tensor [n, d] containing positive weights for sampling.
     """
+
     u = tf.random_uniform(tf.shape(weights))
     return tf.argmax(tf.log(u) / weights, axis=1)
 
@@ -24,6 +25,7 @@ def select_from_each_row(params, indices):
     :param params: 2D tensor of shape [d1,d2].
     :param indices: 1D tensor of shape [d1] with values in [d1, d2].
     """
+
     sel = tf.stack([tf.range(tf.shape(params)[0]), indices], axis=1)
     return tf.gather_nd(params, sel)
 
@@ -64,6 +66,7 @@ def general_n_step_advantage(
     :param discount: "gamma" in https://arxiv.org/pdf/1707.06347.pdf and most of the rl-literature
     :param lambda_par: "lambda" in https://arxiv.org/pdf/1707.06347.pdf
     """
+
     # Check the inputs are valid.
     assert 0.0 < discount <= 1.0
     assert 0.0 <= lambda_par <= 1.0
@@ -92,6 +95,7 @@ def combine_first_dimensions(x: np.ndarray):
 
     :param x: array of [batch_size, time, ...]
     """
+
     first_dim = x.shape[0] * x.shape[1]
     other_dims = x.shape[2:]
     dims = (first_dim,) + other_dims
@@ -111,6 +115,7 @@ def dict_of_lists_to_list_of_dicts(x: dict):
     :param x: The input dictionary.
     :type x: dict
     """
+
     dim = {len(v) for v in x.values()}
 
     assert len(dim) == 1

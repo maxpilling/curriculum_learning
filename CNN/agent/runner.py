@@ -14,8 +14,8 @@ class Runner(object):
     """Runner
 
     Helper class to manage the running of the agent.
-
     """
+
     def __init__(
             self,
             envs,
@@ -39,8 +39,8 @@ class Runner(object):
 
         Process the reset of the runner, setting the latest observation back
         to some initial state.
-
         """
+
         obs = self.envs.reset()
         self.latest_obs = self.obs_processor.process(obs)
 
@@ -51,6 +51,7 @@ class Runner(object):
 
         :param score: Score to log.
         """
+
         summary = tf.Summary()
         summary.value.add(tag='sc2/episode_score', simple_value=score)
         self.agent.summary_writer.add_summary(summary, self.episode_counter)
@@ -81,8 +82,8 @@ class Runner(object):
 
         Run a batch of the training, building up a list of actions, observations,
         values of those actions and the rewards given.
-
         """
+
         # Define variables to store the actions, observations, values and rewards in.
         mb_actions = []
         mb_obs = []
