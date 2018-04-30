@@ -5,18 +5,18 @@
 
 This project uses two main technologies, which will be outlined here.
 
-The first, is StarCraft II itself. StarCraft II is a real-time strategy game on
+The first is StarCraft II itself. StarCraft II is a real-time strategy game on
 the PC\@. The game itself is explained in more detail in
 Chapter~\ref{research}.
 
-The bulk of this project is based around the work done by DeepMind, producing
+The bulk of this project is based on the work done by DeepMind, producing
 the StarCraft II Learning Environment, which is a Python\cite{python-website}
 wrapper for the Blizzard produced API for StarCraft II\cite{bliz-api}. This
 environment removes a lot of the traditional issues that come with playing
 games using machine learning agent. This is because the two main issues, that
 is input and unit recognition have been removed, which allows the more interesting
-problems to be addressed more easily. This is due to a rich input API that means
-parsing the result from an agent is much more easy, as well as a large number
+problems to be addressed more efficiently. This is due to a rich input API that means
+parsing the result from an agent is much easier, as well as a large number
 of pre-made feature maps, meaning issues such as unit recognition are made much
 simpler.
 
@@ -27,15 +27,15 @@ this was due to its prevalence in the community meaning it had large amounts of
 support, as well as documentation. It also allows simple neural networks to be
 built up quickly, to help the rapid iterations we will need once we are experimenting
 with different network types and parameters. Also, it is easily accelerated on the
-GPU, meaning that large speed ups can be gained when running on appropriate hardware.
+GPU, meaning that large speedups can be gained when running on appropriate hardware.
 This hardware is accessible at Leeds University using the ARC machines, which are
-part of the High Performance Computing facilities at the University
+part of the High-Performance Computing facilities at the University
 of Leeds\cite{arc}.
 
 \section{Approach}
 
 The approach taken, and the only one that seemed appropriate for this style of
-project, was an iterative agile approach. This allows the iterations to depend
+project was an iterative, agile approach. This allows the iterations to depend
 on how the project is progressing, meaning that the focus can be shifted if
 targets are reached earlier or later than expected.  When issues or ideas arise,
 these can be tracked on the GitHub code repository, which will contain the code
@@ -46,7 +46,7 @@ fixes.
 \section{Schedule}
 
 As part of the scoping and planning document, an initial time-scale was made
-to plan the time that should be spent on differing parts of the project.
+to plan the time that should be spent on different parts of the project.
 This initial plan can be seen in Figure~\ref{fig:gantt}.
 
 \begin{figure}[h!]
@@ -58,10 +58,10 @@ This initial plan can be seen in Figure~\ref{fig:gantt}.
 
 It can be seen that the largest portion of time was given to the prototyping
 stage. This was because the definitive scope of that stage is dependant on how
-the project progresses, and which styles of learning end up being implemented and
-being the most interesting. As such, whilst being a very long part of the project
-on the chart, it will actually be made up of lots of small iterations, as described
-earlier.
+the project progresses, and which styles of learning end up being implemented
+and being the most interesting. As such, while being a very long part of the
+project on the chart, it will be made up of lots of small iterations, as
+described earlier.
 
 \subsection{Background Research/Literature Review}
 
@@ -80,26 +80,26 @@ in them.
 After researching the problem and possible solutions, prototypes of various
 solutions need to be produced. These prototypes can vary in both their approach
 to the problem as well as being small iterative changes over a previous model
-to tune certain parameters. A number of differing prototypes are useful for
-various things, mainly to provide more conclusive evaluations later in the report,
+to tune specific parameters. Many different prototypes are useful for
+various things, mainly to provide more conclusive evaluations later in the report
 since there will be more prototypes to compare against. It is also beneficial to
-help identify what features of a prototype are the most useful, since networks
+help identify what features of a prototype are the most useful since networks
 features can be compared and contrasted to see what features consistently give the
 best behaviours.
 
 The majority of the project is scheduled in this area, as there is a few
 different techniques we can test, as well as further ones that will be found
-during the research phase. Spending a lot of time to get a number of differing
-agents increases the likelihood of finding what is needed to exhibit intelligent
-behaviour and also increases understanding of the project space for further
-prototypes.
+during the research phase. Spending more time to get many different agents
+increases the likelihood of finding what is needed to exhibit intelligent
+behaviour in an agent. It also increases understanding of the project space for
+further prototypes and further work.
 
 \subsection{Modifications to Timeline}
 
-Whilst the bulk of the project was done on time, the prototyping on the initial
+While the bulk of the project was done on time, the prototyping on the initial
 systems was pushed back, both due to issues in getting a baseline model working,
 but also due to access to delays in getting testing working on the University
-test bed. This was later fixed, but delayed the prototyping stage by 2 weeks,
-and the subsequent write up and evaluation had to be done whilst other
+test bed. This was later fixed but delayed the prototyping stage by two weeks,
+and the subsequent write up, and evaluation had to be done while other
 prototyping tests were going on. However, this did not end up mattering that
 much in the end, as it allowed us to extend the prototyping further.

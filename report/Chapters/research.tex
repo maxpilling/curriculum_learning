@@ -95,7 +95,7 @@ The agent is given a state of the world and checks the lookup table for which
 action would have the highest value in that state. The agent then executes that
 action and rechecks the table again for the new state. Upon executing an action,
 the agent may be given a reward, a value that dictates whether the action taken
-was favorable or incorrect. The table can be updated through a real-time
+was favourable or incorrect. The table can be updated through a real-time
 learning or at the end of an episode. An episode represents an entire list of
 states and actions taken to reach the end, usually by having a terminal state.
 The table is updated using the Q-Learning equation. The algorithm is as follows:
@@ -251,7 +251,7 @@ making the process much harder~\cite{sutton1984temporal}. This makes the
 learning process harder since there is no ground truth that can be compared
 against, instead, a metric that will change and adapt over a large period.
 
-This can be avoided by using final results of a process, for example using the
+This can be avoided by using final results of a process, for example, using the
 result of a game, rather than the score after some number of time-steps.
 However, this has other issues, such as slowing the learning process and
 potentially rewarding unproductive behaviour that occurred as part of a game
@@ -318,7 +318,7 @@ To avoid such an outcome, a discount factor $\gamma$ is used to reduce the
 reward value for an incoming state. So the more steps an agent may take to the
 reward, the lesser the reward value is. Once the agent takes an action, based on
 the state given to the network, the reward is observed and used to update the
-Q-Target. The Q-Target looks at the next state s' and checks which action yields
+Q-Target. The Q-Target looks at the next states and checks which action yields
 the highest value return. That value is then used to update the current state in
 the network by using the TD Error.
 
@@ -338,7 +338,7 @@ The equation above is the same equation used in the Q-Learning algorithm.
 However, it is implemented through the network with a gradient descent
 optimiser. The network evaluates the loss function using the TD Error and then
 updates the relevant weights. The learning rate $\alpha$ must be tested with
-multiple values. If $\alpha$ is increased then the network may converge to an
+multiple values. If $\alpha$ is increased, then the network may converge to an
 optimal value quicker but may also tend to overshoot the local minimum and
 diverge from the optimal value. This makes $\alpha$ a critical hyper-parameter
 based on the amount of training the agent may have. If the $\alpha$ value is set
@@ -363,7 +363,7 @@ multiplied by 3 to get the number of pixels in each of the three channels. $784
 size, say $(250, 250, 3)$, the number of weights becomes very large, without
 even considering the rest of the neurons in the network.
 
-A CNN works differently however. Since it can assume the input is an image, the
+A CNN works differently, however. Since it can assume the input is an image, the
 network architecture may be built in a more specific way. That is, instead of
 input consisting on a flat vector of numbers, the input may be considered in 3D,
 where the images vertical and horizontal resolution make up the width and height

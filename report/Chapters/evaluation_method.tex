@@ -69,8 +69,8 @@ be directly compared.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=1\textwidth]{simple64}
-    \caption{Screenshot of the Simple64 in-game}
-    \label{fig:simple64}
+    \caption{Screen shot of the Simple64 map in-game.}%
+    \label{fig:simple64}%
 \end{figure}
 
 The \textbf{Simple64} map was also chosen to allow experimentation on a
@@ -101,7 +101,7 @@ both new elements and a large number of already known elements makes the simple
 64 maps much harder to play.
 
 Due to this map containing a small snippet of the entire game, it will be useful
-for measuring how the agent behaves in a general settings, as it is possible for
+for measuring how the agent behaves in a general setting, as it is possible for
 an agent to excel at each of the underlying tasks that go into a game of
 StarCraft II, but to fail in the process of combining them effectively.
 
@@ -147,7 +147,7 @@ accurate an agent is in taking an action will mostly depend on the final score
 achieved through that episode. The game is being played in real-time and as so
 creates complexity in the number of possible state action pairs that can be
 observed. When the agent is playing in real-time, without any form of turn-based
-playing, the state space is too large to to represent using a tree structure of
+playing, the state space is too large to represent using a tree structure of
 all possible actions efficiently.
 
 This means that when measuring the accuracy of an action, it will depend on the
@@ -182,12 +182,14 @@ differences in each run of the mini-games.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=1\textwidth]{loss_deepq_movetobeacon}
-    \caption{Deep Q loss over 350 training episodes}
-    \label{fig:loss_deepq_movetobeacon}
+    \caption{Deep Q loss over 350 training episodes.}%
+    \label{fig:loss_deepq_movetobeacon}%
 \end{figure}
 
 
-Figure \ref{fig:loss_deepq_movetobeacon} shows the Deep Q agent's value approximation converging to 0. The loss reduces to show the agent learning the correct expected value.
+Figure~\ref{fig:loss_deepq_movetobeacon} shows the Deep Q agent's value
+approximation converging to 0. The loss reduces to show the agent learning the
+correct expected value.
 
 \section{Measuring Generalisation}
 

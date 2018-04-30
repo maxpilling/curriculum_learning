@@ -269,7 +269,11 @@ There are two scoring systems in this mini-game:
         agent has and each enemy unit killed or building destroyed.
 \end{itemize}
 
-One issue with using the Simple64 map is that the opponent can surrender to the agent but the agent is unable to accept the surrender. This causes the agent to draw instead of win the run since it is unable to accept the opponent's surrender and time runs out.
+One issue with using the Simple64 map is that the opponent can surrender to the
+agent, but the agent is unable to accept the surrender. This causes the agent to
+draw instead of win the match since it is unable to accept the opponent's
+surrender and time runs out. This is a missing part of the API, rather than the
+agents.
 
 \subsection{Deep Q Network}
 
