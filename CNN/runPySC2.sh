@@ -1,7 +1,6 @@
-
-#$ -l h_rt=08:00:00
+#$ -l h_rt=01:00:00
 #$ -l coproc_k80=1
-#$ -l ports=1
+#$ -l ports=5
 
 # Load modules
 module add singularity/2.4
@@ -12,18 +11,23 @@ DATE=$(date +"%Y-%m-%d")
 TIME=$(date +"%H%M")
 DATE_TIME=${DATE}_${TIME}
 
-HOME_DIR="/home/ufaserv1_h/sc13rjc"
+NO_BACKUP_DIR="/nobackup/sc13rjc"
+LOG_FILE="${NO_BACKUP_DIR}/logs/pysc2_${DATE}_${TIME}.log"
 
-LOG_FILE="${HOME_DIR}/logs/pysc2_${DATE}_${TIME}.log"
-STARCRAFT_IMG="/nobackup/sc13rjc/starcraft.simg"
+PROJECT_DIR="${NO_BACKUP_DIR}/git/meng_project/CNN"
+STARCRAFT_IMG="${NO_BACKUP_DIR}/starcraft.simg"
 
 MAP_NAME="MoveToBeacon"
-MODEL_NAME="test_model"
+AGENT_NAME="test_model_1"
 
-SCRIPT_TO_RUN="${HOME_DIR}/git/meng_project/CNN/run.py"
-SCRIPT_ARGS="--map_name ${MAP_NAME} --model_name ${MODEL_NAME} --n_envs 15"
+SCRIPT_TO_RUN="${PROJECT_DIR}/run.py"
+SCRIPT_ARGS="--map_name ${MAP_NAME} --model_name ${AGENT_NAME} --n_envs 64 --if_output_exists continue"
 
-echo "Starting script..." >> ${LOG_FILE}
-echo "Playing on map ${MAP_NAME} with ${MODEL_NAME}" >> ${LOG_FILE}
-singularity exec --nv ${STARCRAFT_IMG} python ${SCRIPT_TO_RUN} ${SCRIPT_ARGS} >> ${LOG_FILE} 2>&1
+echo "Starting script..."
+echo "Swapping to ${PROJECT_DIR}"
+echo "${MAP_NAME}" >> ${LOG_FILE}
+echo "${AGENT_NAME}" >> ${LOG_FILE}
+cd ${PROJECT_DIR}
+singularity exec --nv -H ${NO_BACKUP_DIR} ${STARCRAFT_IMG} python ${SCRIPT_TO_RUN} ${SCRIPT_ARGS} >> ${LOG_FILE} 2>&1
 echo "Finished script."
+
