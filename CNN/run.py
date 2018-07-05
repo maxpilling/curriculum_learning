@@ -18,6 +18,7 @@ from common.multienv import SubprocVecEnv, make_sc2env
 FLAGS = flags.FLAGS
 flags.DEFINE_boolean("training", True, "Should the agent be trained.")
 flags.DEFINE_boolean("visualize", False, "Whether to render with PyGame.")
+
 flags.DEFINE_integer("resolution", 32, "Resolution for screen and mini-map feature layers.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 flags.DEFINE_integer("n_envs", 1, "Number of environments to run in parallel.")
@@ -25,11 +26,13 @@ flags.DEFINE_integer("n_steps_per_batch", None, "Number of steps per batch, if N
 flags.DEFINE_integer("all_summary_freq", 50, "Record all summaries every n batch.")
 flags.DEFINE_integer("scalar_summary_freq", 5, "Record scalar summaries every n batch.")
 flags.DEFINE_integer("K_batches", -1, "Number of training in thousands, -1 to run forever.")
+flags.DEFINE_integer("save_replays_every", 0, "How often to save a replay, 0 for never.")
 
 flags.DEFINE_string("checkpoint_path", "_files/models", "Path for agent checkpoints.")
 flags.DEFINE_string("summary_path", "_files/summaries", "Path for tensorboard summaries.")
 flags.DEFINE_string("model_name", "temp_testing", "Name for checkpoints and tensorboard summaries.")
 flags.DEFINE_string("map_name", "MoveToBeacon", "Map to use.")
+flags.DEFINE_string("replay_dir", "", "Where to say the replays to.")
 
 flags.DEFINE_enum("if_output_exists", "fail", ["fail", "overwrite", "continue"],
                   "What to do if output exists, only for training, is ignored if not training.")
@@ -122,13 +125,20 @@ def main():
         check_existing_folder(FULL_CHECKPOINT_PATH)
         check_existing_folder(FULL_SUMMARY_PATH)
 
+    if FLAGS.save_replays_every > 0:
+        if FLAGS.replay_dir == "":
+            print("Need to specify a replay dir!")
+            return
+
     environment_arguments = dict(
         map_name=FLAGS.map_name,
         step_mul=FLAGS.step_mul,
         game_steps_per_episode=0,
         screen_size_px=(FLAGS.resolution,) * 2,
         minimap_size_px=(FLAGS.resolution,) * 2,
-        visualize=FLAGS.visualize
+        visualize=FLAGS.visualize,
+        save_replay_episodes=FLAGS.save_replays_every,
+        replay_dir=FLAGS.replay_dir
     )
 
     environment = SubprocVecEnv(
