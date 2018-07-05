@@ -13,6 +13,8 @@ from agent.agent import A2C
 from agent.runner import Runner
 from common.multienv import SubprocVecEnv, make_sc2env
 
+from pysc2.env import sc2_env
+
 # Flags taken from example code at https://github.com/xhujoy/pysc2-agents/blob/master/main.py
 
 FLAGS = flags.FLAGS
@@ -130,6 +132,13 @@ def main():
             print("Need to specify a replay dir!")
             return
 
+    agent_details = sc2_env.AgentInterfaceFormat(
+        feature_dimensions=sc2_env.Dimensions(
+            screen=(FLAGS.resolution,) * 2,
+            minimap=(FLAGS.resolution,) * 2
+        )
+    )
+
     environment_arguments = dict(
         map_name=FLAGS.map_name,
         step_mul=FLAGS.step_mul,
@@ -138,7 +147,8 @@ def main():
         minimap_size_px=(FLAGS.resolution,) * 2,
         visualize=FLAGS.visualize,
         save_replay_episodes=FLAGS.save_replays_every,
-        replay_dir=FLAGS.replay_dir
+        replay_dir=FLAGS.replay_dir,
+        agent_interface_format=agent_details
     )
 
     environment = SubprocVecEnv(
