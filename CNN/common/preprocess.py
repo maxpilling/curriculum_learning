@@ -124,7 +124,7 @@ class ObsProcessor:
         :param obs: The StarCraft II Observation object.
         """
 
-        screen_obs = obs["screen"]
+        screen_obs = obs["feature_screen"]
 
         scaled_scalar_obs = log_transform(
             screen_obs[self.screen_numeric_idx], self.screen_numeric_scale
@@ -145,7 +145,7 @@ class ObsProcessor:
         :param obs: The StarCraft II Observation object.
         """
 
-        minimap_obs = obs["minimap"]
+        minimap_obs = obs["feature_minimap"]
 
         # This is only height_map for mini-map.
         scaled_scalar_obs = log_transform(
@@ -172,12 +172,12 @@ class ObsProcessor:
 
         pp_obs = {
             FEATURE_KEYS.screen_numeric: self.get_screen_numeric(obs),
-            FEATURE_KEYS.screen_unit_type: obs["screen"][SCREEN_FEATURES.unit_type.index],
+            FEATURE_KEYS.screen_unit_type: obs["feature_screen"][SCREEN_FEATURES.unit_type.index],
             FEATURE_KEYS.minimap_numeric: self.get_minimap_numeric(obs),
             FEATURE_KEYS.available_action_ids: get_available_actions_flags(obs),
-            FEATURE_KEYS.player_relative_screen: obs["screen"][
+            FEATURE_KEYS.player_relative_screen: obs["feature_screen"][
                 SCREEN_FEATURES.player_relative.index],
-            FEATURE_KEYS.player_relative_minimap: obs["minimap"][
+            FEATURE_KEYS.player_relative_minimap: obs["feature_minimap"][
                 MINIMAP_FEATURES.player_relative.index]
         }
 
