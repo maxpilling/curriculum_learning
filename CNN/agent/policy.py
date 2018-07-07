@@ -212,7 +212,7 @@ class ConvPolicy:
         # Disregard all the non-allowed actions by giving them a
         # probability of zero, before re-normalizing to 1.
         action_id_probs *= self.placeholders.available_action_ids
-        action_id_probs /= tf.reduce_sum(action_id_probs, axis=1, keep_dims=True)
+        action_id_probs /= tf.reduce_sum(action_id_probs, axis=1, keepdims=True)
 
         spatial_action_log_probs = (
             self.logclip(spatial_action_probs)
