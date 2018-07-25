@@ -144,33 +144,34 @@ class ConvPolicy:
         )
 
         non_spatial_features = tf.cast(
-            self.placeholders.non_spatial_features,
+            self.placeholders.non_spatial_features[1],
             tf.float32
         )
         log_non_spatial_features = tf.log(non_spatial_features + 1.)
 
-        dimension_zero = tf.shape(screen_numeric_all)[0]
-        empty_matrix = tf.zeros((self.spatial_dim - tf.shape(self.placeholders.non_spatial_features)[0], 1))
+        non_spatial_dim_size = self.placeholders.non_spatial_features.get_shape().as_list()[1]
+        size_difference = self.spatial_dim - non_spatial_dim_size
 
-        non_spatial_matrix = tf.concat([log_non_spatial_features, empty_matrix], axis=1)
-        non_spatial_diag = tf.diag(non_spatial_matrix)
+        non_spatial_diag = tf.diag(log_non_spatial_features)
 
-        three_d_non_spatial = tf.tile(non_spatial_diag, self.spatial_dim)
+        padding = tf.constant([[0, size_difference], [0, size_difference]])
+        non_spatial_diag_padded = tf.pad(
+            non_spatial_diag,
+            padding,
+            'CONSTANT'
+        )
+
+        print(self.placeholders.non_spatial_features.get_shape().as_list())
+        print(log_non_spatial_features.get_shape().as_list())
+        print(non_spatial_diag.get_shape().as_list())
+        print(non_spatial_diag_padded.get_shape().as_list())
+
+        three_d_non_spatial = tf.tile(non_spatial_diag_padded, self.spatial_dim)
         three_d_reshaped = three_d_non_spatial.reshape((
             self.spatial_dim,
             self.spatial_dim,
             self.spatial_dim
         ))
-
-        four_d_spatial = tf.zeros((
-            dimension_zero,
-            self.spatial_dim,
-            self.spatial_dim,
-            self.spatial_dim
-        ))
-
-        for index in range(0, dimension_zero):
-            four_d_spatial[index] = three_d_reshaped
 
         # Build the 2 convolutional layers based on the screen
         # and the mini-map.
@@ -190,7 +191,7 @@ class ConvPolicy:
             [
                 screen_conv_layer_output,
                 minimap_conv_layer_output,
-                four_d_spatial
+                three_d_reshaped
             ],
             axis=channel_axis
         )
