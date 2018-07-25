@@ -36,6 +36,11 @@ def get_default_values(spatial_dimensions):
             [None, s_d, s_d, ObsProcessor.N_SCREEN_CHANNELS]
         ),
         (
+            FEATURE_KEYS.non_spatial_features,
+            tf.float32,
+            [None, ObsProcessor.N_NON_SPATIAL]
+        ),
+        (
             FEATURE_KEYS.screen_unit_type,
             tf.int32,
             [None, s_d, s_d]

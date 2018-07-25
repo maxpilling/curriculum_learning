@@ -141,6 +141,18 @@ class ConvPolicy:
             axis=channel_axis
         )
 
+        non_spatial_features = tf.cast(
+            self.placeholders.non_spatial_features,
+            tf.float32
+        )
+        log_non_spatial_features = tf.log(non_spatial_features + 1.)
+
+        screen_shape = tf.shape(self.placeholders.screen_numeric)[0]
+        empty_matrix = tf.zeros((screen_shape - len(self.placeholders.non_spatial_features), 1))
+
+        non_spatial_matrix = tf.concat([log_non_spatial_features, empty_matrix], axis=1)
+        non_spatial_diag = tf.diag(non_spatial_matrix)
+
         # Build the 2 convolutional layers based on the screen
         # and the mini-map.
         screen_conv_layer_output = self.build_conv_layers_for_input(
@@ -153,10 +165,14 @@ class ConvPolicy:
             "minimap_network"
         )
 
-        # Group these two convolutional layers now, and
-        # build a further convolutional layer on top of it.
+        # Group these two convolutional layers now, and the non_spatial
+        # features. build a further convolutional layer on top of it.
         visual_inputs = tf.concat(
-            [screen_conv_layer_output, minimap_conv_layer_output],
+            [
+                screen_conv_layer_output,
+                minimap_conv_layer_output,
+                non_spatial_diag
+            ],
             axis=channel_axis
         )
 
