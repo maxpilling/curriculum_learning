@@ -148,7 +148,9 @@ class ConvPolicy:
         log_non_spatial_features = tf.log(non_spatial_features + 1.)
 
         screen_shape = tf.shape(self.placeholders.screen_numeric)[0]
-        empty_matrix = tf.zeros((screen_shape - len(self.placeholders.non_spatial_features), 1))
+        empty_matrix = tf.zeros((screen_shape - tf.shape(self.placeholders.non_spatial_features)[0], 1))
+        test_var = tf.shape(screen_numeric_all)[0]
+        new_empty_matrix = tf.zeros((test_var, 32, 32, 32))
 
         non_spatial_matrix = tf.concat([log_non_spatial_features, empty_matrix], axis=1)
         non_spatial_diag = tf.diag(non_spatial_matrix)
@@ -171,7 +173,7 @@ class ConvPolicy:
             [
                 screen_conv_layer_output,
                 minimap_conv_layer_output,
-                non_spatial_diag
+                new_empty_matrix
             ],
             axis=channel_axis
         )
