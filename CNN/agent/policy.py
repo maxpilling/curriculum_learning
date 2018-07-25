@@ -149,14 +149,28 @@ class ConvPolicy:
         )
         log_non_spatial_features = tf.log(non_spatial_features + 1.)
 
+        dimension_zero = tf.shape(screen_numeric_all)[0]
         empty_matrix = tf.zeros((self.spatial_dim - tf.shape(self.placeholders.non_spatial_features)[0], 1))
-        test_var = tf.shape(screen_numeric_all)[0]
-        new_empty_matrix = tf.zeros((test_var, 32, 32, 32))
 
         non_spatial_matrix = tf.concat([log_non_spatial_features, empty_matrix], axis=1)
         non_spatial_diag = tf.diag(non_spatial_matrix)
-        print("Non Spatial Diag:")
-        print(tf.shape(non_spatial_diag))
+
+        three_d_non_spatial = tf.tile(non_spatial_diag, self.spatial_dim)
+        three_d_reshaped = three_d_non_spatial.reshape((
+            self.spatial_dim,
+            self.spatial_dim,
+            self.spatial_dim
+        ))
+
+        four_d_spatial = tf.zeros((
+            dimension_zero,
+            self.spatial_dim,
+            self.spatial_dim,
+            self.spatial_dim
+        ))
+
+        for index in range(0, dimension_zero):
+            four_d_spatial[index] = three_d_reshaped
 
         # Build the 2 convolutional layers based on the screen
         # and the mini-map.
@@ -176,7 +190,7 @@ class ConvPolicy:
             [
                 screen_conv_layer_output,
                 minimap_conv_layer_output,
-                new_empty_matrix
+                four_d_spatial
             ],
             axis=channel_axis
         )
