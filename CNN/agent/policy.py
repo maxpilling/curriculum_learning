@@ -15,11 +15,13 @@ class ConvPolicy:
 
     def __init__(self,
                  agent,
-                 trainable: bool = True
+                 trainable: bool = True,
+                 spatial_dim: int = 32
                  ):
         self.placeholders = agent.placeholders
         self.trainable = trainable
         self.unittype_emb_dim = agent.unit_type_emb_dim
+        self.spatial_dim = spatial_dim
 
     @staticmethod
     def logclip(input_tensor):
@@ -147,13 +149,14 @@ class ConvPolicy:
         )
         log_non_spatial_features = tf.log(non_spatial_features + 1.)
 
-        screen_shape = tf.shape(self.placeholders.screen_numeric)[0]
-        empty_matrix = tf.zeros((screen_shape - tf.shape(self.placeholders.non_spatial_features)[0], 1))
+        empty_matrix = tf.zeros((self.spatial_dim - tf.shape(self.placeholders.non_spatial_features)[0], 1))
         test_var = tf.shape(screen_numeric_all)[0]
         new_empty_matrix = tf.zeros((test_var, 32, 32, 32))
 
         non_spatial_matrix = tf.concat([log_non_spatial_features, empty_matrix], axis=1)
         non_spatial_diag = tf.diag(non_spatial_matrix)
+        print("Non Spatial Diag:")
+        print(tf.shape(non_spatial_diag))
 
         # Build the 2 convolutional layers based on the screen
         # and the mini-map.

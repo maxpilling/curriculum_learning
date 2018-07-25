@@ -142,7 +142,7 @@ class A2C:
         self.scalar_summary_freq = scalar_summary_freq
         self.train_step = 0
         self.max_gradient_norm = max_gradient_norm
-        self.policy = ConvPolicy
+        self.policy = ConvPolicy(spatial_dim=self.spatial_dim)
 
         opt_class = tf.train.AdamOptimizer
 
