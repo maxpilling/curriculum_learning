@@ -161,17 +161,16 @@ class ConvPolicy:
             'CONSTANT'
         )
 
-        print(self.placeholders.non_spatial_features.get_shape().as_list())
-        print(log_non_spatial_features.get_shape().as_list())
-        print(non_spatial_diag.get_shape().as_list())
-        print(non_spatial_diag_padded.get_shape().as_list())
-
-        three_d_non_spatial = tf.tile(non_spatial_diag_padded, self.spatial_dim)
-        three_d_reshaped = three_d_non_spatial.reshape((
-            self.spatial_dim,
-            self.spatial_dim,
-            self.spatial_dim
-        ))
+        multiples = tf.constant([1, self.spatial_dim])
+        three_d_non_spatial = tf.tile(non_spatial_diag_padded, multiples)
+        three_d_reshaped = tf.reshape(
+            three_d_non_spatial,
+            (
+                self.spatial_dim,
+                self.spatial_dim,
+                self.spatial_dim
+            )
+        )
 
         # Build the 2 convolutional layers based on the screen
         # and the mini-map.
