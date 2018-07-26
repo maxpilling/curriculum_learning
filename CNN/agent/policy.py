@@ -3,6 +3,8 @@ from pysc2.lib import actions
 from pysc2.lib.features import SCREEN_FEATURES, MINIMAP_FEATURES
 from tensorflow.contrib import layers
 
+from agent.non_spatial_setup import pad_and_tile_non_spatial
+
 
 class ConvPolicy:
     """ConvPolicy
@@ -149,38 +151,7 @@ class ConvPolicy:
         )
         log_non_spatial_features = tf.log(non_spatial_features + 1.)
 
-        non_spatial_dim_size = self.placeholders.non_spatial_features.get_shape().as_list()[1]
-        size_difference = self.spatial_dim - non_spatial_dim_size
-
-        padding = tf.constant([[0, 0], [0, size_difference]])
-        
-        # Here we could instead try to use tile and then shrink the volume.
-        non_spatial_padded = tf.pad(
-            log_non_spatial_features,
-            padding,
-            'CONSTANT'
-        )
-
-        print(f"Two D shape: ({non_spatial_padded.get_shape().as_list()})")
-
-        three_d_non_spatial_init = tf.expand_dims(non_spatial_padded, 2) 
-        tiles = [1, 1, 32]
-
-        three_d_non_spatial = tf.tile(
-            three_d_non_spatial_init,
-            tiles
-        )
-
-        print(f"Three D shape: ({three_d_non_spatial.get_shape().as_list()})")
-
-        print(f"Screen shape: ({tf.shape(self.placeholders.screen_numeric)[0]})")
-
-        four_d_non_spatial = tf.expand_dims(
-            three_d_non_spatial,
-            3
-        )
-
-        print(f"Four D final shape: ({four_d_non_spatial.get_shape().as_list()})")
+        four_d_non_spatial = pad_and_tile_non_spatial(self)
 
         # Build the 2 convolutional layers based on the screen
         # and the mini-map.
