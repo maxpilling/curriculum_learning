@@ -162,7 +162,7 @@ class ConvPolicy:
         print(f"Two D shape: ({non_spatial_padded.get_shape().as_list()})")
 
         three_d_non_spatial_init = tf.expand_dims(non_spatial_padded, 2) 
-        tiles = [0, 0, 32]
+        tiles = [1, 1, 32]
 
         three_d_non_spatial = tf.tile(
             three_d_non_spatial_init,
