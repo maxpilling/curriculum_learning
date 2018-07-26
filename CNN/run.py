@@ -12,12 +12,15 @@ from absl import flags
 from agent.agent import A2C
 from agent.runner import Runner
 from common.multienv import SubprocVecEnv, make_sc2env
+from tensorflow.python import debug as tf_debug
 
 # Flags taken from example code at https://github.com/xhujoy/pysc2-agents/blob/master/main.py
 
 FLAGS = flags.FLAGS
 flags.DEFINE_boolean("training", True, "Should the agent be trained.")
 flags.DEFINE_boolean("visualize", False, "Whether to render with PyGame.")
+flags.DEFINE_boolean("debug", False, "Whether to start tfdbg.")
+
 flags.DEFINE_integer("resolution", 32, "Resolution for screen and mini-map feature layers.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 flags.DEFINE_integer("n_envs", 1, "Number of environments to run in parallel.")
@@ -140,6 +143,10 @@ def main():
     # Setup the agent and its runner.
     tf.reset_default_graph()
     session = tf.Session()
+
+    if FLAGS.debug:
+        # Needs pyreadline installed (on Windows at least)
+        session = tf_debug.LocalCLIDebugWrapperSession(session)
 
     agent = A2C(
         session=session,
