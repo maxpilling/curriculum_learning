@@ -135,6 +135,8 @@ def main():
         (partial(make_sc2env, **environment_arguments),) * FLAGS.n_envs
     )
 
+    print(f"Environment arguments are: {environment_arguments}")
+
     # Setup the agent and its runner.
     tf.reset_default_graph()
     session = tf.Session()

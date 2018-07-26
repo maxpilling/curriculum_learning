@@ -10,6 +10,9 @@ def pad_and_tile_non_spatial(conv_policy, log_non_spatial_features):
     Tile the 3D matrix with the 2D matrix.
     """
 
+    if DEBUG:
+        print("Using Pad and Tile")
+
     non_spatial_dim_size = conv_policy.placeholders.non_spatial_features.get_shape().as_list()[1]
     size_difference = conv_policy.spatial_dim - non_spatial_dim_size
 
@@ -52,6 +55,9 @@ def tile_and_tile_non_spatial(conv_policy, log_non_spatial_features):
     Tile the 2D matrix with the initial vector.
     Tile the 3D matrix with the 2D matrix.
     """
+
+    if DEBUG:
+        print("Using Tile and Tile")
 
     non_spatial_dim_size = conv_policy.placeholders.non_spatial_features.get_shape().as_list()[1]
 
