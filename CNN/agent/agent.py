@@ -458,7 +458,7 @@ class A2C:
 
         step = step or self.train_step
         print("Saving the model to %s, at step %d" % (path, step))
-
+        self.summary_writer.add_graph(self.session.graph)
         self.saver.save(
             self.session,
             path + '/model.ckpt',
