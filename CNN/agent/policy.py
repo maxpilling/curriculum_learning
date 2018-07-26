@@ -144,7 +144,7 @@ class ConvPolicy:
         )
 
         non_spatial_features = tf.cast(
-            self.placeholders.non_spatial_features[1],
+            self.placeholders.non_spatial_features,
             tf.float32
         )
         log_non_spatial_features = tf.log(non_spatial_features + 1.)
@@ -152,31 +152,30 @@ class ConvPolicy:
         non_spatial_dim_size = self.placeholders.non_spatial_features.get_shape().as_list()[1]
         size_difference = self.spatial_dim - non_spatial_dim_size
 
-        non_spatial_diag = tf.diag(log_non_spatial_features)
-
-        padding = tf.constant([[0, size_difference], [0, size_difference]])
-        non_spatial_diag_padded = tf.pad(
-            non_spatial_diag,
+        padding = tf.constant([[0, 0], [0, size_difference]])
+        non_spatial_padded = tf.pad(
+            log_non_spatial_features,
             padding,
             'CONSTANT'
         )
 
-        print(f"Two D shape: ({non_spatial_diag_padded.get_shape().as_list()})")
+        print(f"Two D shape: ({non_spatial_padded.get_shape().as_list()})")
 
-        three_d_non_spatial = tf.expand_dims(non_spatial_diag_padded, 2) 
+        three_d_non_spatial_init = tf.expand_dims(non_spatial_padded, 2) 
+        tiles = [0, 0, 32]
+
+        three_d_non_spatial = tf.tile(
+            three_d_non_spatial_init,
+            tiles
+        )
 
         print(f"Three D shape: ({three_d_non_spatial.get_shape().as_list()})")
 
         print(f"Screen shape: ({tf.shape(self.placeholders.screen_numeric)[0]})")
 
-        dimension_zero = tf.shape(self.placeholders.screen_numeric)[0]
-        four_d_non_spatial_init = tf.expand_dims(three_d_non_spatial, 0)
-
-        print(f"Four D initial shape: ({four_d_non_spatial_init.get_shape().as_list()})")
-
-        four_d_non_spatial = tf.tile(
-            four_d_non_spatial_init,
-            [dimension_zero, 1, 1, 1,1]
+        four_d_non_spatial = tf.expand_dims(
+            three_d_non_spatial,
+            3
         )
 
         print(f"Four D final shape: ({four_d_non_spatial.get_shape().as_list()})")
