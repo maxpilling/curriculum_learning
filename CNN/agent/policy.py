@@ -172,12 +172,12 @@ class ConvPolicy:
         dimension_zero = tf.shape(self.placeholders.screen_numeric)[0]
         four_d_non_spatial_init = tf.expand_dims(three_d_non_spatial, 0)
 
-        four_d_non_spatial = four_d_non_spatial_init
+        print(f"Four D initial shape: ({four_d_non_spatial_init.get_shape().as_list()})")
 
-        print(f"Four D initial shape: ({four_d_non_spatial.get_shape().as_list()})")
-
-        for index in range(0, dimension_zero): 
-            four_d_non_spatial = tf.concat([four_d_non_spatial, four_d_non_spatial_init], channel_axis)
+        four_d_non_spatial = tf.tile(
+            four_d_non_spatial_init,
+            [dimension_zero, 1, 1, 1,1]
+        )
 
         print(f"Four D final shape: ({four_d_non_spatial.get_shape().as_list()})")
 
