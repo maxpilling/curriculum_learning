@@ -153,6 +153,8 @@ class ConvPolicy:
         size_difference = self.spatial_dim - non_spatial_dim_size
 
         padding = tf.constant([[0, 0], [0, size_difference]])
+        
+        # Here we could instead try to use tile and then shrink the volume.
         non_spatial_padded = tf.pad(
             log_non_spatial_features,
             padding,
