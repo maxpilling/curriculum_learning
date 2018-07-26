@@ -151,7 +151,10 @@ class ConvPolicy:
         )
         log_non_spatial_features = tf.log(non_spatial_features + 1.)
 
-        four_d_non_spatial = pad_and_tile_non_spatial(self)
+        four_d_non_spatial = pad_and_tile_non_spatial(
+            self,
+            log_non_spatial_features
+        )
 
         # Build the 2 convolutional layers based on the screen
         # and the mini-map.

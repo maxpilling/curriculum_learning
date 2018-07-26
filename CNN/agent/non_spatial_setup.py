@@ -2,7 +2,7 @@ import tensorflow as tf
 
 DEBUG = True
 
-def pad_and_tile_non_spatial(conv_policy):
+def pad_and_tile_non_spatial(conv_policy, log_non_spatial_features):
     """pad_and_tile_non_spatial
 
     Pad the 2D matrix with zeros.
