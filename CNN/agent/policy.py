@@ -161,16 +161,21 @@ class ConvPolicy:
             'CONSTANT'
         )
 
-        multiples = tf.constant([1, self.spatial_dim])
-        three_d_non_spatial = tf.tile(non_spatial_diag_padded, multiples)
-        three_d_reshaped = tf.reshape(
-            three_d_non_spatial,
-            (
-                self.spatial_dim,
-                self.spatial_dim,
-                self.spatial_dim
-            )
-        )
+        three_d_non_spatial = tf.expand_dims(non_spatial_diag_padded, 2) 
+
+        dimension_zero = tf.shape(screen_numeric_all)[0].shape[0]
+        four_d_spatial = tf.zeros(( 
+            dimension_zero, 
+            self.spatial_dim, 
+            self.spatial_dim, 
+            1 
+        )) 
+
+        for index in range(0, dimension_zero): 
+            four_d_spatial[index] = three_d_non_spatial 
+
+        print(four_d_spatial.get_shape().as_list())
+        print(dimension_zero)
 
         # Build the 2 convolutional layers based on the screen
         # and the mini-map.
@@ -190,7 +195,7 @@ class ConvPolicy:
             [
                 screen_conv_layer_output,
                 minimap_conv_layer_output,
-                three_d_reshaped
+                four_d_spatial
             ],
             axis=channel_axis
         )
