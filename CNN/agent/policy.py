@@ -161,21 +161,25 @@ class ConvPolicy:
             'CONSTANT'
         )
 
+        print(f"Two D shape: ({non_spatial_diag_padded.get_shape().as_list()})")
+
         three_d_non_spatial = tf.expand_dims(non_spatial_diag_padded, 2) 
 
-        dimension_zero = tf.shape(screen_numeric_all)[0].shape[0]
-        four_d_spatial = tf.zeros(( 
-            dimension_zero, 
-            self.spatial_dim, 
-            self.spatial_dim, 
-            1 
-        )) 
+        print(f"Three D shape: ({three_d_non_spatial.get_shape().as_list()})")
+
+        print(f"Screen shape: ({tf.shape(self.placeholders.screen_numeric)[0]})")
+
+        dimension_zero = tf.shape(self.placeholders.screen_numeric)[0]
+        four_d_non_spatial_init = tf.expand_dims(three_d_non_spatial, 0)
+
+        four_d_non_spatial = four_d_non_spatial_init
+
+        print(f"Four D initial shape: ({four_d_non_spatial.get_shape().as_list()})")
 
         for index in range(0, dimension_zero): 
-            four_d_spatial[index] = three_d_non_spatial 
+            four_d_non_spatial = tf.concat([four_d_non_spatial, four_d_non_spatial_init], channel_axis)
 
-        print(four_d_spatial.get_shape().as_list())
-        print(dimension_zero)
+        print(f"Four D final shape: ({four_d_non_spatial.get_shape().as_list()})")
 
         # Build the 2 convolutional layers based on the screen
         # and the mini-map.
@@ -195,7 +199,7 @@ class ConvPolicy:
             [
                 screen_conv_layer_output,
                 minimap_conv_layer_output,
-                four_d_spatial
+                four_d_non_spatial
             ],
             axis=channel_axis
         )
