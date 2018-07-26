@@ -47,6 +47,7 @@ flags.DEFINE_float("entropy_weight_action", 1e-6, "Entropy of action-id distribu
 
 FLAGS(sys.argv)
 
+FULL_REPLAY_PATH = os.path.join(FLAGS.replay_dir, FLAGS.model_name)
 FULL_CHECKPOINT_PATH = os.path.join(FLAGS.checkpoint_path, FLAGS.model_name)
 HAVE_BEEN_KILLED = False
 
@@ -131,6 +132,7 @@ def main():
         if FLAGS.replay_dir == "":
             print("Need to specify a replay dir!")
             return
+        os.makedirs(FULL_REPLAY_PATH, exist_ok=True)
 
     environment_arguments = dict(
         map_name=FLAGS.map_name,
@@ -140,7 +142,7 @@ def main():
         minimap_size_px=(FLAGS.resolution,) * 2,
         visualize=FLAGS.visualize,
         save_replay_episodes=FLAGS.save_replays_every,
-        replay_dir=FLAGS.replay_dir
+        replay_dir=FULL_REPLAY_PATH
     )
 
     environment = SubprocVecEnv(
