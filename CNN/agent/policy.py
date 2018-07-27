@@ -79,13 +79,20 @@ class ConvPolicy:
 
         return conv_layer2
 
-    def build(self):
+    def build(self, session):
         """build
 
         Build the actual network, using the
         values passed over the from agent object, which
         themselves are derived from the Obs object.
         """
+        MODEL_META_GRAPH = "C:\\Users\\Ryan\\Documents\\Git\\meng_project\\CNN\\_files\\models\\test_model_20\\model.ckpt-13500.meta"
+        MODEL_FOLDER = "C:\\Users\\Ryan\\Documents\\Git\\meng_project\\CNN\\_files\\models\\test_model_20"
+
+        saver = tf.train.import_meta_graph(MODEL_META_GRAPH)
+        saver.restore(session, tf.train.latest_checkpoint(MODEL_FOLDER))
+
+        flatten_1 = tf.get_default_graph().get_tensor_by_name('theta/Flatten_1/flatten:0')
 
         # Maps a series of symbols to embeddings,
         # where an embedding is a mapping from discrete objects,
@@ -182,19 +189,38 @@ class ConvPolicy:
         # convolutional layer.
         map_output_flat = layers.flatten(visual_inputs)
 
-        fully_connected_layer1 = layers.fully_connected(
+        fully_connected_layer_normal = layers.fully_connected(
             map_output_flat,
             num_outputs=256,
-            activation_fn=tf.nn.relu,
-            scope="fully_connected_layer1",
+            activation_fn=None,
+            scope="fully_connected_layer_normal",
             trainable=self.trainable
+        )
+
+        fully_connected_previous = layers.fully_connected(
+            flatten_1,
+            num_outputs=256,
+            activation_fn=None,
+            scope="fully_connected_previous",
+            trainable=self.trainable
+        )
+
+        joint_connected_layers = tf.add(
+            fully_connected_layer_normal,
+            fully_connected_previous,
+            'layer_add'
+        )
+
+        relu_connected_layer = tf.nn.relu(
+            joint_connected_layers,
+            name='fully_connected_layer1_normal_relu'
         )
 
         # Generate the probability of a given action from the
         # fully connected layer. Finally, produce a value
         # estimate for the given actions.
         action_id_probs = layers.fully_connected(
-            fully_connected_layer1,
+            relu_connected_layer,
             num_outputs=len(actions.FUNCTIONS),
             activation_fn=tf.nn.softmax,
             scope="action_id",
@@ -202,7 +228,7 @@ class ConvPolicy:
         )
 
         value_estimate = tf.squeeze(layers.fully_connected(
-            fully_connected_layer1,
+            relu_connected_layer,
             num_outputs=1,
             activation_fn=None,
             scope='value',
@@ -227,4 +253,17 @@ class ConvPolicy:
         self.action_id_log_probs = action_id_log_probs
         self.spatial_action_log_probs = spatial_action_log_probs
 
+        self.create_connections_to_previous_experience(session)
+
         return self
+
+    def create_connections_to_previous_experience(self, session):
+        """create_connections_to_previous_experience
+
+        Link the new empty model to existing model files, to reuse
+        already learnt experiences.
+        """
+
+
+
+        return
