@@ -205,7 +205,9 @@ class A2C:
 
         # Provides checks to ensure that variable isn't shared by accident,
         # and starts up the fully convolutional policy.
-        with tf.variable_scope("theta"):
+
+        #TODO: Make this dynamic.
+        with tf.variable_scope("theta_1"):
             theta = self.policy(self, trainable=True).build(self.session)
 
         # Get the actions and the probabilities of those actions.
@@ -272,7 +274,7 @@ class A2C:
             clip_gradients=self.max_gradient_norm,
             summaries=OPTIMIZER_SUMMARIES,
             learning_rate=None,
-            name="train_operation"
+            name="train_operation_1" #TODO: Make this dynamic
         )
 
         # Finally, log some information about the model in its current state.
@@ -449,6 +451,9 @@ class A2C:
 
         step = step or self.train_step
         print("Saving the model to %s, at step %d" % (path, step))
+
+        self.summary_writer.add_graph(self.session.graph)
+        self.flush_summaries()
 
         self.saver.save(
             self.session,

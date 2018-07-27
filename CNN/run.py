@@ -160,6 +160,9 @@ def main():
     else:
         agent.init()
 
+    #TODO: Remove this, only needed whilst we check the graph structure.
+    save(agent)
+
     # Check that number of steps per batch is defined.
     if FLAGS.n_steps_per_batch is None:
         n_steps_per_batch = 8

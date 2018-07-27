@@ -86,13 +86,13 @@ class ConvPolicy:
         values passed over the from agent object, which
         themselves are derived from the Obs object.
         """
-        MODEL_META_GRAPH = "C:\\Users\\Ryan\\Documents\\Git\\meng_project\\CNN\\_files\\models\\test_model_20\\model.ckpt-13500.meta"
-        MODEL_FOLDER = "C:\\Users\\Ryan\\Documents\\Git\\meng_project\\CNN\\_files\\models\\test_model_20"
+        MODEL_META_GRAPH = "/home/scff/git/meng_project/CNN/_files/old_models/models/test_model_20/model.ckpt-13500.meta"
+        MODEL_FOLDER = "/home/scff/git/meng_project/CNN/_files/old_models/models/test_model_20"
 
         saver = tf.train.import_meta_graph(MODEL_META_GRAPH)
         saver.restore(session, tf.train.latest_checkpoint(MODEL_FOLDER))
 
-        flatten_1 = tf.get_default_graph().get_tensor_by_name('theta/Flatten_1/flatten:0')
+        flatten_1 = tf.get_default_graph().get_tensor_by_name('theta/Flatten_1/Reshape:0')
 
         # Maps a series of symbols to embeddings,
         # where an embedding is a mapping from discrete objects,
