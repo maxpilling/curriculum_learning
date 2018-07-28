@@ -18,6 +18,7 @@ from common.multienv import SubprocVecEnv, make_sc2env
 FLAGS = flags.FLAGS
 flags.DEFINE_boolean("training", True, "Should the agent be trained.")
 flags.DEFINE_boolean("visualize", False, "Whether to render with PyGame.")
+
 flags.DEFINE_integer("resolution", 32, "Resolution for screen and mini-map feature layers.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 flags.DEFINE_integer("n_envs", 1, "Number of environments to run in parallel.")
@@ -25,11 +26,13 @@ flags.DEFINE_integer("n_steps_per_batch", None, "Number of steps per batch, if N
 flags.DEFINE_integer("all_summary_freq", 50, "Record all summaries every n batch.")
 flags.DEFINE_integer("scalar_summary_freq", 5, "Record scalar summaries every n batch.")
 flags.DEFINE_integer("K_batches", -1, "Number of training in thousands, -1 to run forever.")
+flags.DEFINE_integer("save_replays_every", 0, "How often to save a replay, 0 for never.")
 
 flags.DEFINE_string("checkpoint_path", "_files/models", "Path for agent checkpoints.")
 flags.DEFINE_string("summary_path", "_files/summaries", "Path for tensorboard summaries.")
 flags.DEFINE_string("model_name", "temp_testing", "Name for checkpoints and tensorboard summaries.")
 flags.DEFINE_string("map_name", "MoveToBeacon", "Map to use.")
+flags.DEFINE_string("replay_dir", "_files/replays", "Where to say the replays to.")
 
 flags.DEFINE_enum("if_output_exists", "fail", ["fail", "overwrite", "continue"],
                   "What to do if output exists, only for training, is ignored if not training.")
@@ -42,13 +45,15 @@ flags.DEFINE_float("entropy_weight_action", 1e-6, "Entropy of action-id distribu
 
 FLAGS(sys.argv)
 
-FULL_CHECKPOINT_PATH = os.path.join(FLAGS.checkpoint_path, FLAGS.model_name)
+SCRIPT_LOCATION = os.path.dirname(os.path.realpath(__file__))
+FULL_REPLAY_PATH = os.path.join(SCRIPT_LOCATION, FLAGS.replay_dir, FLAGS.model_name)
+RELATIVE_CHECKPOINT_PATH = os.path.join(FLAGS.checkpoint_path, FLAGS.model_name)
 HAVE_BEEN_KILLED = False
 
 if FLAGS.training:
-    FULL_SUMMARY_PATH = os.path.join(FLAGS.summary_path, FLAGS.model_name)
+    RELATIVE_SUMMARY_PATH = os.path.join(FLAGS.summary_path, FLAGS.model_name)
 else:
-    FULL_SUMMARY_PATH = os.path.join(FLAGS.summary_path, "no_training", FLAGS.model_name)
+    RELATIVE_SUMMARY_PATH = os.path.join(FLAGS.summary_path, "no_training", FLAGS.model_name)
 
 def signal_term_handler(signal, frame):
     """signal_term_handler
@@ -102,7 +107,7 @@ def save(agent):
     """
 
     if FLAGS.training:
-        agent.save(FULL_CHECKPOINT_PATH)
+        agent.save(RELATIVE_CHECKPOINT_PATH)
         agent.flush_summaries()
         sys.stdout.flush()
 
@@ -119,16 +124,30 @@ def main():
     # dictionary of the running parameters to be passed
     # to the environment setup function.
     if FLAGS.training:
-        check_existing_folder(FULL_CHECKPOINT_PATH)
-        check_existing_folder(FULL_SUMMARY_PATH)
+        check_existing_folder(RELATIVE_CHECKPOINT_PATH)
+        check_existing_folder(RELATIVE_SUMMARY_PATH)
+
+    if FLAGS.save_replays_every > 0:
+        if FLAGS.replay_dir == "":
+            print("Need to specify a replay dir!")
+            return
+        os.makedirs(FULL_REPLAY_PATH, exist_ok=True)
+
+    agent_details = sc2_env.AgentInterfaceFormat(
+        feature_dimensions=sc2_env.Dimensions(
+            screen=(FLAGS.resolution,) * 2,
+            minimap=(FLAGS.resolution,) * 2
+        )
+    )
 
     environment_arguments = dict(
         map_name=FLAGS.map_name,
         step_mul=FLAGS.step_mul,
         game_steps_per_episode=0,
-        screen_size_px=(FLAGS.resolution,) * 2,
-        minimap_size_px=(FLAGS.resolution,) * 2,
-        visualize=FLAGS.visualize
+        visualize=FLAGS.visualize,
+        save_replay_episodes=FLAGS.save_replays_every,
+        replay_dir=FULL_REPLAY_PATH,
+        agent_interface_format=agent_details
     )
 
     environment = SubprocVecEnv(
@@ -147,7 +166,7 @@ def main():
         entropy_weight_action_id=FLAGS.entropy_weight_action,
         entropy_weight_spatial=FLAGS.entropy_weight_spatial,
         scalar_summary_freq=FLAGS.scalar_summary_freq,
-        summary_path=FULL_SUMMARY_PATH,
+        summary_path=RELATIVE_SUMMARY_PATH,
         all_summary_freq=FLAGS.all_summary_freq,
         max_gradient_norm=FLAGS.max_gradient_norm
     )
@@ -155,8 +174,8 @@ def main():
     agent.build_model()
 
     # If there is a checkpoint, we should load it.
-    if os.path.exists(FULL_CHECKPOINT_PATH):
-        agent.load(FULL_CHECKPOINT_PATH)
+    if os.path.exists(RELATIVE_CHECKPOINT_PATH):
+        agent.load(RELATIVE_CHECKPOINT_PATH)
     else:
         agent.init()
 
