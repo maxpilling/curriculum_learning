@@ -14,6 +14,8 @@ from agent.runner import Runner
 from common.multienv import SubprocVecEnv, make_sc2env
 from tensorflow.python import debug as tf_debug
 
+from pysc2.env import sc2_env
+
 # Flags taken from example code at https://github.com/xhujoy/pysc2-agents/blob/master/main.py
 
 FLAGS = flags.FLAGS
