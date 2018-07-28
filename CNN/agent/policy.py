@@ -19,12 +19,10 @@ class ConvPolicy:
     def __init__(self,
                  agent,
                  trainable: bool = True,
-                 spatial_dim: int = 32
                  ):
         self.placeholders = agent.placeholders
         self.trainable = trainable
         self.unittype_emb_dim = agent.unit_type_emb_dim
-        self.spatial_dim = spatial_dim
 
     @staticmethod
     def logclip(input_tensor):
