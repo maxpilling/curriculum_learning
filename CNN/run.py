@@ -13,8 +13,6 @@ from agent.agent import A2C
 from agent.runner import Runner
 from common.multienv import SubprocVecEnv, make_sc2env
 
-from pysc2.env import sc2_env
-
 # Flags taken from example code at https://github.com/xhujoy/pysc2-agents/blob/master/main.py
 
 FLAGS = flags.FLAGS
