@@ -168,12 +168,13 @@ class ObsProcessor:
         obs = timestep.observation
         feature_screen = np.array(obs["feature_screen"])
         feature_minimap = np.array(obs["feature_minimap"])
+        player_obs = np.array(obs['player'])
 
         pp_obs = {
             FEATURE_KEYS.screen_numeric: self.get_screen_numeric(feature_screen),
             FEATURE_KEYS.screen_unit_type: feature_screen[SCREEN_FEATURES.unit_type.index],
             FEATURE_KEYS.minimap_numeric: self.get_minimap_numeric(feature_minimap),
-            FEATURE_KEYS.non_spatial_features: obs['player'],
+            FEATURE_KEYS.non_spatial_features: player_obs,
             FEATURE_KEYS.available_action_ids: get_available_actions_flags(obs),
             FEATURE_KEYS.player_relative_screen: feature_screen[
                 SCREEN_FEATURES.player_relative.index],
