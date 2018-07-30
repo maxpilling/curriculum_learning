@@ -113,9 +113,9 @@ def reference_tiling_method(conv_policy, log_non_spatial_features):
     )
 
     if DEBUG:
-        print(f"Three D shape: ({three_d_non_spatial().get_shape().as_list()})")
+        print(f"Three D shape: ({three_d_non_spatial.get_shape().as_list()})")
 
-    four_d_non_spatial = tf.tile(
+    four_d_non_spatial = tf.expand_dims(
         three_d_non_spatial,
         2
     )
