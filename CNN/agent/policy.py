@@ -4,6 +4,7 @@ from pysc2.lib.features import SCREEN_FEATURES, MINIMAP_FEATURES
 from tensorflow.contrib import layers
 
 from agent.non_spatial_setup import (pad_and_tile_non_spatial,
+                                     reference_tiling_method,
                                      tile_and_tile_non_spatial)
 
 
@@ -152,7 +153,7 @@ class ConvPolicy:
         )
         log_non_spatial_features = tf.log(non_spatial_features + 1.)
 
-        four_d_non_spatial = tile_and_tile_non_spatial(
+        four_d_non_spatial = reference_tiling_method(
             self,
             log_non_spatial_features
         )
