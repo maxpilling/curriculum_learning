@@ -31,6 +31,7 @@ flags.DEFINE_integer("all_summary_freq", 50, "Record all summaries every n batch
 flags.DEFINE_integer("scalar_summary_freq", 5, "Record scalar summaries every n batch.")
 flags.DEFINE_integer("K_batches", -1, "Number of training in thousands, -1 to run forever.")
 flags.DEFINE_integer("save_replays_every", 0, "How often to save a replay, 0 for never.")
+flags.DEFINE_integer("number_episodes", -1, "Number of episodes to run for, will go forever by default")
 
 flags.DEFINE_string("checkpoint_path", "_files/models", "Path for agent checkpoints.")
 flags.DEFINE_string("summary_path", "_files/summaries", "Path for tensorboard summaries.")
@@ -204,6 +205,7 @@ def main():
         discount=FLAGS.discount,
         n_steps=n_steps_per_batch,
         do_training=FLAGS.training,
+        number_episodes=FLAGS.number_episodes
     )
 
     runner.reset()
@@ -219,8 +221,9 @@ def main():
     # number of batches is met.
     # Log the current iteration every 500 batches,
     # and save every 2000.
+    keep_running = True
     try:
-        while True:
+        while keep_running:
 
             if HAVE_BEEN_KILLED:
                 break
@@ -229,7 +232,7 @@ def main():
                 print_and_log(current_iter)
                 save(agent)
 
-            runner.run_batch()
+            keep_running = runner.run_batch()
 
             current_iter += 1
 
