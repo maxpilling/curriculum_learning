@@ -341,7 +341,7 @@ class A2C:
         """
 
         original_dict = {k + ":0": v for k, v in obs.items()}
-        new_dict = {k + "_1:0": v for k, v in obs.items()}
+        new_dict = {"theta_1/" + k + ":0": v for k, v in obs.items()}
 
         return {**original_dict, **new_dict}
 

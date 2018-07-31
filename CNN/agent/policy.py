@@ -98,11 +98,11 @@ class ConvPolicy:
         saver.restore(session, tf.train.latest_checkpoint(MODEL_FOLDER))
 
         print("Grabbing flatten...")
-        flatten_1 = tf.get_default_graph().get_tensor_by_name('theta/Flatten_1/Reshape:0')
+        flatten_1 = tf.get_default_graph().get_tensor_by_name('theta_1/theta/Flatten_1/flatten/Reshape:0')
         print(flatten_1.get_shape().as_list())
 
         print("Grabbing screen/minimap concat...")
-        screen_minimap_concat = tf.get_default_graph().get_tensor_by_name('theta/concat_2:0')
+        screen_minimap_concat = tf.get_default_graph().get_tensor_by_name('theta_1/theta/concat_2:0')
         print(screen_minimap_concat.get_shape().as_list())
 
         # Maps a series of symbols to embeddings,

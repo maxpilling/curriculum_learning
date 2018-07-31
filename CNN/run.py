@@ -2,12 +2,12 @@ import os
 import shutil
 import signal
 import sys
-
-import tensorflow as tf
-
 from datetime import datetime
 from functools import partial
+
+import tensorflow as tf
 from absl import flags
+from pysc2.env import sc2_env
 
 from agent.agent import A2C
 from agent.runner import Runner
