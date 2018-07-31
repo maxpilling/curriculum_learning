@@ -93,6 +93,7 @@ class ConvPolicy:
         saver.restore(session, tf.train.latest_checkpoint(MODEL_FOLDER))
 
         flatten_1 = tf.get_default_graph().get_tensor_by_name('theta/Flatten_1/Reshape:0')
+        screen_minimap_concat = tf.get_default_graph().get_tensor_by_name('theta/concat_2:0')
 
         # Maps a series of symbols to embeddings,
         # where an embedding is a mapping from discrete objects,
@@ -167,22 +168,41 @@ class ConvPolicy:
             axis=channel_axis
         )
 
-        spatial_actions = layers.conv2d(
+        spatial_actions_normal = layers.conv2d(
             visual_inputs,
             data_format="NHWC",
             num_outputs=1,
             kernel_size=1,
             stride=1,
             activation_fn=None,
-            scope='spatial_action',
+            scope='spatial_actions_normal',
             trainable=self.trainable
         )
 
+        spatial_actions_previous = layers.conv2d(
+            screen_minimap_concat,
+            data_format="NHWC",
+            num_outputs=1,
+            kernel_size=1,
+            stride=1,
+            activation_fn=None,
+            scope='spatial_actions_previous',
+            trainable=self.trainable
+        )
+
+        joint_spatial_actions = tf.add(
+            spatial_actions_normal,
+            spatial_actions_previous,
+            'spatial_actions_add'
+        )
+
         if self.trainable:
-            tf.summary.image(f"spatial_action", tf.reshape(spatial_actions, [-1, 32, 32, 1]), 3)
+            tf.summary.image(f"spatial_action_normal", tf.reshape(spatial_actions_normal, [-1, 32, 32, 1]), 3)
+            tf.summary.image(f"spatial_action_previous", tf.reshape(spatial_actions_previous, [-1, 32, 32, 1]), 3)
+            tf.summary.image(f"joint_connected_layers", tf.reshape(joint_spatial_actions, [-1, 32, 32, 1]), 3)
 
         # Take the softmax of this final convolutional layer.
-        spatial_action_probs = tf.nn.softmax(layers.flatten(spatial_actions))
+        spatial_action_probs = tf.nn.softmax(layers.flatten(joint_spatial_actions))
 
         # Build a full connected layer of this final convolutional layer.
         # Could possibly pass in additional variables here, alongside the
@@ -208,7 +228,7 @@ class ConvPolicy:
         joint_connected_layers = tf.add(
             fully_connected_layer_normal,
             fully_connected_previous,
-            'layer_add'
+            'fully_connected_layer_add'
         )
 
         relu_connected_layer = tf.nn.relu(
