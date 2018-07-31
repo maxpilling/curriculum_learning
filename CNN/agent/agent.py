@@ -9,6 +9,7 @@ from tensorflow.contrib.layers.python.layers.optimizers import \
     OPTIMIZER_SUMMARIES
 
 from agent.policy import ConvPolicy
+from agent.SimpleModelLoader import SimpleModelLoader
 from common.preprocess import FEATURE_KEYS, AgentInputTuple, ObsProcessor
 from common.util import (dump_all_tensors_to_file, ravel_index_pairs,
                          select_from_each_row, weighted_random_sample)
@@ -195,6 +196,32 @@ class A2C:
 
         return SelectedLogProbs(action_id, spatial_coord, total)
 
+    def get_previous_models(self):
+        """get_previous_models
+
+        Returns a list of all the previous models.
+        """
+
+        MODEL_META_GRAPHS = [
+            "F:\\User Files\\Documents\\Git\\meng_project\\CNN\\_files\\models\\reinforcement_base_model\\model.ckpt-0.meta"
+        ]
+
+        previous_models = []
+
+        for graph_path in MODEL_META_GRAPHS:
+            previous_model = SimpleModelLoader(
+                graph_path,
+                self.session.graph
+            )
+
+            if DEBUG:
+                print(f"Flatten_1 Shape: {previous_model.flatten_1.get_shape().as_list()}")
+                print(f"Concat_2 Shape: {previous_model.concat_2.get_shape().as_list()}")
+
+            previous_models.append(previous_model)
+
+        return previous_models
+
     def build_model(self):
         """build_model
 
@@ -207,16 +234,7 @@ class A2C:
         # Initialise the placeholders property with some default values.
         self.placeholders = get_default_values(self.spatial_dim)
 
-        if DEBUG:
-            print("Starting building...")
-
-        MODEL_META_GRAPH = "F:\\User Files\\Documents\\Git\\meng_project\\CNN\\_files\\models\\reinforcement_base_model\\model.ckpt-0.meta"
-
-        previous_model = SimpleModelLoader(MODEL_META_GRAPH, self.session.graph)
-
-        if DEBUG:
-            print(f"Flatten_1 Shape: {previous_model.flatten_1.get_shape().as_list()}")
-            print(f"Concat_2 Shape: {previous_model.concat_2.get_shape().as_list()}")
+        previous_models = self.get_previous_models()
 
         # Provides checks to ensure that variable isn't shared by accident,
         # and starts up the fully convolutional policy, as well as reverting
@@ -225,7 +243,7 @@ class A2C:
 
             #TODO: Make this dynamic.
             with tf.variable_scope("theta_1"):
-                theta = self.policy(self, trainable=True).build(self.session, previous_model)
+                theta = self.policy(self, trainable=True).build(self.session, previous_models[0])
 
         # Get the actions and the probabilities of those actions.
         selected_spatial_action = ravel_index_pairs(
@@ -360,6 +378,7 @@ class A2C:
         :param obs: The observation object, passed from the SC2LE.
         """
 
+        #TODO: Make this dynamic, both in number of dicts made, as well as the _1.
         original_dict = {k + ":0": v for k, v in obs.items()}
         new_dict = {k + "_1:0": v for k, v in obs.items()}
 
@@ -503,36 +522,3 @@ class A2C:
 
         # Now increment, since we are on the next step.
         self.train_step += 1
-
-
-class SimpleModelLoader():
-
-    def __init__(self, model_meta_path, graph_to_use):
-        self.graph = graph_to_use
-        self.session = tf.Session(graph=self.graph)
-
-        #TODO: Pass over and have theta depend on model number.
-        self.previous_model_number = None
-
-        model_folder = os.path.dirname(model_meta_path)
-
-        with self.graph.as_default():
-
-            print("Importing Meta Graph...")
-            saver = tf.train.import_meta_graph(
-                model_meta_path
-            )
-
-            print("Restoring graph...")
-            saver.restore(
-                self.session,
-                tf.train.latest_checkpoint(model_folder)
-            )
-
-    @property
-    def flatten_1(self):
-        return self.graph.get_tensor_by_name('theta/Flatten_1/flatten/Reshape:0')
-
-    @property
-    def concat_2(self):
-        return self.graph.get_tensor_by_name('theta/concat_2:0')
