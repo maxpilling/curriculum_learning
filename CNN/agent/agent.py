@@ -513,6 +513,9 @@ class SimpleModelLoader():
         self.graph = graph_to_use
         self.session = tf.Session(graph=self.graph)
 
+        #TODO: Pass over and have theta depend on model number.
+        self.previous_model_number = None
+
         model_folder = os.path.dirname(model_meta_path)
 
         with self.graph.as_default():
