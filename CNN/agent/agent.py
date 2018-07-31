@@ -340,7 +340,10 @@ class A2C:
         :param obs: The observation object, passed from the SC2LE.
         """
 
-        return {k + ":0": v for k, v in obs.items()}
+        original_dict = {k + ":0": v for k, v in obs.items()}
+        new_dict = {k + "_1:0": v for k, v in obs.items()}
+
+        return {**original_dict, **new_dict}
 
     def step(self, obs):
         """step
