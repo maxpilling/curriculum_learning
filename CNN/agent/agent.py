@@ -243,7 +243,7 @@ class A2C:
 
             #TODO: Make this dynamic.
             with tf.variable_scope("theta_1"):
-                theta = self.policy(self, trainable=True).build(self.session, previous_models[0])
+                theta = self.policy(self, trainable=True).build(self.session, previous_models)
 
         # Get the actions and the probabilities of those actions.
         selected_spatial_action = ravel_index_pairs(

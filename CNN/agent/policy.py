@@ -79,7 +79,29 @@ class ConvPolicy:
 
         return conv_layer2
 
-    def build(self, session, previous_model):
+    def add_all_previous(self, previous_list):
+        """add_all_previous
+
+        For a list of tensors, add them all together, and return a final tensor.
+        """
+
+        if len(previous_list) == 1:
+            return previous_list[0]
+
+        final_tensor = tf.add(
+            previous_list[0],
+            previous_list[1]
+        )
+
+        for current_tensor in previous_list[2:]:
+            final_tensor = tf.add(
+                final_tensor,
+                current_tensor
+            )
+
+        return final_tensor
+
+    def build(self, session, previous_models):
         """build
 
         Build the actual network, using the
@@ -172,20 +194,26 @@ class ConvPolicy:
             trainable=self.trainable
         )
 
-        spatial_actions_previous = layers.conv2d(
-            previous_model.concat_2,
-            data_format="NHWC",
-            num_outputs=1,
-            kernel_size=1,
-            stride=1,
-            activation_fn=None,
-            scope='spatial_actions_previous',
-            trainable=self.trainable
-        )
+        previous_spatial_actions = []
+        for previous_model in previous_models:
+            spatial_actions_previous = layers.conv2d(
+                previous_model.concat_2,
+                data_format="NHWC",
+                num_outputs=1,
+                kernel_size=1,
+                stride=1,
+                activation_fn=None,
+                scope='spatial_actions_previous',
+                trainable=self.trainable
+            )
+
+            previous_spatial_actions.append(spatial_actions_previous)
+
+        previous_spatial_actions_added = self.add_all_previous(previous_spatial_actions)
 
         joint_spatial_actions = tf.add(
             spatial_actions_normal,
-            spatial_actions_previous,
+            previous_spatial_actions_added,
             'spatial_actions_add'
         )
 
@@ -211,17 +239,23 @@ class ConvPolicy:
             trainable=self.trainable
         )
 
-        fully_connected_previous = layers.fully_connected(
-            previous_model.flatten_1,
-            num_outputs=256,
-            activation_fn=None,
-            scope="fully_connected_previous",
-            trainable=self.trainable
-        )
+        previous_fully_con_1 = []
+        for previous_model in previous_models:
+            fully_connected_previous = layers.fully_connected(
+                previous_model.flatten_1,
+                num_outputs=256,
+                activation_fn=None,
+                scope="fully_connected_previous",
+                trainable=self.trainable
+            )
+
+            previous_fully_con_1.append(fully_connected_previous)
+
+        previous_fully_con_1_added = self.add_all_previous(previous_fully_con_1)
 
         joint_connected_layers = tf.add(
             fully_connected_layer_normal,
-            fully_connected_previous,
+            previous_fully_con_1_added,
             'fully_connected_layer_add'
         )
 
