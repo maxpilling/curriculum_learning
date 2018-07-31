@@ -85,7 +85,7 @@ class Runner(object):
         Run a batch of the training, building up a list of actions, observations,
         values of those actions and the rewards given.
         """
-        if self.number_episodes >= self.episode_counter:
+        if self.number_episodes <= self.episode_counter:
             print("Max number episodes reached. Quitting.")
             return False
         # Define variables to store the actions, observations, values and rewards in.
