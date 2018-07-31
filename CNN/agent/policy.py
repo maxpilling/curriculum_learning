@@ -4,8 +4,10 @@ from pysc2.lib.features import SCREEN_FEATURES, MINIMAP_FEATURES
 from tensorflow.contrib import layers
 
 from agent.non_spatial_setup import (pad_and_tile_non_spatial,
+                                     reference_tiling_method,
                                      tile_and_tile_non_spatial)
 
+DEBUG = False
 
 class ConvPolicy:
     """ConvPolicy
@@ -152,10 +154,11 @@ class ConvPolicy:
         )
         log_non_spatial_features = tf.log(non_spatial_features + 1.)
 
-        four_d_non_spatial = tile_and_tile_non_spatial(
+        four_d_non_spatial = reference_tiling_method(
             self,
             log_non_spatial_features
         )
+
 
         #We want to print the values of the tensor
         four_d_non_spatial = tf.Print(
@@ -165,6 +168,17 @@ class ConvPolicy:
             summarize=1024 #this is the number of values TF will print from the Tensor
         )
         
+
+        if DEBUG:
+            #We want to print the values of the tensor
+            four_d_non_spatial = tf.Print(
+                four_d_non_spatial,
+                [four_d_non_spatial],
+                "4D non spatial tensor values: ",
+                summarize=1024 #this is the number of values TF will print from the Tensor
+            )
+
+
         # Build the 2 convolutional layers based on the screen
         # and the mini-map.
         screen_conv_layer_output = self.build_conv_layers_for_input(
