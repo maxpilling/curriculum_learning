@@ -153,6 +153,7 @@ def main():
     environment = SubprocVecEnv(
         (partial(make_sc2env, **environment_arguments),) * FLAGS.n_envs
     )
+    print("Finished setting up env...")
 
     # Setup the agent and its runner.
     tf.reset_default_graph()
@@ -172,6 +173,7 @@ def main():
     )
 
     agent.build_model()
+    print("Finished building model...")
 
     # If there is a checkpoint, we should load it.
     if os.path.exists(RELATIVE_CHECKPOINT_PATH):
@@ -180,6 +182,7 @@ def main():
         agent.init()
 
     #TODO: Remove this, only needed whilst we check the graph structure.
+    print("Do an initial print to check the model...")
     save(agent)
 
     # Check that number of steps per batch is defined.

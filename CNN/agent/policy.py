@@ -86,14 +86,24 @@ class ConvPolicy:
         values passed over the from agent object, which
         themselves are derived from the Obs object.
         """
+
+        print("Starting building...")
         MODEL_META_GRAPH = "/home/scff/git/meng_project/CNN/_files/old_models/models/test_model_20/model.ckpt-13500.meta"
         MODEL_FOLDER = "/home/scff/git/meng_project/CNN/_files/old_models/models/test_model_20"
 
+        print("Importing Meta Graph...")
         saver = tf.train.import_meta_graph(MODEL_META_GRAPH)
+
+        print("Restoring graph...")
         saver.restore(session, tf.train.latest_checkpoint(MODEL_FOLDER))
 
+        print("Grabbing flatten...")
         flatten_1 = tf.get_default_graph().get_tensor_by_name('theta/Flatten_1/Reshape:0')
+        print(flatten_1.get_shape().as_list())
+
+        print("Grabbing screen/minimap concat...")
         screen_minimap_concat = tf.get_default_graph().get_tensor_by_name('theta/concat_2:0')
+        print(screen_minimap_concat.get_shape().as_list())
 
         # Maps a series of symbols to embeddings,
         # where an embedding is a mapping from discrete objects,
@@ -168,6 +178,7 @@ class ConvPolicy:
             axis=channel_axis
         )
 
+        print("Sorting spatial actions...")
         spatial_actions_normal = layers.conv2d(
             visual_inputs,
             data_format="NHWC",
@@ -209,6 +220,7 @@ class ConvPolicy:
         # convolutional layer.
         map_output_flat = layers.flatten(visual_inputs)
 
+        print("Sorting fully connected layers...")
         fully_connected_layer_normal = layers.fully_connected(
             map_output_flat,
             num_outputs=256,
@@ -246,6 +258,8 @@ class ConvPolicy:
             scope="action_id",
             trainable=self.trainable
         )
+
+        print("Passed all changed code...")
 
         value_estimate = tf.squeeze(layers.fully_connected(
             relu_connected_layer,
