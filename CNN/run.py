@@ -221,9 +221,8 @@ def main():
     # number of batches is met.
     # Log the current iteration every 500 batches,
     # and save every 2000.
-    keep_running = True
     try:
-        while keep_running:
+        while True:
 
             if HAVE_BEEN_KILLED:
                 break
@@ -232,7 +231,8 @@ def main():
                 print_and_log(current_iter)
                 save(agent)
 
-            keep_running = runner.run_batch()
+            if not runner.run_batch():
+                raise KeyboardInterrupt("Closing")
 
             current_iter += 1
 
