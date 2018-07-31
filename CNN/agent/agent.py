@@ -207,9 +207,6 @@ class A2C:
         # Initialise the placeholders property with some default values.
         self.placeholders = get_default_values(self.spatial_dim)
 
-        # Provides checks to ensure that variable isn't shared by accident,
-        # and starts up the fully convolutional policy.
-
         if DEBUG:
             print("Starting building...")
 
@@ -221,16 +218,14 @@ class A2C:
             print(f"Flatten_1 Shape: {previous_model.flatten_1.get_shape().as_list()}")
             print(f"Concat_2 Shape: {previous_model.concat_2.get_shape().as_list()}")
 
-        # Set the session back, and then build
+        # Provides checks to ensure that variable isn't shared by accident,
+        # and starts up the fully convolutional policy, as well as reverting
+        # any changes to the session that could have occurred after loading.
         with self.session.as_default():
-            tf.import_graph_def(previous_model.graph.as_graph_def())
 
             #TODO: Make this dynamic.
             with tf.variable_scope("theta_1"):
                 theta = self.policy(self, trainable=True).build(self.session, previous_model)
-
-        if DEBUG:
-            dump_all_tensors_to_file(self.session.graph, 'combined_tensor_list.log')
 
         # Get the actions and the probabilities of those actions.
         selected_spatial_action = ravel_index_pairs(
@@ -351,6 +346,9 @@ class A2C:
         self.scalar_summary_op = tf.summary.merge(
             tf.get_collection(self._scalar_summary_key)
         )
+
+        if DEBUG:
+            dump_all_tensors_to_file(self.session.graph, 'combined_tensor_list.log')
 
     @staticmethod
     def organise_obs_for_session(obs):
