@@ -79,7 +79,7 @@ class ConvPolicy:
 
         return conv_layer2
 
-    def build(self, session, previous_bits):
+    def build(self, session, previous_model):
         """build
 
         Build the actual network, using the
@@ -173,7 +173,7 @@ class ConvPolicy:
         )
 
         spatial_actions_previous = layers.conv2d(
-            previous_bits[1],
+            previous_model.concat_2,
             data_format="NHWC",
             num_outputs=1,
             kernel_size=1,
@@ -212,7 +212,7 @@ class ConvPolicy:
         )
 
         fully_connected_previous = layers.fully_connected(
-            previous_bits[0],
+            previous_model.flatten_1,
             num_outputs=256,
             activation_fn=None,
             scope="fully_connected_previous",

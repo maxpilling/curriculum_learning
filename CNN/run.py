@@ -182,7 +182,7 @@ def main():
         agent.init()
 
     #TODO: Remove this, only needed whilst we check the graph structure.
-    print("Do an initial print to check the model...")
+    print("Do an initial save to check the model...")
     save(agent)
 
     # Check that number of steps per batch is defined.
