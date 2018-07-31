@@ -206,9 +206,41 @@ class A2C:
         # Provides checks to ensure that variable isn't shared by accident,
         # and starts up the fully convolutional policy.
 
+        print("Starting building...")
+        MODEL_META_GRAPH = "F:\\User Files\\Documents\\Git\\meng_project\\CNN\\_files\\models\\reinforcement_base_model\\model.ckpt-0.meta"
+        MODEL_FOLDER = "F:\\User Files\\Documents\\Git\\meng_project\\CNN\\_files\\models\\reinforcement_base_model"
+
+        previous_model = SimpleModelLoader(MODEL_META_GRAPH, MODEL_FOLDER, self.session.graph)
+
+        nodes = [n.name for n in previous_model.graph.as_graph_def().node]
+        print("==========================================================================================")
+        with open('nodes_new.txt', 'w') as f:
+            for node in nodes:
+                print(node, file=f)
+        print("==========================================================================================")
+
+        print("Grabbing flatten...")
+        flatten_1 = previous_model.graph.get_tensor_by_name('theta/Flatten_1/flatten/Reshape:0')
+        print(flatten_1.get_shape().as_list())
+
+        print("Grabbing screen/minimap concat...")
+        screen_minimap_concat = previous_model.graph.get_tensor_by_name('theta/concat_2:0')
+        print(screen_minimap_concat.get_shape().as_list())
+
+        previous_bits = [flatten_1, screen_minimap_concat]
+
         #TODO: Make this dynamic.
-        with tf.variable_scope("theta_1"):
-            theta = self.policy(self, trainable=True).build(self.session)
+        with self.session.as_default():
+            tf.import_graph_def(previous_model.graph.as_graph_def())
+            with tf.variable_scope("theta_1"):
+                theta = self.policy(self, trainable=True).build(self.session, previous_bits)
+
+        nodes = [n.name for n in tf.get_default_graph().as_graph_def().node]
+        print("==========================================================================================")
+        with open('nodes_combined.txt', 'w') as f:
+            for node in nodes:
+                print(node, file=f)
+        print("==========================================================================================")
 
         # Get the actions and the probabilities of those actions.
         selected_spatial_action = ravel_index_pairs(
@@ -341,7 +373,7 @@ class A2C:
         """
 
         original_dict = {k + ":0": v for k, v in obs.items()}
-        new_dict = {"theta_1/" + k + ":0": v for k, v in obs.items()}
+        new_dict = {k + "_1:0": v for k, v in obs.items()}
 
         return {**original_dict, **new_dict}
 
@@ -483,3 +515,23 @@ class A2C:
 
         # Now increment, since we are on the next step.
         self.train_step += 1
+
+
+class SimpleModelLoader():
+
+    def __init__(self, model_meta_path, model_folder, graph_to_use):
+        self.graph = graph_to_use
+        self.session = tf.Session(graph=self.graph)
+
+        with self.graph.as_default():
+
+            print("Importing Meta Graph...")
+            saver = tf.train.import_meta_graph(
+                model_meta_path
+            )
+
+            print("Restoring graph...")
+            saver.restore(
+                self.session,
+                tf.train.latest_checkpoint(model_folder)
+            )

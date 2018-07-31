@@ -79,31 +79,13 @@ class ConvPolicy:
 
         return conv_layer2
 
-    def build(self, session):
+    def build(self, session, previous_bits):
         """build
 
         Build the actual network, using the
         values passed over the from agent object, which
         themselves are derived from the Obs object.
         """
-
-        print("Starting building...")
-        MODEL_META_GRAPH = "/home/scff/git/meng_project/CNN/_files/old_models/models/test_model_20/model.ckpt-13500.meta"
-        MODEL_FOLDER = "/home/scff/git/meng_project/CNN/_files/old_models/models/test_model_20"
-
-        print("Importing Meta Graph...")
-        saver = tf.train.import_meta_graph(MODEL_META_GRAPH)
-
-        print("Restoring graph...")
-        saver.restore(session, tf.train.latest_checkpoint(MODEL_FOLDER))
-
-        print("Grabbing flatten...")
-        flatten_1 = tf.get_default_graph().get_tensor_by_name('theta_1/theta/Flatten_1/flatten/Reshape:0')
-        print(flatten_1.get_shape().as_list())
-
-        print("Grabbing screen/minimap concat...")
-        screen_minimap_concat = tf.get_default_graph().get_tensor_by_name('theta_1/theta/concat_2:0')
-        print(screen_minimap_concat.get_shape().as_list())
 
         # Maps a series of symbols to embeddings,
         # where an embedding is a mapping from discrete objects,
@@ -191,7 +173,7 @@ class ConvPolicy:
         )
 
         spatial_actions_previous = layers.conv2d(
-            screen_minimap_concat,
+            previous_bits[1],
             data_format="NHWC",
             num_outputs=1,
             kernel_size=1,
@@ -230,7 +212,7 @@ class ConvPolicy:
         )
 
         fully_connected_previous = layers.fully_connected(
-            flatten_1,
+            previous_bits[0],
             num_outputs=256,
             activation_fn=None,
             scope="fully_connected_previous",
@@ -287,17 +269,4 @@ class ConvPolicy:
         self.action_id_log_probs = action_id_log_probs
         self.spatial_action_log_probs = spatial_action_log_probs
 
-        self.create_connections_to_previous_experience(session)
-
         return self
-
-    def create_connections_to_previous_experience(self, session):
-        """create_connections_to_previous_experience
-
-        Link the new empty model to existing model files, to reuse
-        already learnt experiences.
-        """
-
-
-
-        return
