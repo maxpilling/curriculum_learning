@@ -131,7 +131,7 @@ class ConvPolicy:
 
         return final_tensor
 
-    def build(self, session, previous_models):
+    def build(self, session, previous_model):
         """build
 
         Build the actual network, using the
@@ -198,14 +198,14 @@ class ConvPolicy:
         screen_conv_layer_output = self.build_conv_layers_for_input(
             screen_numeric_all,
             "screen_network",
-            previous_models.screen_conv_1
+            previous_model.screen_conv_1
         )
 
         # And now the minimap
         minimap_conv_layer_output = self.build_conv_layers_for_input(
             minimap_numeric_all,
             "minimap_network",
-            previous_models.minimap_conv_1
+            previous_model.minimap_conv_1
         )
 
         # Group these two convolutional layers now, and
@@ -228,7 +228,7 @@ class ConvPolicy:
 
         # Sort the previous models spatial action layers.
         previous_spatial_actions = []
-        for previous_model_output in previous_models.concat_2:
+        for previous_model_output in previous_model.concat_2:
             spatial_actions_previous = layers.conv2d(
                 previous_model_output,
                 data_format="NHWC",
@@ -272,7 +272,7 @@ class ConvPolicy:
         )
 
         previous_fully_con_1 = []
-        for previous_model_output in previous_models.flatten_1:
+        for previous_model_output in previous_model.flatten_1:
             fully_connected_previous = layers.fully_connected(
                 previous_model_output,
                 num_outputs=256,
@@ -309,7 +309,7 @@ class ConvPolicy:
         )
 
         previous_action_ids = []
-        for previous_model_output in previous_models.fully_connected_layer1:
+        for previous_model_output in previous_model.fully_connected_layer1:
             previous_action_id_probs = layers.fully_connected(
                 previous_model_output,
                 num_outputs=len(actions.FUNCTIONS),
@@ -341,7 +341,7 @@ class ConvPolicy:
         )
 
         previous_value_estimates = []
-        for previous_model_output in previous_models.fully_connected_layer1:
+        for previous_model_output in previous_model.fully_connected_layer1:
             value_estimate_previous = layers.fully_connected(
                 previous_model_output,
                 num_outputs=1,
