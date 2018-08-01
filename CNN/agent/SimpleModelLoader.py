@@ -30,13 +30,11 @@ class SimpleModelLoader():
     def get_all_tensors_by_name(self, name):
         current_tensors = [n.name for n in self.graph.as_graph_def().node]
         tensors = []
-        print(f"Trying to get some tensors...")
 
         for tensor_name in current_tensors:
             if (re.findall(f"{re.escape(name)}$", tensor_name) and
                     not tensor_name.startswith(self.new_model_name)):
 
-                print(f"Got tensor of name: {tensor_name}")
                 tensors.append(
                     self.graph.get_tensor_by_name(f"{tensor_name}:0")
                 )
