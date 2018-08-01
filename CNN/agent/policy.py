@@ -82,7 +82,7 @@ class ConvPolicy:
                 stride=1,
                 padding="SAME",
                 activation_fn=None,
-                scope=f"{name}/{model_number}/previous_conv_layer2",
+                scope=f"{name}/previous_conv_layer2/model_{model_number}",
                 trainable=self.trainable
             )
 
@@ -238,7 +238,7 @@ class ConvPolicy:
                 kernel_size=1,
                 stride=1,
                 activation_fn=None,
-                scope=f"{model_number}/spatial_actions_previous",
+                scope=f"spatial_actions_previous/model_{model_number}",
                 trainable=self.trainable
             )
 
@@ -279,7 +279,7 @@ class ConvPolicy:
                 prev_out,
                 num_outputs=256,
                 activation_fn=None,
-                scope=f"{model_number}/fully_connected_previous",
+                scope=f"fully_connected_previous/model_{model_number}",
                 trainable=self.trainable
             )
 
@@ -316,7 +316,7 @@ class ConvPolicy:
                 prev_out,
                 num_outputs=len(actions.FUNCTIONS),
                 activation_fn=None,
-                scope=f"{model_number}/previous_action_id",
+                scope=f"previous_action_id/model_{model_number}",
                 trainable=self.trainable
             )
 
@@ -348,7 +348,7 @@ class ConvPolicy:
                 prev_out,
                 num_outputs=1,
                 activation_fn=None,
-                scope=f"{model_number}/previous_value",
+                scope=f"previous_value/model_{model_number}",
                 trainable=self.trainable
             )
 
