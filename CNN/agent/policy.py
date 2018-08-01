@@ -215,7 +215,6 @@ class ConvPolicy:
             axis=channel_axis
         )
 
-        print("Sorting spatial actions...")
         spatial_actions_normal = layers.conv2d(
             visual_inputs,
             data_format="NHWC",
@@ -264,7 +263,6 @@ class ConvPolicy:
         # convolutional layer.
         map_output_flat = layers.flatten(visual_inputs)
 
-        print("Sorting fully connected layers...")
         fully_connected_layer_normal = layers.fully_connected(
             map_output_flat,
             num_outputs=256,
@@ -287,6 +285,7 @@ class ConvPolicy:
 
         previous_fully_con_1_added = self.add_all_previous(previous_fully_con_1)
 
+        # Combine the new and old models values, and then apply RELU to the result.
         joint_connected_layers = tf.add(
             fully_connected_layer_normal,
             previous_fully_con_1_added,
@@ -329,6 +328,7 @@ class ConvPolicy:
             'id_probs_add'
         )
 
+        # Combine the new and old models values, and then apply softmax to the result.
         action_id_probs = tf.nn.softmax(joint_action_ids)
 
         # Sort value estimate.
@@ -354,6 +354,7 @@ class ConvPolicy:
 
         previous_value_estimates_added = self.add_all_previous(previous_value_estimates)
 
+        # Combine the new and old models values, and then squeeze the result.
         joint_value_estimate = tf.add(
             value_estimate_new,
             previous_value_estimates_added,
@@ -364,8 +365,6 @@ class ConvPolicy:
             joint_value_estimate,
             axis=1
         )
-
-        print("Passed all changed code...")
 
         # Disregard all the non-allowed actions by giving them a
         # probability of zero, before re-normalizing to 1.
