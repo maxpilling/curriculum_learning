@@ -45,21 +45,20 @@ class SimpleModelLoader():
 
     @property
     def flatten_1(self):
-        self.get_all_tensors_by_name('Flatten_1/flatten/Reshape')
-        return self.graph.get_tensor_by_name('theta/Flatten_1/flatten/Reshape:0')
+        return self.get_all_tensors_by_name('Flatten_1/flatten/Reshape')
 
     @property
     def concat_2(self):
-        return self.graph.get_tensor_by_name('theta/concat_2:0')
+        return self.get_all_tensors_by_name('concat_2')
 
     @property
     def screen_conv_1(self):
-        return self.graph.get_tensor_by_name('theta/screen_network/conv_layer1/Relu:0')
+        return self.get_all_tensors_by_name('screen_network/conv_layer1/Relu')
 
     @property
     def minimap_conv_1(self):
-        return self.graph.get_tensor_by_name('theta/minimap_network/conv_layer1/Relu:0')
+        return self.get_all_tensors_by_name('minimap_network/conv_layer1/Relu')
 
     @property
-    def value_input(self):
-        return self.graph.get_tensor_by_name('theta/fully_connected_layer1/Relu:0')
+    def fully_connected_layer1(self):
+        return self.get_all_tensors_by_name('fully_connected_layer1/Relu')

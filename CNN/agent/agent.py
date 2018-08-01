@@ -196,32 +196,26 @@ class A2C:
 
         return SelectedLogProbs(action_id, spatial_coord, total)
 
-    def get_previous_models(self):
-        """get_previous_models
+    def get_previous_model(self):
+        """get_previous_model
 
-        Returns a list of all the previous models.
+        Get the previous model.
         """
 
-        MODEL_META_GRAPHS = [
-            "F:\\User Files\\Documents\\Git\\meng_project\\CNN\\_files\\models\\reinforcement_base_model\\model.ckpt-0.meta"
-        ]
+        MODEL_META_GRAPH = "F:\\User Files\\Documents\\Git\\meng_project\\CNN\\_files\\models\\reinforcement_base_model\\model.ckpt-0.meta"
 
-        previous_models = []
 
-        for graph_path in MODEL_META_GRAPHS:
-            previous_model = SimpleModelLoader(
-                graph_path,
-                self.session.graph,
-                'theta_1'
-            )
+        previous_model = SimpleModelLoader(
+            MODEL_META_GRAPH,
+            self.session.graph,
+            'theta_1'
+        )
 
-            if DEBUG:
-                print(f"Flatten_1 Shape: {previous_model.flatten_1.get_shape().as_list()}")
-                print(f"Concat_2 Shape: {previous_model.concat_2.get_shape().as_list()}")
+        if DEBUG:
+            print(f"Flatten_1 Shape: {previous_model.flatten_1[0].get_shape().as_list()}")
+            print(f"Concat_2 Shape: {previous_model.concat_2[0].get_shape().as_list()}")
 
-            previous_models.append(previous_model)
-
-        return previous_models
+        return previous_model
 
     def build_model(self):
         """build_model
@@ -235,7 +229,7 @@ class A2C:
         # Initialise the placeholders property with some default values.
         self.placeholders = get_default_values(self.spatial_dim)
 
-        previous_models = self.get_previous_models()
+        previous_model = self.get_previous_model()
 
         # Provides checks to ensure that variable isn't shared by accident,
         # and starts up the fully convolutional policy, as well as reverting
@@ -244,7 +238,7 @@ class A2C:
 
             #TODO: Make this dynamic.
             with tf.variable_scope("theta_1"):
-                theta = self.policy(self, trainable=True).build(self.session, previous_models)
+                theta = self.policy(self, trainable=True).build(self.session, previous_model)
 
         # Get the actions and the probabilities of those actions.
         selected_spatial_action = ravel_index_pairs(

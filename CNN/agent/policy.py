@@ -172,9 +172,9 @@ class ConvPolicy:
 
         # Sort the previous screen models
         previous_screen_conv_layer2 = []
-        for previous_model in previous_models:
+        for previous_model_output in previous_models.screen_conv_1:
             screen_conv_layer2_previous = layers.conv2d(
-                inputs=previous_model.screen_conv_1,
+                inputs=previous_model_output,
                 data_format="NHWC",
                 num_outputs=32,
                 kernel_size=3,
@@ -208,9 +208,9 @@ class ConvPolicy:
 
         # Sort the previous minimap models
         previous_minimap_conv_layer2 = []
-        for previous_model in previous_models:
+        for previous_model_output in previous_models.minimap_conv_1:
             minimap_conv_layer2_previous = layers.conv2d(
-                inputs=previous_model.minimap_conv_1,
+                inputs=previous_model_output,
                 data_format="NHWC",
                 num_outputs=32,
                 kernel_size=3,
@@ -256,9 +256,9 @@ class ConvPolicy:
         )
 
         previous_spatial_actions = []
-        for previous_model in previous_models:
+        for previous_model_output in previous_models.concat_2:
             spatial_actions_previous = layers.conv2d(
-                previous_model.concat_2,
+                previous_model_output,
                 data_format="NHWC",
                 num_outputs=1,
                 kernel_size=1,
@@ -301,9 +301,9 @@ class ConvPolicy:
         )
 
         previous_fully_con_1 = []
-        for previous_model in previous_models:
+        for previous_model_output in previous_models.flatten_1:
             fully_connected_previous = layers.fully_connected(
-                previous_model.flatten_1,
+                previous_model_output,
                 num_outputs=256,
                 activation_fn=None,
                 scope="fully_connected_previous",
@@ -337,9 +337,9 @@ class ConvPolicy:
         )
 
         previous_action_ids = []
-        for previous_model in previous_models:
+        for previous_model_output in previous_models.fully_connected_layer1:
             previous_action_id_probs = layers.fully_connected(
-                previous_model.value_input,
+                previous_model_output,
                 num_outputs=len(actions.FUNCTIONS),
                 activation_fn=None,
                 scope="previous_action_id",
@@ -368,9 +368,9 @@ class ConvPolicy:
         )
 
         previous_value_estimates = []
-        for previous_model in previous_models:
+        for previous_model_output in previous_models.fully_connected_layer1:
             value_estimate_previous = layers.fully_connected(
-                previous_model.value_input,
+                previous_model_output,
                 num_outputs=1,
                 activation_fn=None,
                 scope='previous_value',
