@@ -328,16 +328,37 @@ class ConvPolicy:
         # Generate the probability of a given action from the
         # fully connected layer. Finally, produce a value
         # estimate for the given actions.
-        action_id_probs = layers.fully_connected(
+        action_id_probs_new = layers.fully_connected(
             relu_connected_layer,
             num_outputs=len(actions.FUNCTIONS),
-            activation_fn=tf.nn.softmax,
-            scope="action_id",
+            activation_fn=None,
+            scope="new_action_id",
             trainable=self.trainable
         )
 
-        print("Passed all changed code...")
+        previous_action_ids = []
+        for previous_model in previous_models:
+            previous_action_id_probs = layers.fully_connected(
+                previous_model.value_input,
+                num_outputs=len(actions.FUNCTIONS),
+                activation_fn=None,
+                scope="previous_action_id",
+                trainable=self.trainable
+            )
 
+            previous_action_ids.append(previous_action_id_probs)
+
+        previous_action_ids_added = self.add_all_previous(previous_action_ids)
+
+        joint_action_ids = tf.add(
+            action_id_probs_new,
+            previous_action_ids_added,
+            'id_probs_add'
+        )
+
+        action_id_probs = tf.nn.softmax(joint_action_ids)
+
+        # Sort value estimate.
         value_estimate_new = layers.fully_connected(
             relu_connected_layer,
             num_outputs=1,
@@ -370,6 +391,8 @@ class ConvPolicy:
             joint_value_estimate,
             axis=1
         )
+
+        print("Passed all changed code...")
 
         # Disregard all the non-allowed actions by giving them a
         # probability of zero, before re-normalizing to 1.
