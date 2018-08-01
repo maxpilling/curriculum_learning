@@ -239,7 +239,7 @@ class ConvPolicy:
         # Group these two convolutional layers now, and
         # build a further convolutional layer on top of it.
         visual_inputs = tf.concat(
-            [relu_screen_conv_layer2, minimap_conv_layer_output],
+            [relu_screen_conv_layer2, relu_minimap_conv_layer2],
             axis=channel_axis
         )
 
