@@ -71,12 +71,6 @@ class ConvPolicy:
             trainable=self.trainable
         )
 
-        if self.trainable:
-            layers.summarize_activation(conv_layer1)
-            layers.summarize_activation(conv_layer2)
-            tf.summary.image(f"{name}/conv_layer1", tf.reshape(conv_layer1, [-1, 32, 32, 1]), 3)
-            tf.summary.image(f"{name}/conv_layer2", tf.reshape(conv_layer2, [-1, 32, 32, 1]), 3)
-
         # Sort the previous models
         previous_conv_layer2 = []
         for model_number, prev_out in enumerate(previous_tensors):
@@ -106,6 +100,14 @@ class ConvPolicy:
             combined_conv_layer2,
             name='combined_%s_conv_layer2_relu' % name
         )
+
+        if self.trainable:
+            layers.summarize_activation(conv_layer1)
+            layers.summarize_activation(conv_layer2)
+            layers.summarize_activation(relu_conv_layer2)
+            tf.summary.image(f"{name}/new_conv_layer1", tf.reshape(conv_layer1, [-1, 32, 32, 1]), 3)
+            tf.summary.image(f"{name}/new_conv_layer2", tf.reshape(conv_layer2, [-1, 32, 32, 1]), 3)
+            tf.summary.image(f"{name}/combined_conv_layer2", tf.reshape(relu_conv_layer2, [-1, 32, 32, 1]), 3)
 
         return relu_conv_layer2
 
