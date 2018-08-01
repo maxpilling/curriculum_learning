@@ -79,16 +79,16 @@ class ConvPolicy:
 
         # Sort the previous models
         previous_conv_layer2 = []
-        for previous_model_output in previous_tensors:
+        for model_number, prev_out in enumerate(previous_tensors):
             conv_layer2_previous = layers.conv2d(
-                inputs=previous_model_output,
+                inputs=prev_out,
                 data_format="NHWC",
                 num_outputs=32,
                 kernel_size=3,
                 stride=1,
                 padding="SAME",
                 activation_fn=None,
-                scope="%s/previous_conv_layer2" % name,
+                scope=f"{name}/{model_number}/previous_conv_layer2",
                 trainable=self.trainable
             )
 
@@ -107,7 +107,7 @@ class ConvPolicy:
             name='combined_%s_conv_layer2_relu' % name
         )
 
-        return conv_layer2
+        return relu_conv_layer2
 
     def add_all_previous(self, previous_list):
         """add_all_previous
@@ -228,15 +228,15 @@ class ConvPolicy:
 
         # Sort the previous models spatial action layers.
         previous_spatial_actions = []
-        for previous_model_output in previous_model.concat_2:
+        for model_number, prev_out in enumerate(previous_model.concat_2):
             spatial_actions_previous = layers.conv2d(
-                previous_model_output,
+                prev_out,
                 data_format="NHWC",
                 num_outputs=1,
                 kernel_size=1,
                 stride=1,
                 activation_fn=None,
-                scope='spatial_actions_previous',
+                scope=f"{model_number}/spatial_actions_previous",
                 trainable=self.trainable
             )
 
@@ -272,12 +272,12 @@ class ConvPolicy:
         )
 
         previous_fully_con_1 = []
-        for previous_model_output in previous_model.flatten_1:
+        for model_number, prev_out in enumerate(previous_model.flatten_1):
             fully_connected_previous = layers.fully_connected(
-                previous_model_output,
+                prev_out,
                 num_outputs=256,
                 activation_fn=None,
-                scope="fully_connected_previous",
+                scope=f"{model_number}/fully_connected_previous",
                 trainable=self.trainable
             )
 
@@ -309,12 +309,12 @@ class ConvPolicy:
         )
 
         previous_action_ids = []
-        for previous_model_output in previous_model.fully_connected_layer1:
+        for model_number, prev_out in enumerate(previous_model.fully_connected_layer1):
             previous_action_id_probs = layers.fully_connected(
-                previous_model_output,
+                prev_out,
                 num_outputs=len(actions.FUNCTIONS),
                 activation_fn=None,
-                scope="previous_action_id",
+                scope=f"{model_number}/previous_action_id",
                 trainable=self.trainable
             )
 
@@ -341,12 +341,12 @@ class ConvPolicy:
         )
 
         previous_value_estimates = []
-        for previous_model_output in previous_model.fully_connected_layer1:
+        for model_number, prev_out in enumerate(previous_model.fully_connected_layer1):
             value_estimate_previous = layers.fully_connected(
-                previous_model_output,
+                prev_out,
                 num_outputs=1,
                 activation_fn=None,
-                scope='previous_value',
+                scope=f"{model_number}/previous_value",
                 trainable=self.trainable
             )
 
