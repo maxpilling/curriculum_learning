@@ -338,13 +338,38 @@ class ConvPolicy:
 
         print("Passed all changed code...")
 
-        value_estimate = tf.squeeze(layers.fully_connected(
+        value_estimate_new = layers.fully_connected(
             relu_connected_layer,
             num_outputs=1,
             activation_fn=None,
-            scope='value',
+            scope='new_value',
             trainable=self.trainable
-        ), axis=1)
+        )
+
+        previous_value_estimates = []
+        for previous_model in previous_models:
+            value_estimate_previous = layers.fully_connected(
+                previous_model.value_input,
+                num_outputs=1,
+                activation_fn=None,
+                scope='previous_value',
+                trainable=self.trainable
+            )
+
+            previous_value_estimates.append(value_estimate_previous)
+
+        previous_value_estimates_added = self.add_all_previous(previous_value_estimates)
+
+        joint_value_estimate = tf.add(
+            value_estimate_new,
+            previous_value_estimates_added,
+            'value_estimate_add'
+        )
+
+        value_estimate = tf.squeeze(
+            joint_value_estimate,
+            axis=1
+        )
 
         # Disregard all the non-allowed actions by giving them a
         # probability of zero, before re-normalizing to 1.
