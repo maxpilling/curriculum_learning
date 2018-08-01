@@ -211,7 +211,8 @@ class A2C:
         for graph_path in MODEL_META_GRAPHS:
             previous_model = SimpleModelLoader(
                 graph_path,
-                self.session.graph
+                self.session.graph,
+                'theta_1'
             )
 
             if DEBUG:
