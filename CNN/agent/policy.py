@@ -33,7 +33,7 @@ class ConvPolicy:
 
         return tf.log(tf.clip_by_value(input_tensor, 1e-12, 1.0))
 
-    def build_conv_layers_for_input(self, inputs, name):
+    def build_conv_layers_for_input(self, inputs, name, previous_models):
         """build_conv_layers_for_input
 
         Creates 2 convolutional layers based on an input.
@@ -55,19 +55,19 @@ class ConvPolicy:
             stride=1,
             padding="SAME",
             activation_fn=tf.nn.relu,
-            scope="%s/conv_layer1" % name,
+            scope="%s/new_conv_layer1" % name,
             trainable=self.trainable
         )
 
-        conv_layer2 = layers.conv2d(
+        conv_layer2_new = layers.conv2d(
             inputs=conv_layer1,
             data_format="NHWC",
             num_outputs=32,
             kernel_size=3,
             stride=1,
             padding="SAME",
-            activation_fn=tf.nn.relu,
-            scope="%s/conv_layer2" % name,
+            activation_fn=None,
+            scope="%s/new_conv_layer2" % name,
             trainable=self.trainable
         )
 
@@ -170,6 +170,35 @@ class ConvPolicy:
             "screen_network"
         )
 
+        previous_conv_layer2 = []
+        for previous_model in previous_models:
+            conv_layer2_previous = layers.conv2d(
+                inputs=previous_model.conv_layer1,
+                data_format="NHWC",
+                num_outputs=32,
+                kernel_size=3,
+                stride=1,
+                padding="SAME",
+                activation_fn=None,
+                scope="screen_network/previous_conv_layer2",
+                trainable=self.trainable
+            )
+
+            previous_conv_layer2.append(conv_layer2_previous)
+
+        previous_conv_layer2_added = self.add_all_previous(previous_conv_layer2)
+
+        combined_conv_layer2 = tf.add(
+            screen_conv_layer_output,
+            previous_conv_layer2_added,
+            'screen_conv_add'
+        )
+
+        relu_screen_conv_layer_2 = tf.nn.relu(
+            combined_conv_layer_2,
+            name='combined_conv_layer2_relu'
+        )
+
         minimap_conv_layer_output = self.build_conv_layers_for_input(
             minimap_numeric_all,
             "minimap_network"
@@ -178,7 +207,7 @@ class ConvPolicy:
         # Group these two convolutional layers now, and
         # build a further convolutional layer on top of it.
         visual_inputs = tf.concat(
-            [screen_conv_layer_output, minimap_conv_layer_output],
+            [relu_screen_conv_layer_2, minimap_conv_layer_output],
             axis=channel_axis
         )
 

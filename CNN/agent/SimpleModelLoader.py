@@ -35,3 +35,11 @@ class SimpleModelLoader():
     @property
     def concat_2(self):
         return self.graph.get_tensor_by_name('theta/concat_2:0')
+
+    @property
+    def screen_conv_1(self):
+        return self.graph.get_tensor_by_name('theta/screen_network/conv_layer1/Relu:0')
+
+    @property
+    def screen_conv_2(self):
+        return self.graph.get_tensor_by_name('theta/screen_network/conv_layer2/BiasAdd:0')
