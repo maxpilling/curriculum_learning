@@ -170,9 +170,10 @@ class ConvPolicy:
             "screen_network"
         )
 
-        previous_conv_layer2 = []
+        # Sort the previous screen models
+        previous_screen_conv_layer2 = []
         for previous_model in previous_models:
-            conv_layer2_previous = layers.conv2d(
+            screen_conv_layer2_previous = layers.conv2d(
                 inputs=previous_model.screen_conv_1,
                 data_format="NHWC",
                 num_outputs=32,
@@ -184,24 +185,55 @@ class ConvPolicy:
                 trainable=self.trainable
             )
 
-            previous_conv_layer2.append(conv_layer2_previous)
+            previous_screen_conv_layer2.append(screen_conv_layer2_previous)
 
-        previous_conv_layer2_added = self.add_all_previous(previous_conv_layer2)
+        previous_screen_conv_layer2_added = self.add_all_previous(previous_screen_conv_layer2)
 
-        combined_conv_layer2 = tf.add(
+        combined_screen_conv_layer2 = tf.add(
             screen_conv_layer_output,
-            previous_conv_layer2_added,
+            previous_screen_conv_layer2_added,
             'screen_conv_add'
         )
 
         relu_screen_conv_layer2 = tf.nn.relu(
-            combined_conv_layer2,
-            name='combined_conv_layer2_relu'
+            combined_screen_conv_layer2,
+            name='combined_screen_conv_layer2_relu'
         )
 
+        # And now the minimap
         minimap_conv_layer_output = self.build_conv_layers_for_input(
             minimap_numeric_all,
             "minimap_network"
+        )
+
+        # Sort the previous minimap models
+        previous_minimap_conv_layer2 = []
+        for previous_model in previous_models:
+            minimap_conv_layer2_previous = layers.conv2d(
+                inputs=previous_model.minimap_conv_1,
+                data_format="NHWC",
+                num_outputs=32,
+                kernel_size=3,
+                stride=1,
+                padding="SAME",
+                activation_fn=None,
+                scope="minimap_network/previous_conv_layer2",
+                trainable=self.trainable
+            )
+
+            previous_minimap_conv_layer2.append(minimap_conv_layer2_previous)
+
+        previous_minimap_conv_layer2_added = self.add_all_previous(previous_minimap_conv_layer2)
+
+        combined_minimap_conv_layer2 = tf.add(
+            minimap_conv_layer_output,
+            previous_minimap_conv_layer2_added,
+            'minimap_conv_add'
+        )
+
+        relu_minimap_conv_layer2 = tf.nn.relu(
+            combined_minimap_conv_layer2,
+            name='combined_minimap_conv_layer2_relu'
         )
 
         # Group these two convolutional layers now, and
