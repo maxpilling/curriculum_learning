@@ -100,7 +100,10 @@ class ConvPolicy:
 
             previous_conv_layer2.append(conv_layer2_previous)
 
-        previous_conv_layer2_added = self.add_all_previous(previous_conv_layer2)
+        previous_conv_layer2_added = self.add_all_previous(
+            previous_conv_layer2,
+            f"{name}/conv_layer2"
+        )
 
         combined_conv_layer2 = tf.add(
             conv_layer2,
@@ -119,7 +122,7 @@ class ConvPolicy:
 
         return relu_conv_layer2
 
-    def add_all_previous(self, previous_list):
+    def add_all_previous(self, previous_list, tensor_name):
         """add_all_previous
 
         For a list of tensors, add them all together, and return a final tensor.
@@ -128,15 +131,19 @@ class ConvPolicy:
         if len(previous_list) == 1:
             return previous_list[0]
 
+        addition_name = f"{tensor_name}/addition"
+
         final_tensor = tf.add(
             previous_list[0],
-            previous_list[1]
+            previous_list[1],
+            name=f"{addition_name}/add_0"
         )
 
-        for current_tensor in previous_list[2:]:
+        for index, current_tensor in enumerate(previous_list[2:]):
             final_tensor = tf.add(
                 final_tensor,
-                current_tensor
+                current_tensor,
+                name=f"{addition_name}/add_{index + 1}"
             )
 
         return final_tensor
@@ -253,7 +260,10 @@ class ConvPolicy:
 
             previous_spatial_actions.append(spatial_actions_previous)
 
-        previous_spatial_actions_added = self.add_all_previous(previous_spatial_actions)
+        previous_spatial_actions_added = self.add_all_previous(
+            previous_spatial_actions,
+            "spatial_actions"
+        )
 
         joint_spatial_actions = tf.add(
             spatial_actions_normal,
@@ -294,7 +304,10 @@ class ConvPolicy:
 
             previous_fully_con_1.append(fully_connected_previous)
 
-        previous_fully_con_1_added = self.add_all_previous(previous_fully_con_1)
+        previous_fully_con_1_added = self.add_all_previous(
+            previous_fully_con_1,
+            "fully_connected_layer1"
+        )
 
         # Combine the new and old models values, and then apply RELU to the result.
         joint_connected_layers = tf.add(
@@ -331,7 +344,10 @@ class ConvPolicy:
 
             previous_action_ids.append(previous_action_id_probs)
 
-        previous_action_ids_added = self.add_all_previous(previous_action_ids)
+        previous_action_ids_added = self.add_all_previous(
+            previous_action_ids,
+            "action_id"
+        )
 
         joint_action_ids = tf.add(
             action_id_probs_new,
@@ -363,7 +379,10 @@ class ConvPolicy:
 
             previous_value_estimates.append(value_estimate_previous)
 
-        previous_value_estimates_added = self.add_all_previous(previous_value_estimates)
+        previous_value_estimates_added = self.add_all_previous(
+            previous_value_estimates,
+            "value"
+        )
 
         # Combine the new and old models values, and then squeeze the result.
         joint_value_estimate = tf.add(

@@ -204,18 +204,13 @@ class A2C:
         Get the previous model.
         """
 
-        MODEL_META_GRAPH = "F:\\User Files\\Documents\\Git\\meng_project\\CNN\\_files\\models\\reinforcement_base_model\\model.ckpt-0.meta"
-
+        MODEL_META_GRAPH = "F:\\User Files\\Documents\\Git\\meng_project\\CNN\\_files\\models\\reinforcment_test_model_4\\model.ckpt-0.meta"
 
         previous_model = SimpleModelLoader(
             MODEL_META_GRAPH,
             self.session.graph,
             f"theta_{self.curriculum_number}"
         )
-
-        if DEBUG:
-            print(f"Flatten_1 Shape: {previous_model.flatten_1[0].get_shape().as_list()}")
-            print(f"Concat_2 Shape: {previous_model.concat_2[0].get_shape().as_list()}")
 
         return previous_model
 
