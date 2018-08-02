@@ -107,6 +107,7 @@ class A2C:
                  entropy_weight_action_id=1e-5,
                  max_gradient_norm=None,
                  optimiser_params=None,
+                 curriculum_number=-1,
                 ):
         """
         Convolutional Based Agent for learning PySC2 Mini-games
@@ -143,6 +144,7 @@ class A2C:
         self.train_step = 0
         self.max_gradient_norm = max_gradient_norm
         self.policy = ConvPolicy
+        self.curriculum_number = curriculum_number
 
         opt_class = tf.train.AdamOptimizer
 
@@ -208,7 +210,7 @@ class A2C:
         previous_model = SimpleModelLoader(
             MODEL_META_GRAPH,
             self.session.graph,
-            'theta_1' # TODO: Make this dynamic
+            f"theta_{self.curriculum_number}"
         )
 
         if DEBUG:
@@ -235,7 +237,7 @@ class A2C:
         # and starts up the fully convolutional policy, as well as reverting
         # any changes to the session that could have occurred after loading.
         with self.session.as_default():
-            with tf.variable_scope("theta_1"): #TODO: Make this dynamic.
+            with tf.variable_scope(f"theta_{self.curriculum_number}"):
                 theta = self.policy(self, trainable=True).build(self.session, previous_model)
 
         # Get the actions and the probabilities of those actions.
@@ -302,7 +304,7 @@ class A2C:
             clip_gradients=self.max_gradient_norm,
             summaries=OPTIMIZER_SUMMARIES,
             learning_rate=None,
-            name="train_operation_1" #TODO: Make this dynamic
+            name=f"train_operation_{self.curriculum_number}"
         )
 
         # Finally, log some information about the model in its current state.
@@ -371,11 +373,16 @@ class A2C:
         :param obs: The observation object, passed from the SC2LE.
         """
 
-        #TODO: Make this dynamic, both in number of dicts made, as well as the _1.
         original_dict = {k + ":0": v for k, v in obs.items()}
-        new_dict = {k + "_1:0": v for k, v in obs.items()}
 
-        return {**original_dict, **new_dict}
+        expanded_dict = {**original_dict}
+
+        for new_input in range(0, self.curriculum_number):
+            new_dict = {k + f"_{new_input}:0": v for k, v in obs.items()}
+
+            expanded_dict = {**expanded_dict, **new_dict}
+
+        return expanded_dict
 
     def step(self, obs):
         """step
