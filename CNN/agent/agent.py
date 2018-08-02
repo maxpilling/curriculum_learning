@@ -367,8 +367,7 @@ class A2C:
         if DEBUG:
             dump_all_tensors_to_file(self.session.graph, 'combined_tensor_list.log')
 
-    @staticmethod
-    def organise_obs_for_session(obs):
+    def organise_obs_for_session(self, obs):
         """organise_obs_for_session
 
         Nicely format the Obs object, such that it can
@@ -381,7 +380,7 @@ class A2C:
 
         expanded_dict = {**original_dict}
 
-        for new_input in range(0, self.curriculum_number):
+        for new_input in range(1, self.curriculum_number + 1):
             new_dict = {k + f"_{new_input}:0": v for k, v in obs.items()}
 
             expanded_dict = {**expanded_dict, **new_dict}

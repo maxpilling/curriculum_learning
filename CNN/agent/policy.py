@@ -57,7 +57,7 @@ class ConvPolicy:
             stride=1,
             padding="SAME",
             activation_fn=tf.nn.relu,
-            scope=f"{name}/conv_layer1/model_{self.curriculum_num}",
+            scope=f"{name}/conv_layer1/model_{self.curriculum_number}",
             trainable=self.trainable
         )
 
@@ -69,7 +69,7 @@ class ConvPolicy:
             stride=1,
             padding="SAME",
             activation_fn=None,
-            scope=f"{name}/conv_layer2/model_{self.curriculum_num}",
+            scope=f"{name}/conv_layer2/model_{self.curriculum_number}",
             trainable=self.trainable
         )
 
