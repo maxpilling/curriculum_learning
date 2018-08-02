@@ -67,7 +67,7 @@ class ConvPolicy:
             stride=1,
             padding="SAME",
             activation_fn=None,
-            scope="%s/new_conv_layer2" % name,
+            scope="%s/new_conv_layer2" % name, #TODO: Stop changing these names to make this easier
             trainable=self.trainable
         )
 

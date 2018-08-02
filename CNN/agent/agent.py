@@ -208,7 +208,7 @@ class A2C:
         previous_model = SimpleModelLoader(
             MODEL_META_GRAPH,
             self.session.graph,
-            'theta_1'
+            'theta_1' # TODO: Make this dynamic
         )
 
         if DEBUG:
@@ -235,9 +235,7 @@ class A2C:
         # and starts up the fully convolutional policy, as well as reverting
         # any changes to the session that could have occurred after loading.
         with self.session.as_default():
-
-            #TODO: Make this dynamic.
-            with tf.variable_scope("theta_1"):
+            with tf.variable_scope("theta_1"): #TODO: Make this dynamic.
                 theta = self.policy(self, trainable=True).build(self.session, previous_model)
 
         # Get the actions and the probabilities of those actions.
