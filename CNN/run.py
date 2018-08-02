@@ -27,7 +27,7 @@ flags.DEFINE_integer("all_summary_freq", 50, "Record all summaries every n batch
 flags.DEFINE_integer("scalar_summary_freq", 5, "Record scalar summaries every n batch.")
 flags.DEFINE_integer("K_batches", -1, "Number of training in thousands, -1 to run forever.")
 flags.DEFINE_integer("save_replays_every", 0, "How often to save a replay, 0 for never.")
-flags.DEFINE_integer("curriculum_num", -1, "The current curriculum number, used for theta_ etc.")
+flags.DEFINE_integer("curriculum_num", None, "The current curriculum number, used for theta_ etc.")
 
 flags.DEFINE_string("checkpoint_path", "_files/models", "Path for agent checkpoints.")
 flags.DEFINE_string("summary_path", "_files/summaries", "Path for tensorboard summaries.")

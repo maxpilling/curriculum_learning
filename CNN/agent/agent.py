@@ -107,7 +107,7 @@ class A2C:
                  entropy_weight_action_id=1e-5,
                  max_gradient_norm=None,
                  optimiser_params=None,
-                 curriculum_number=-1,
+                 curriculum_number=None,
                 ):
         """
         Convolutional Based Agent for learning PySC2 Mini-games
@@ -231,18 +231,34 @@ class A2C:
         # Initialise the placeholders property with some default values.
         self.placeholders = get_default_values(self.spatial_dim)
 
-        previous_model = self.get_previous_model()
+        if self.curriculum_number is not None:
+            previous_model = self.get_previous_model()
+
+        theta_scope = f"theta_{self.curriculum_number}" if \
+            self.curriculum_number is not None else \
+            "theta"
+        train_operation = f"train_operation_{self.curriculum_number}" if \
+            self.curriculum_number is not None else \
+            "train_operation"
 
         # Provides checks to ensure that variable isn't shared by accident,
         # and starts up the fully convolutional policy, as well as reverting
         # any changes to the session that could have occurred after loading.
         with self.session.as_default():
-            with tf.variable_scope(f"theta_{self.curriculum_number}"):
-                theta = self.policy(
-                        self,
-                        trainable=True,
-                        curriculum_number=self.curriculum_number
-                ).build(self.session, previous_model)
+            with tf.variable_scope(theta_scope):
+
+                if self.curriculum_number is not None:
+                    theta = self.policy(
+                            self,
+                            trainable=True,
+                            curriculum_number=self.curriculum_number
+                    ).build_transfer(self.session, previous_model)
+                else:
+                    theta = self.policy(
+                            self,
+                            trainable=True,
+                    ).build()
+
 
         # Get the actions and the probabilities of those actions.
         selected_spatial_action = ravel_index_pairs(
@@ -308,7 +324,7 @@ class A2C:
             clip_gradients=self.max_gradient_norm,
             summaries=OPTIMIZER_SUMMARIES,
             learning_rate=None,
-            name=f"train_operation_{self.curriculum_number}"
+            name=train_operation
         )
 
         # Finally, log some information about the model in its current state.
@@ -379,6 +395,9 @@ class A2C:
         original_dict = {k + ":0": v for k, v in obs.items()}
 
         expanded_dict = {**original_dict}
+
+        if self.curriculum_number is None:
+            return expanded_dict
 
         for new_input in range(1, self.curriculum_number + 1):
             new_dict = {k + f"_{new_input}:0": v for k, v in obs.items()}
