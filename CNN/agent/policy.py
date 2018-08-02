@@ -16,10 +16,12 @@ class ConvPolicy:
     def __init__(self,
                  agent,
                  trainable: bool = True
+                 curriculum_number = -1
                  ):
         self.placeholders = agent.placeholders
         self.trainable = trainable
         self.unittype_emb_dim = agent.unit_type_emb_dim
+        self.curriculum_number = curriculum_number
 
     @staticmethod
     def logclip(input_tensor):

@@ -238,7 +238,11 @@ class A2C:
         # any changes to the session that could have occurred after loading.
         with self.session.as_default():
             with tf.variable_scope(f"theta_{self.curriculum_number}"):
-                theta = self.policy(self, trainable=True).build(self.session, previous_model)
+                theta = self.policy(
+                        self,
+                        trainable=True,
+                        curriculum_number=self.curriculum_number
+                ).build(self.session, previous_model)
 
         # Get the actions and the probabilities of those actions.
         selected_spatial_action = ravel_index_pairs(
