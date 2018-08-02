@@ -27,12 +27,12 @@ class SimpleModelLoader():
                 tf.train.latest_checkpoint(model_folder)
             )
 
-    def get_all_tensors_by_name(self, name):
+    def get_all_tensors_by_name(self, tensor_name_regex):
         current_tensors = [n.name for n in self.graph.as_graph_def().node]
         tensors = []
 
         for tensor_name in current_tensors:
-            if (re.findall(f"{re.escape(name)}$", tensor_name) and
+            if (re.findall(tensor_name_regex, tensor_name) and
                     not tensor_name.startswith(self.new_model_name)):
 
                 tensors.append(
@@ -43,20 +43,20 @@ class SimpleModelLoader():
 
     @property
     def flatten_1(self):
-        return self.get_all_tensors_by_name('Flatten_1/flatten/Reshape')
+        return self.get_all_tensors_by_name(r"Flatten_1\/flatten\/Reshape$")
 
     @property
     def concat_2(self):
-        return self.get_all_tensors_by_name('concat_2')
+        return self.get_all_tensors_by_name(r"concat_2$")
 
     @property
     def screen_conv_1(self):
-        return self.get_all_tensors_by_name('screen_network/conv_layer1/Relu')
+        return self.get_all_tensors_by_name(r"screen_network\/conv_layer1\/model_[0-9]+\/Relu")
 
     @property
     def minimap_conv_1(self):
-        return self.get_all_tensors_by_name('minimap_network/conv_layer1/Relu')
+        return self.get_all_tensors_by_name(r"minimap_network\/conv_layer1\/model_[0-9]+\/Relu")
 
     @property
     def fully_connected_layer1(self):
-        return self.get_all_tensors_by_name('fully_connected_layer1/Relu')
+        return self.get_all_tensors_by_name(r"fully_connected_layer1\/model_[0-9]+\/Relu")

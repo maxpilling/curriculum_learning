@@ -57,7 +57,7 @@ class ConvPolicy:
             stride=1,
             padding="SAME",
             activation_fn=tf.nn.relu,
-            scope="%s/new_conv_layer1" % name,
+            scope=f"{name}/conv_layer1/model_{self.curriculum_num}",
             trainable=self.trainable
         )
 
@@ -69,7 +69,7 @@ class ConvPolicy:
             stride=1,
             padding="SAME",
             activation_fn=None,
-            scope="%s/new_conv_layer2" % name, #TODO: Stop changing these names to make this easier
+            scope=f"{name}/conv_layer2/model_{self.curriculum_num}",
             trainable=self.trainable
         )
 
@@ -84,7 +84,7 @@ class ConvPolicy:
                 stride=1,
                 padding="SAME",
                 activation_fn=None,
-                scope=f"{name}/previous_conv_layer2/model_{model_number}",
+                scope=f"{name}/conv_layer2/model_{model_number}",
                 trainable=self.trainable
             )
 
@@ -226,7 +226,7 @@ class ConvPolicy:
             kernel_size=1,
             stride=1,
             activation_fn=None,
-            scope='spatial_actions_normal',
+            scope=f"spatial_actions/model_{self.curriculum_number}",
             trainable=self.trainable
         )
 
@@ -240,7 +240,7 @@ class ConvPolicy:
                 kernel_size=1,
                 stride=1,
                 activation_fn=None,
-                scope=f"spatial_actions_previous/model_{model_number}",
+                scope=f"spatial_actions/model_{model_number}",
                 trainable=self.trainable
             )
 
@@ -271,7 +271,7 @@ class ConvPolicy:
             map_output_flat,
             num_outputs=256,
             activation_fn=None,
-            scope="fully_connected_layer_normal",
+            scope=f"fully_connected_layer1/model_{self.curriculum_number}",
             trainable=self.trainable
         )
 
@@ -281,7 +281,7 @@ class ConvPolicy:
                 prev_out,
                 num_outputs=256,
                 activation_fn=None,
-                scope=f"fully_connected_previous/model_{model_number}",
+                scope=f"fully_connected_layer1/model_{model_number}",
                 trainable=self.trainable
             )
 
@@ -308,7 +308,7 @@ class ConvPolicy:
             relu_connected_layer,
             num_outputs=len(actions.FUNCTIONS),
             activation_fn=None,
-            scope="new_action_id",
+            scope=f"action_id/model_{self.curriculum_number}",
             trainable=self.trainable
         )
 
@@ -318,7 +318,7 @@ class ConvPolicy:
                 prev_out,
                 num_outputs=len(actions.FUNCTIONS),
                 activation_fn=None,
-                scope=f"previous_action_id/model_{model_number}",
+                scope=f"action_id/model_{model_number}",
                 trainable=self.trainable
             )
 
@@ -340,7 +340,7 @@ class ConvPolicy:
             relu_connected_layer,
             num_outputs=1,
             activation_fn=None,
-            scope='new_value',
+            scope=f"value/model_{self.curriculum_number}",
             trainable=self.trainable
         )
 
@@ -350,7 +350,7 @@ class ConvPolicy:
                 prev_out,
                 num_outputs=1,
                 activation_fn=None,
-                scope=f"previous_value/model_{model_number}",
+                scope=f"value/model_{model_number}",
                 trainable=self.trainable
             )
 
