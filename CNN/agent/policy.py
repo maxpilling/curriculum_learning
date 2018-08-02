@@ -15,7 +15,7 @@ class ConvPolicy:
 
     def __init__(self,
                  agent,
-                 trainable: bool = True
+                 trainable: bool = True,
                  curriculum_number = -1
                  ):
         self.placeholders = agent.placeholders
