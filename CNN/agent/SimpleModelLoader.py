@@ -41,7 +41,9 @@ class SimpleModelLoader():
                 count+=1
 
                 tensors.append(
-                    self.graph.get_tensor_by_name(f"{tensor_name}:0")
+                    tf.stop_gradient(
+                        self.graph.get_tensor_by_name(f"{tensor_name}:0")
+                    )
                 )
 
         print(f"Got {count} tensors!")
