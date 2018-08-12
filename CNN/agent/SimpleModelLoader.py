@@ -27,6 +27,18 @@ class SimpleModelLoader():
                 tf.train.latest_checkpoint(model_folder)
             )
 
+            self.stop_gradient_on_all()
+
+    def stop_gradient_on_all(self):
+        current_tensors = [n.name for n in self.graph.as_graph_def().node]
+
+        for tensor_name in current_tensors:
+            tf.stop_gradient(
+                self.graph.get_tensor_by_name(f"{tensor_name}:0")
+            )
+
+        return
+
     def get_all_tensors_by_name(self, tensor_name_regex):
         current_tensors = [n.name for n in self.graph.as_graph_def().node]
         tensors = []
@@ -41,9 +53,7 @@ class SimpleModelLoader():
                 count+=1
 
                 tensors.append(
-                    tf.stop_gradient(
-                        self.graph.get_tensor_by_name(f"{tensor_name}:0")
-                    )
+                    self.graph.get_tensor_by_name(f"{tensor_name}:0")
                 )
 
         print(f"Got {count} tensors!")
