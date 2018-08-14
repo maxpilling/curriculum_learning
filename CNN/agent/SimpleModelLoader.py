@@ -33,9 +33,12 @@ class SimpleModelLoader():
         current_tensors = [n.name for n in self.graph.as_graph_def().node]
 
         for tensor_name in current_tensors:
-            tf.stop_gradient(
-                self.graph.get_tensor_by_name(f"{tensor_name}:0")
-            )
+            try:
+                tf.stop_gradient(
+                    self.graph.get_tensor_by_name(f"{tensor_name}:0")
+                )
+            except KeyError:
+                continue
 
         return
 
