@@ -319,8 +319,7 @@ class A2C:
             clip_gradients=self.max_gradient_norm,
             summaries=OPTIMIZER_SUMMARIES,
             learning_rate=None,
-            name=train_operation,
-            variables=tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, theta_scope)
+            name=train_operation
         )
 
         # Finally, log some information about the model in its current state.
