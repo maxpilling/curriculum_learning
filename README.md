@@ -22,6 +22,10 @@ The way used throughout the project was via Singularity.
 
 Only used initially, so may not be fully working.
 
+* Install SC2. If installed to a non-standard location set the `$SC2PATH`
+ environment variable to point to the install location.
+    * An example of the install and setting this variable is in the
+     `Singularity` install file.
 * Install [poetry](https://github.com/sdispater/poetry) with `pip install poetry`.
 * Once installed, use `poetry install`. This will create a virtualenv and
  install all needed packages into it.
