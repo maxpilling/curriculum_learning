@@ -1,3 +1,8 @@
+"""util
+
+Various utility functions.
+"""
+
 import numpy as np
 import tensorflow as tf
 
@@ -11,8 +16,8 @@ def weighted_random_sample(weights):
     :param weights: 2D tensor [n, d] containing positive weights for sampling.
     """
 
-    u = tf.random_uniform(tf.shape(weights))
-    return tf.argmax(tf.log(u) / weights, axis=1)
+    uniform = tf.random_uniform(tf.shape(weights))
+    return tf.argmax(tf.log(uniform) / weights, axis=1)
 
 
 def select_from_each_row(params, indices):
@@ -31,9 +36,8 @@ def select_from_each_row(params, indices):
 
 
 def calculate_n_step_reward(
-        one_step_rewards: np.ndarray,
-        discount: float,
-        last_state_values: np.ndarray):
+    one_step_rewards: np.ndarray, discount: float, last_state_values: np.ndarray
+):
     """calculate_n_step_reward
 
     Given the one step rewards, the discount and the last values,
@@ -52,10 +56,10 @@ def calculate_n_step_reward(
 
 
 def general_n_step_advantage(
-        one_step_rewards: np.ndarray,
-        value_estimates: np.ndarray,
-        discount: float,
-        lambda_par: float
+    one_step_rewards: np.ndarray,
+    value_estimates: np.ndarray,
+    discount: float,
+    lambda_par: float,
 ):
     """general_n_step_advantage
 
@@ -75,7 +79,9 @@ def general_n_step_advantage(
 
     assert value_estimates.shape == (batch_size, timesteps + 1)
 
-    delta = one_step_rewards + discount * value_estimates[:, 1:] - value_estimates[:, :-1]
+    delta = (
+        one_step_rewards + discount * value_estimates[:, 1:] - value_estimates[:, :-1]
+    )
 
     if lambda_par == 0:
         return delta
@@ -87,7 +93,7 @@ def general_n_step_advantage(
     return advantage
 
 
-def combine_first_dimensions(x: np.ndarray):
+def combine_first_dimensions(input_arr: np.ndarray):
     """combine_first_dimensions
 
     Combines the first dimension of a given array.
@@ -96,17 +102,22 @@ def combine_first_dimensions(x: np.ndarray):
     :param x: array of [batch_size, time, ...]
     """
 
-    first_dim = x.shape[0] * x.shape[1]
-    other_dims = x.shape[2:]
+    first_dim = input_arr.shape[0] * input_arr.shape[1]
+    other_dims = input_arr.shape[2:]
     dims = (first_dim,) + other_dims
-    return x.reshape(*dims)
+    return input_arr.reshape(*dims)
 
 
 def ravel_index_pairs(idx_pairs, n_col):
+    """ravel_index_pairs
+
+    Reduce a pair of indicies.
+    """
+
     return tf.reduce_sum(idx_pairs * np.array([n_col, 1])[np.newaxis, ...], axis=1)
 
 
-def dict_of_lists_to_list_of_dicts(x: dict):
+def dict_of_lists_to_list_of_dicts(dict_of_lists: dict):
     """dict_of_lists_to_list_of_dicts
 
     Given an input dict of lists, convert it to a list of
@@ -116,10 +127,10 @@ def dict_of_lists_to_list_of_dicts(x: dict):
     :type x: dict
     """
 
-    dim = {len(v) for v in x.values()}
+    dim = {len(v) for v in dict_of_lists.values()}
 
     assert len(dim) == 1
 
     dim = dim.pop()
 
-    return [{k: x[k][i] for k in x} for i in range(dim)]
+    return [{k: dict_of_lists[k][i] for k in dict_of_lists} for i in range(dim)]
