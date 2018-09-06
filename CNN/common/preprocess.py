@@ -1,8 +1,8 @@
 """preprocess
 
 General pre-processing steps to help with transforming the Obs object and more.
-
 """
+
 from collections import namedtuple
 
 import numpy as np

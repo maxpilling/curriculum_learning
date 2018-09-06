@@ -1,8 +1,8 @@
 """multienv
 
 Functions and classes for working with multiple SC2 environments.
-
 """
+
 from multiprocessing import Process, Pipe
 from pysc2.env import sc2_env
 

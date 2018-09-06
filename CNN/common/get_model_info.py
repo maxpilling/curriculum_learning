@@ -1,8 +1,8 @@
 """get_model_info
 
 A general utility script to get information from the TensorFlow model files.
-
 """
+
 import sys
 import os
 
