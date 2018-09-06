@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "meng_project"
+version = "0.2.0"
+description = "Reinforcement Learning for SC2."
+authors = ["Ryan C <r.cross@lancaster.ac.uk>"]
+
+[tool.poetry.dependencies]
+python = "3.6^"
+PySC2 = "^2.0"
+tensorflow-gpu = "^1.10"
+
+[tool.poetry.dev-dependencies]
+black = "^18.3-alpha.0"
+pylint = "^2.1"
