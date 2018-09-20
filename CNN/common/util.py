@@ -134,3 +134,14 @@ def dict_of_lists_to_list_of_dicts(dict_of_lists: dict):
     dim = dim.pop()
 
     return [{k: dict_of_lists[k][i] for k in dict_of_lists} for i in range(dim)]
+
+def dump_all_tensors_to_file(graph, path):
+    """dump_all_tensors_to_file
+
+    Dumps all of the tensors for a given graph to a new file.
+    """
+
+    nodes = [n.name for n in graph.as_graph_def().node]
+    with open(path, 'w') as f:
+        for node in nodes:
+            print(node, file=f)

@@ -98,6 +98,7 @@ class ObsProcessor:
 
     N_SCREEN_CHANNELS = 13
     N_MINIMAP_CHANNELS = 5
+    N_NON_SPATIAL = 11
 
     def __init__(self):
         # Define the screen and minimaps scale and ids.
@@ -176,6 +177,7 @@ class ObsProcessor:
         obs = timestep.observation
         feature_screen = np.array(obs["feature_screen"])
         feature_minimap = np.array(obs["feature_minimap"])
+        player_obs = np.array(obs['player'])
 
         pp_obs = {
             FEATURE_KEYS.screen_numeric: self.get_screen_numeric(feature_screen),
@@ -183,6 +185,7 @@ class ObsProcessor:
                 SCREEN_FEATURES.unit_type.index
             ],
             FEATURE_KEYS.minimap_numeric: self.get_minimap_numeric(feature_minimap),
+            FEATURE_KEYS.non_spatial_features: player_obs,
             FEATURE_KEYS.available_action_ids: get_available_actions_flags(obs),
             FEATURE_KEYS.player_relative_screen: feature_screen[
                 SCREEN_FEATURES.player_relative.index
@@ -367,6 +370,7 @@ class ActionProcessor:
 FEATURE_LIST = (
     "minimap_numeric",
     "screen_numeric",
+    "non_spatial_features",
     "screen_unit_type",
     "is_spatial_action_available",
     "selected_spatial_action",
