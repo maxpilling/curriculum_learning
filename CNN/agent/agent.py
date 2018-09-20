@@ -36,6 +36,11 @@ def get_default_values(spatial_dimensions):
             [None, s_d, s_d, ObsProcessor.N_SCREEN_CHANNELS]
         ),
         (
+            FEATURE_KEYS.non_spatial_features,
+            tf.float32,
+            [None, ObsProcessor.N_NON_SPATIAL]
+        ),
+        (
             FEATURE_KEYS.screen_unit_type,
             tf.int32,
             [None, s_d, s_d]
@@ -206,7 +211,11 @@ class A2C:
         # Provides checks to ensure that variable isn't shared by accident,
         # and starts up the fully convolutional policy.
         with tf.variable_scope("theta"):
-            theta = self.policy(self, trainable=True).build()
+            theta = self.policy(
+                self,
+                trainable=True,
+                spatial_dim=self.spatial_dim
+            ).build()
 
         # Get the actions and the probabilities of those actions.
         selected_spatial_action = ravel_index_pairs(
@@ -449,7 +458,7 @@ class A2C:
 
         step = step or self.train_step
         print("Saving the model to %s, at step %d" % (path, step))
-
+        self.summary_writer.add_graph(self.session.graph)
         self.saver.save(
             self.session,
             path + '/model.ckpt',

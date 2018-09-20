@@ -23,6 +23,7 @@ class Runner(object):
             n_steps=5,
             discount=0.99,
             do_training=True,
+            number_episodes=-1
     ):
         self.envs = envs
         self.agent = agent
@@ -33,6 +34,7 @@ class Runner(object):
         self.do_training = do_training
         self.batch_counter = 0
         self.episode_counter = 0
+        self.number_episodes = number_episodes
 
     def reset(self):
         """reset
@@ -83,7 +85,9 @@ class Runner(object):
         Run a batch of the training, building up a list of actions, observations,
         values of those actions and the rewards given.
         """
-
+        if self.number_episode != -1 and self.number_episodes <= self.episode_counter:
+            print("Max number episodes reached. Quitting.")
+            return False
         # Define variables to store the actions, observations, values and rewards in.
         mb_actions = []
         mb_obs = []
@@ -140,3 +144,4 @@ class Runner(object):
         self.batch_counter += 1
 
         sys.stdout.flush()
+        return True

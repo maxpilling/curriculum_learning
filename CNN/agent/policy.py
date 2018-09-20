@@ -3,6 +3,11 @@ from pysc2.lib import actions
 from pysc2.lib.features import SCREEN_FEATURES, MINIMAP_FEATURES
 from tensorflow.contrib import layers
 
+from agent.non_spatial_setup import (pad_and_tile_non_spatial,
+                                     reference_tiling_method,
+                                     tile_and_tile_non_spatial)
+
+DEBUG = False
 
 class ConvPolicy:
     """ConvPolicy
@@ -15,11 +20,13 @@ class ConvPolicy:
 
     def __init__(self,
                  agent,
-                 trainable: bool = True
+                 trainable: bool = True,
+                 spatial_dim: int = 32
                  ):
         self.placeholders = agent.placeholders
         self.trainable = trainable
         self.unittype_emb_dim = agent.unit_type_emb_dim
+        self.spatial_dim = spatial_dim
 
     @staticmethod
     def logclip(input_tensor):
@@ -141,6 +148,26 @@ class ConvPolicy:
             axis=channel_axis
         )
 
+        non_spatial_features = tf.cast(
+            self.placeholders.non_spatial_features,
+            tf.float32
+        )
+        log_non_spatial_features = tf.log(non_spatial_features + 1.)
+
+        four_d_non_spatial = reference_tiling_method(
+            self,
+            log_non_spatial_features
+        )
+
+        if DEBUG:
+            #We want to print the values of the tensor
+            four_d_non_spatial = tf.Print(
+                four_d_non_spatial,
+                [four_d_non_spatial],
+                "4D non spatial tensor values: ",
+                summarize=1024 #this is the number of values TF will print from the Tensor
+            )
+
         # Build the 2 convolutional layers based on the screen
         # and the mini-map.
         screen_conv_layer_output = self.build_conv_layers_for_input(
@@ -153,10 +180,14 @@ class ConvPolicy:
             "minimap_network"
         )
 
-        # Group these two convolutional layers now, and
-        # build a further convolutional layer on top of it.
+        # Group these two convolutional layers now, and the non_spatial
+        # features. build a further convolutional layer on top of it.
         visual_inputs = tf.concat(
-            [screen_conv_layer_output, minimap_conv_layer_output],
+            [
+                screen_conv_layer_output,
+                minimap_conv_layer_output,
+                four_d_non_spatial
+            ],
             axis=channel_axis
         )
 
