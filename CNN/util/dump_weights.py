@@ -68,7 +68,7 @@ def main():
             weights_base = get_weights()
             conv_weights_base = get_conv_weights(weights_base, sess)
 
-    with open(f"{sys.argv[2]}.npy", 'wb') as base_file:
+    with open(f"{sys.argv[2]}.npy", "wb") as base_file:
         np.save(base_file, conv_weights_base)
 
 

@@ -3,11 +3,14 @@ from pysc2.lib import actions
 from pysc2.lib.features import SCREEN_FEATURES, MINIMAP_FEATURES
 from tensorflow.contrib import layers
 
-from agent.non_spatial_setup import (pad_and_tile_non_spatial,
-                                     reference_tiling_method,
-                                     tile_and_tile_non_spatial)
+from agent.non_spatial_setup import (
+    pad_and_tile_non_spatial,
+    reference_tiling_method,
+    tile_and_tile_non_spatial,
+)
 
 DEBUG = False
+
 
 class ConvPolicy:
     """ConvPolicy
@@ -18,12 +21,9 @@ class ConvPolicy:
     layers against both the map and screen.
     """
 
-    def __init__(self,
-                 agent,
-                 trainable: bool = True,
-                 curriculum_number = -1
-                 spatial_dim: int = 32
-                 ):
+    def __init__(
+        self, agent, trainable: bool = True, curriculum_number=-1, spatial_dim: int = 32
+    ):
         self.placeholders = agent.placeholders
         self.trainable = trainable
         self.unittype_emb_dim = agent.unit_type_emb_dim
@@ -65,7 +65,7 @@ class ConvPolicy:
             padding="SAME",
             activation_fn=tf.nn.relu,
             scope=f"{name}/conv_layer1/model_{self.curriculum_number}",
-            trainable=self.trainable
+            trainable=self.trainable,
         )
 
         conv_layer2 = layers.conv2d(
@@ -77,15 +77,19 @@ class ConvPolicy:
             padding="SAME",
             activation_fn=None,
             scope=f"{name}/conv_layer2/model_{self.curriculum_number}",
-            trainable=self.trainable
+            trainable=self.trainable,
         )
 
         if self.trainable:
             layers.summarize_activation(conv_layer1)
             layers.summarize_activation(conv_layer2)
-            tf.summary.image(f"{name}/new_conv_layer1", tf.reshape(conv_layer1, [-1, 32, 32, 1]), 3)
-            tf.summary.image(f"{name}/new_conv_layer2", tf.reshape(conv_layer2, [-1, 32, 32, 1]), 3)
-        
+            tf.summary.image(
+                f"{name}/new_conv_layer1", tf.reshape(conv_layer1, [-1, 32, 32, 1]), 3
+            )
+            tf.summary.image(
+                f"{name}/new_conv_layer2", tf.reshape(conv_layer2, [-1, 32, 32, 1]), 3
+            )
+
         # If we aren't doing transfer learning, return now.
         if previous_tensors is None:
             return conv_layer2
@@ -102,30 +106,30 @@ class ConvPolicy:
                 padding="SAME",
                 activation_fn=None,
                 scope=f"{name}/conv_layer2/model_{model_number}",
-                trainable=self.trainable
+                trainable=self.trainable,
             )
 
             previous_conv_layer2.append(conv_layer2_previous)
 
         previous_conv_layer2_added = self.add_all_previous(
-            previous_conv_layer2,
-            f"{name}/conv_layer2"
+            previous_conv_layer2, f"{name}/conv_layer2"
         )
 
         combined_conv_layer2 = tf.add(
-            conv_layer2,
-            previous_conv_layer2_added,
-            '%s_conv_add' % name
+            conv_layer2, previous_conv_layer2_added, "%s_conv_add" % name
         )
 
         relu_conv_layer2 = tf.nn.relu(
-            combined_conv_layer2,
-            name='combined_%s_conv_layer2_relu' % name
+            combined_conv_layer2, name="combined_%s_conv_layer2_relu" % name
         )
 
         if self.trainable:
             layers.summarize_activation(relu_conv_layer2)
-            tf.summary.image(f"{name}/combined_conv_layer2", tf.reshape(relu_conv_layer2, [-1, 32, 32, 1]), 3)
+            tf.summary.image(
+                f"{name}/combined_conv_layer2",
+                tf.reshape(relu_conv_layer2, [-1, 32, 32, 1]),
+                3,
+            )
 
         return relu_conv_layer2
 
@@ -141,16 +145,12 @@ class ConvPolicy:
         addition_name = f"{tensor_name}/addition"
 
         final_tensor = tf.add(
-            previous_list[0],
-            previous_list[1],
-            name=f"{addition_name}/add_0"
+            previous_list[0], previous_list[1], name=f"{addition_name}/add_0"
         )
 
         for index, current_tensor in enumerate(previous_list[2:]):
             final_tensor = tf.add(
-                final_tensor,
-                current_tensor,
-                name=f"{addition_name}/add_{index + 1}"
+                final_tensor, current_tensor, name=f"{addition_name}/add_{index + 1}"
             )
 
         return final_tensor
@@ -173,7 +173,7 @@ class ConvPolicy:
             vocab_size=SCREEN_FEATURES.unit_type.scale,
             embed_dim=self.unittype_emb_dim,
             scope="unit_type_emb",
-            trainable=self.trainable
+            trainable=self.trainable,
         )
 
         # "One hot" encoding performs "binarization" on the input
@@ -189,12 +189,12 @@ class ConvPolicy:
         # last sub-array.
         player_relative_screen_one_hot = layers.one_hot_encoding(
             self.placeholders.player_relative_screen,
-            num_classes=SCREEN_FEATURES.player_relative.scale
+            num_classes=SCREEN_FEATURES.player_relative.scale,
         )[:, :, :, 1:]
 
         player_relative_minimap_one_hot = layers.one_hot_encoding(
             self.placeholders.player_relative_minimap,
-            num_classes=MINIMAP_FEATURES.player_relative.scale
+            num_classes=MINIMAP_FEATURES.player_relative.scale,
         )[:, :, :, 1:]
 
         channel_axis = 3
@@ -205,39 +205,31 @@ class ConvPolicy:
             [
                 self.placeholders.screen_numeric,
                 units_embedded,
-                player_relative_screen_one_hot
+                player_relative_screen_one_hot,
             ],
-            axis=channel_axis
+            axis=channel_axis,
         )
 
         minimap_numeric_all = tf.concat(
-            [
-                self.placeholders.minimap_numeric,
-                player_relative_minimap_one_hot
-            ],
-            axis=channel_axis
+            [self.placeholders.minimap_numeric, player_relative_minimap_one_hot],
+            axis=channel_axis,
         )
 
         # Build the 2 convolutional layers based on the screen
         # and the mini-map.
         screen_conv_layer_output = self.build_conv_layers_for_input(
-            screen_numeric_all,
-            "screen_network",
-            previous_model.screen_conv_1
+            screen_numeric_all, "screen_network", previous_model.screen_conv_1
         )
 
         # And now the minimap
         minimap_conv_layer_output = self.build_conv_layers_for_input(
-            minimap_numeric_all,
-            "minimap_network",
-            previous_model.minimap_conv_1
+            minimap_numeric_all, "minimap_network", previous_model.minimap_conv_1
         )
 
         # Group these two convolutional layers now, and
         # build a further convolutional layer on top of it.
         visual_inputs = tf.concat(
-            [screen_conv_layer_output, minimap_conv_layer_output],
-            axis=channel_axis
+            [screen_conv_layer_output, minimap_conv_layer_output], axis=channel_axis
         )
 
         spatial_actions_normal = layers.conv2d(
@@ -248,7 +240,7 @@ class ConvPolicy:
             stride=1,
             activation_fn=None,
             scope=f"spatial_actions/model_{self.curriculum_number}",
-            trainable=self.trainable
+            trainable=self.trainable,
         )
 
         # Sort the previous models spatial action layers.
@@ -262,26 +254,37 @@ class ConvPolicy:
                 stride=1,
                 activation_fn=None,
                 scope=f"spatial_actions/model_{model_number}",
-                trainable=self.trainable
+                trainable=self.trainable,
             )
 
             previous_spatial_actions.append(spatial_actions_previous)
 
         previous_spatial_actions_added = self.add_all_previous(
-            previous_spatial_actions,
-            "spatial_actions"
+            previous_spatial_actions, "spatial_actions"
         )
 
         joint_spatial_actions = tf.add(
             spatial_actions_normal,
             previous_spatial_actions_added,
-            'spatial_actions_add'
+            "spatial_actions_add",
         )
 
         if self.trainable:
-            tf.summary.image(f"spatial_action_normal", tf.reshape(spatial_actions_normal, [-1, 32, 32, 1]), 3)
-            tf.summary.image(f"spatial_action_previous", tf.reshape(spatial_actions_previous, [-1, 32, 32, 1]), 3)
-            tf.summary.image(f"joint_connected_layers", tf.reshape(joint_spatial_actions, [-1, 32, 32, 1]), 3)
+            tf.summary.image(
+                f"spatial_action_normal",
+                tf.reshape(spatial_actions_normal, [-1, 32, 32, 1]),
+                3,
+            )
+            tf.summary.image(
+                f"spatial_action_previous",
+                tf.reshape(spatial_actions_previous, [-1, 32, 32, 1]),
+                3,
+            )
+            tf.summary.image(
+                f"joint_connected_layers",
+                tf.reshape(joint_spatial_actions, [-1, 32, 32, 1]),
+                3,
+            )
 
         # Take the softmax of this final convolutional layer.
         spatial_action_probs = tf.nn.softmax(layers.flatten(joint_spatial_actions))
@@ -296,7 +299,7 @@ class ConvPolicy:
             num_outputs=256,
             activation_fn=None,
             scope=f"fully_connected_layer1/model_{self.curriculum_number}",
-            trainable=self.trainable
+            trainable=self.trainable,
         )
 
         previous_fully_con_1 = []
@@ -306,26 +309,24 @@ class ConvPolicy:
                 num_outputs=256,
                 activation_fn=None,
                 scope=f"fully_connected_layer1/model_{model_number}",
-                trainable=self.trainable
+                trainable=self.trainable,
             )
 
             previous_fully_con_1.append(fully_connected_previous)
 
         previous_fully_con_1_added = self.add_all_previous(
-            previous_fully_con_1,
-            "fully_connected_layer1"
+            previous_fully_con_1, "fully_connected_layer1"
         )
 
         # Combine the new and old models values, and then apply RELU to the result.
         joint_connected_layers = tf.add(
             fully_connected_layer_normal,
             previous_fully_con_1_added,
-            'fully_connected_layer_add'
+            "fully_connected_layer_add",
         )
 
         relu_connected_layer = tf.nn.relu(
-            joint_connected_layers,
-            name='fully_connected_layer1_normal_relu'
+            joint_connected_layers, name="fully_connected_layer1_normal_relu"
         )
 
         # Generate the probability of a given action from the
@@ -336,7 +337,7 @@ class ConvPolicy:
             num_outputs=len(actions.FUNCTIONS),
             activation_fn=None,
             scope=f"action_id/model_{self.curriculum_number}",
-            trainable=self.trainable
+            trainable=self.trainable,
         )
 
         previous_action_ids = []
@@ -346,20 +347,17 @@ class ConvPolicy:
                 num_outputs=len(actions.FUNCTIONS),
                 activation_fn=None,
                 scope=f"action_id/model_{model_number}",
-                trainable=self.trainable
+                trainable=self.trainable,
             )
 
             previous_action_ids.append(previous_action_id_probs)
 
         previous_action_ids_added = self.add_all_previous(
-            previous_action_ids,
-            "action_id"
+            previous_action_ids, "action_id"
         )
 
         joint_action_ids = tf.add(
-            action_id_probs_new,
-            previous_action_ids_added,
-            'id_probs_add'
+            action_id_probs_new, previous_action_ids_added, "id_probs_add"
         )
 
         # Combine the new and old models values, and then apply softmax to the result.
@@ -371,7 +369,7 @@ class ConvPolicy:
             num_outputs=1,
             activation_fn=None,
             scope=f"value/model_{self.curriculum_number}",
-            trainable=self.trainable
+            trainable=self.trainable,
         )
 
         previous_value_estimates = []
@@ -381,36 +379,29 @@ class ConvPolicy:
                 num_outputs=1,
                 activation_fn=None,
                 scope=f"value/model_{model_number}",
-                trainable=self.trainable
+                trainable=self.trainable,
             )
 
             previous_value_estimates.append(value_estimate_previous)
 
         previous_value_estimates_added = self.add_all_previous(
-            previous_value_estimates,
-            "value"
+            previous_value_estimates, "value"
         )
 
         # Combine the new and old models values, and then squeeze the result.
         joint_value_estimate = tf.add(
-            value_estimate_new,
-            previous_value_estimates_added,
-            'value_estimate_add'
+            value_estimate_new, previous_value_estimates_added, "value_estimate_add"
         )
 
-        value_estimate = tf.squeeze(
-            joint_value_estimate,
-            axis=1
-        )
+        value_estimate = tf.squeeze(joint_value_estimate, axis=1)
 
         # Disregard all the non-allowed actions by giving them a
         # probability of zero, before re-normalizing to 1.
         action_id_probs *= self.placeholders.available_action_ids
         action_id_probs /= tf.reduce_sum(action_id_probs, axis=1, keepdims=True)
 
-        spatial_action_log_probs = (
-            self.logclip(spatial_action_probs)
-            * tf.expand_dims(self.placeholders.is_spatial_action_available, axis=1)
+        spatial_action_log_probs = self.logclip(spatial_action_probs) * tf.expand_dims(
+            self.placeholders.is_spatial_action_available, axis=1
         )
 
         action_id_log_probs = self.logclip(action_id_probs)
@@ -441,7 +432,7 @@ class ConvPolicy:
             vocab_size=SCREEN_FEATURES.unit_type.scale,
             embed_dim=self.unittype_emb_dim,
             scope="unit_type_emb",
-            trainable=self.trainable
+            trainable=self.trainable,
         )
 
         # "One hot" encoding performs "binarization" on the input
@@ -457,12 +448,12 @@ class ConvPolicy:
         # last sub-array.
         player_relative_screen_one_hot = layers.one_hot_encoding(
             self.placeholders.player_relative_screen,
-            num_classes=SCREEN_FEATURES.player_relative.scale
+            num_classes=SCREEN_FEATURES.player_relative.scale,
         )[:, :, :, 1:]
 
         player_relative_minimap_one_hot = layers.one_hot_encoding(
             self.placeholders.player_relative_minimap,
-            num_classes=MINIMAP_FEATURES.player_relative.scale
+            num_classes=MINIMAP_FEATURES.player_relative.scale,
         )[:, :, :, 1:]
 
         channel_axis = 3
@@ -473,60 +464,47 @@ class ConvPolicy:
             [
                 self.placeholders.screen_numeric,
                 units_embedded,
-                player_relative_screen_one_hot
+                player_relative_screen_one_hot,
             ],
-            axis=channel_axis
+            axis=channel_axis,
         )
 
         minimap_numeric_all = tf.concat(
-            [
-                self.placeholders.minimap_numeric,
-                player_relative_minimap_one_hot
-            ],
-            axis=channel_axis
+            [self.placeholders.minimap_numeric, player_relative_minimap_one_hot],
+            axis=channel_axis,
         )
 
         non_spatial_features = tf.cast(
-            self.placeholders.non_spatial_features,
-            tf.float32
+            self.placeholders.non_spatial_features, tf.float32
         )
         log_non_spatial_features = tf.log(non_spatial_features + 1.)
 
-        four_d_non_spatial = reference_tiling_method(
-            self,
-            log_non_spatial_features
-        )
+        four_d_non_spatial = reference_tiling_method(self, log_non_spatial_features)
 
         if DEBUG:
-            #We want to print the values of the tensor
+            # We want to print the values of the tensor
             four_d_non_spatial = tf.Print(
                 four_d_non_spatial,
                 [four_d_non_spatial],
                 "4D non spatial tensor values: ",
-                summarize=1024 #this is the number of values TF will print from the Tensor
+                summarize=1024,  # this is the number of values TF will print from the Tensor
             )
 
         # Build the 2 convolutional layers based on the screen
         # and the mini-map.
         screen_conv_layer_output = self.build_conv_layers_for_input(
-            screen_numeric_all,
-            "screen_network"
+            screen_numeric_all, "screen_network"
         )
 
         minimap_conv_layer_output = self.build_conv_layers_for_input(
-            minimap_numeric_all,
-            "minimap_network"
+            minimap_numeric_all, "minimap_network"
         )
 
         # Group these two convolutional layers now, and the non_spatial
         # features. build a further convolutional layer on top of it.
         visual_inputs = tf.concat(
-            [
-                screen_conv_layer_output,
-                minimap_conv_layer_output,
-                four_d_non_spatial
-            ],
-            axis=channel_axis
+            [screen_conv_layer_output, minimap_conv_layer_output, four_d_non_spatial],
+            axis=channel_axis,
         )
 
         spatial_actions = layers.conv2d(
@@ -536,12 +514,14 @@ class ConvPolicy:
             kernel_size=1,
             stride=1,
             activation_fn=None,
-            scope='spatial_action',
-            trainable=self.trainable
+            scope="spatial_action",
+            trainable=self.trainable,
         )
 
         if self.trainable:
-            tf.summary.image(f"spatial_action", tf.reshape(spatial_actions, [-1, 32, 32, 1]), 3)
+            tf.summary.image(
+                f"spatial_action", tf.reshape(spatial_actions, [-1, 32, 32, 1]), 3
+            )
 
         # Take the softmax of this final convolutional layer.
         spatial_action_probs = tf.nn.softmax(layers.flatten(spatial_actions))
@@ -556,7 +536,7 @@ class ConvPolicy:
             num_outputs=256,
             activation_fn=tf.nn.relu,
             scope="fully_connected_layer1",
-            trainable=self.trainable
+            trainable=self.trainable,
         )
 
         # Generate the probability of a given action from the
@@ -567,25 +547,27 @@ class ConvPolicy:
             num_outputs=len(actions.FUNCTIONS),
             activation_fn=tf.nn.softmax,
             scope="action_id",
-            trainable=self.trainable
+            trainable=self.trainable,
         )
 
-        value_estimate = tf.squeeze(layers.fully_connected(
-            fully_connected_layer1,
-            num_outputs=1,
-            activation_fn=None,
-            scope='value',
-            trainable=self.trainable
-        ), axis=1)
+        value_estimate = tf.squeeze(
+            layers.fully_connected(
+                fully_connected_layer1,
+                num_outputs=1,
+                activation_fn=None,
+                scope="value",
+                trainable=self.trainable,
+            ),
+            axis=1,
+        )
 
         # Disregard all the non-allowed actions by giving them a
         # probability of zero, before re-normalizing to 1.
         action_id_probs *= self.placeholders.available_action_ids
         action_id_probs /= tf.reduce_sum(action_id_probs, axis=1, keepdims=True)
 
-        spatial_action_log_probs = (
-            self.logclip(spatial_action_probs)
-            * tf.expand_dims(self.placeholders.is_spatial_action_available, axis=1)
+        spatial_action_log_probs = self.logclip(spatial_action_probs) * tf.expand_dims(
+            self.placeholders.is_spatial_action_available, axis=1
         )
 
         action_id_log_probs = self.logclip(action_id_probs)

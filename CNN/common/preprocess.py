@@ -177,7 +177,7 @@ class ObsProcessor:
         obs = timestep.observation
         feature_screen = np.array(obs["feature_screen"])
         feature_minimap = np.array(obs["feature_minimap"])
-        player_obs = np.array(obs['player'])
+        player_obs = np.array(obs["player"])
 
         pp_obs = {
             FEATURE_KEYS.screen_numeric: self.get_screen_numeric(feature_screen),

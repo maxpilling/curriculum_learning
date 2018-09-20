@@ -17,13 +17,13 @@ class Runner(object):
     """
 
     def __init__(
-            self,
-            envs,
-            agent: A2C,
-            n_steps=5,
-            discount=0.99,
-            do_training=True,
-            number_episodes=-1
+        self,
+        envs,
+        agent: A2C,
+        n_steps=5,
+        discount=0.99,
+        do_training=True,
+        number_episodes=-1,
     ):
         self.envs = envs
         self.agent = agent
@@ -55,7 +55,7 @@ class Runner(object):
         """
 
         summary = tf.Summary()
-        summary.value.add(tag='sc2/episode_score', simple_value=score)
+        summary.value.add(tag="sc2/episode_score", simple_value=score)
         self.agent.summary_writer.add_summary(summary, self.episode_counter)
 
     def _handle_episode_end(self, timestep):
@@ -77,7 +77,6 @@ class Runner(object):
 
         self._log_score_to_tb(score)
         self.episode_counter += 1
-
 
     def run_batch(self):
         """run_batch
@@ -118,17 +117,16 @@ class Runner(object):
         mb_values[:, -1] = self.agent.get_value(latest_obs)
 
         n_step_advantage = general_n_step_advantage(
-            mb_rewards,
-            mb_values,
-            self.discount,
-            lambda_par=1.0
+            mb_rewards, mb_values, self.discount, lambda_par=1.0
         )
 
         full_input = {
             # These are transposed because action/obs
             # processors return [time, env, ...] shaped arrays.
             FEATURE_KEYS.advantage: n_step_advantage.transpose(),
-            FEATURE_KEYS.value_target: (n_step_advantage + mb_values[:, :-1]).transpose()
+            FEATURE_KEYS.value_target: (
+                n_step_advantage + mb_values[:, :-1]
+            ).transpose(),
         }
 
         full_input.update(self.action_processor.combine_batch(mb_actions))
