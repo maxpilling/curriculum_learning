@@ -2,12 +2,12 @@ import os
 import shutil
 import signal
 import sys
-
-import tensorflow as tf
-
 from datetime import datetime
 from functools import partial
+
+import tensorflow as tf
 from absl import flags
+from pysc2.env import sc2_env
 
 from agent.agent import A2C
 from agent.runner import Runner
@@ -31,6 +31,7 @@ flags.DEFINE_integer("all_summary_freq", 50, "Record all summaries every n batch
 flags.DEFINE_integer("scalar_summary_freq", 5, "Record scalar summaries every n batch.")
 flags.DEFINE_integer("K_batches", -1, "Number of training in thousands, -1 to run forever.")
 flags.DEFINE_integer("save_replays_every", 0, "How often to save a replay, 0 for never.")
+flags.DEFINE_integer("curriculum_num", None, "The current curriculum number, used for theta_ etc.")
 flags.DEFINE_integer("number_episodes", -1, "Number of episodes to run for, will go forever by default")
 
 flags.DEFINE_string("checkpoint_path", "_files/models", "Path for agent checkpoints.")
@@ -160,6 +161,7 @@ def main():
     environment = SubprocVecEnv(
         (partial(make_sc2env, **environment_arguments),) * FLAGS.n_envs
     )
+    print("Finished setting up env...")
 
     print(f"Environment arguments are: {environment_arguments}")
 
@@ -181,16 +183,22 @@ def main():
         scalar_summary_freq=FLAGS.scalar_summary_freq,
         summary_path=RELATIVE_SUMMARY_PATH,
         all_summary_freq=FLAGS.all_summary_freq,
-        max_gradient_norm=FLAGS.max_gradient_norm
+        max_gradient_norm=FLAGS.max_gradient_norm,
+        curriculum_number=FLAGS.curriculum_num
     )
 
     agent.build_model()
+    print("Finished building model...")
 
     # If there is a checkpoint, we should load it.
     if os.path.exists(RELATIVE_CHECKPOINT_PATH):
         agent.load(RELATIVE_CHECKPOINT_PATH)
     else:
         agent.init()
+
+    #TODO: Remove this, only needed whilst we check the graph structure.
+    print("Do an initial save to check the model...")
+    save(agent)
 
     # Check that number of steps per batch is defined.
     if FLAGS.n_steps_per_batch is None:
