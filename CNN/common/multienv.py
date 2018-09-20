@@ -1,39 +1,17 @@
+"""multienv
+
+Functions and classes for working with multiple SC2 environments.
+"""
+
 from multiprocessing import Process, Pipe
-from pysc2.env import sc2_env, available_actions_printer
-
-
-class SingleEnv:
-    """
-    This works like SubprocVecEnv but runs only one environment in the main process
-    """
-
-    def __init__(self, env):
-        self.env = env
-        self.n_envs = 1
-
-    def step(self, actions):
-        """
-        :param actions: List[FunctionCall]
-        :return:
-        """
-        assert len(actions) == 1  # only 1 environment
-        action = actions[0]
-        return [self.env.step([action])[0]]
-
-    def reset_done_envs(self):
-        pass
-
-    def reset(self):
-        return [self.env.reset()[0]]
-
-    def close(self):
-        self.env.close()
+from pysc2.env import sc2_env
 
 
 # The following (worker, CloudpickleWrapper, SubprocVecEnv) is copied from
 # https://github.com/openai/baselines/blob/master/baselines/common/vec_env/subproc_vec_env.py
 # with some SCII specific modifications taken from
 # https://github.com/pekaalto/sc2aibot
+
 
 def worker(remote, env_fn_wrapper):
     """worker
@@ -54,36 +32,38 @@ def worker(remote, env_fn_wrapper):
     # fully close the remote.
     while True:
         cmd, action = remote.recv()
-        if cmd == 'step':
+        if cmd == "step":
             timesteps = env.step([action])
             assert len(timesteps) == 1
             remote.send(timesteps[0])
-        elif cmd == 'reset':
+        elif cmd == "reset":
             timesteps = env.reset()
             assert len(timesteps) == 1
             remote.send(timesteps[0])
-        elif cmd == 'close':
+        elif cmd == "close":
             remote.close()
             break
         else:
             raise NotImplementedError
 
 
-class CloudpickleWrapper(object):
+class CloudpickleWrapper:
     """
     Uses cloudpickle to serialize contents (otherwise multiprocessing tries to use pickle)
     """
 
-    def __init__(self, x):
-        self.x = x
+    def __init__(self, current_input):
+        self.current_input = current_input
 
     def __getstate__(self):
         import cloudpickle
-        return cloudpickle.dumps(self.x)
 
-    def __setstate__(self, ob):
+        return cloudpickle.dumps(self.current_input)
+
+    def __setstate__(self, observation):
         import pickle
-        self.x = pickle.loads(ob)
+
+        self.current_input = pickle.loads(observation)
 
 
 class SubprocVecEnv:
@@ -98,11 +78,13 @@ class SubprocVecEnv:
 
         self.remotes, self.work_remotes = zip(*[Pipe() for _ in range(n_envs)])
 
-        self.ps = [Process(target=worker, args=(work_remote, CloudpickleWrapper(env_fn)))
-                   for (work_remote, env_fn) in zip(self.work_remotes, env_fns)]
+        self.processes = [
+            Process(target=worker, args=(work_remote, CloudpickleWrapper(env_fn)))
+            for (work_remote, env_fn) in zip(self.work_remotes, env_fns)
+        ]
 
-        for p in self.ps:
-            p.start()
+        for process in self.processes:
+            process.start()
 
         self.n_envs = n_envs
 
@@ -117,18 +99,38 @@ class SubprocVecEnv:
         return timesteps
 
     def step(self, actions):
+        """step
+
+        Take one step of the environment.
+        """
+
         return self._step_or_reset("step", actions)
 
     def reset(self):
+        """reset
+
+        Reset the environment.
+        """
+
         return self._step_or_reset("reset", None)
 
     def close(self):
+        """reset
+
+        Close the envrionment.
+        """
+
         for remote in self.remotes:
-            remote.send(('close', None))
-        for p in self.ps:
-            p.join()
+            remote.send(("close", None))
+
+        for process in self.processes:
+            process.join()
 
     def reset_done_envs(self):
+        """reset_done_envs
+
+        Reset complete envrionments.
+        """
         pass
 
 

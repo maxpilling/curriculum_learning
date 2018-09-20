@@ -1,7 +1,13 @@
-import numpy as np
+"""preprocess
+
+General pre-processing steps to help with transforming the Obs object and more.
+"""
 
 from collections import namedtuple
-from pysc2.env.environment import TimeStep, StepType
+
+import numpy as np
+
+from pysc2.env.environment import TimeStep
 from pysc2.lib import actions
 from pysc2.lib.features import SCREEN_FEATURES, MINIMAP_FEATURES, FeatureType
 
@@ -9,17 +15,17 @@ from pysc2.lib.features import SCREEN_FEATURES, MINIMAP_FEATURES, FeatureType
 # with comments and syntax changes.
 
 
-def log_transform(x, scale):
+def log_transform(input_value, scale):
     """log_transform
 
-    Given an input x, scale it and take the logarithm.
+    Given an input input_value, scale it and take the logarithm.
 
-    :param x: The input variable.
+    :param input_value: The input variable.
     :param scale: How much to scale the value by.
     """
 
     # 8 is a "feel good" magic number and doesn't mean anything here.
-    return np.log(8 * x / scale + 1)
+    return np.log(8 * input_value / scale + 1)
 
 
 def get_visibility_flag(visibility_feature):
@@ -46,8 +52,7 @@ def numeric_idx_and_scale(input_set):
 
     # Get the scalar values, before zipping the id and value up.
     idx_and_scale = [
-        (k.index, k.scale) for k in input_set
-        if k.type == FeatureType.SCALAR
+        (k.index, k.scale) for k in input_set if k.type == FeatureType.SCALAR
     ]
 
     idx, scale = [np.array(k) for k in zip(*idx_and_scale)]
@@ -56,16 +61,16 @@ def numeric_idx_and_scale(input_set):
     return idx, scale
 
 
-def stack_list_of_dicts(d):
+def stack_list_of_dicts(input_dict):
     """stack_list_of_dicts
 
     Given an input dictionary, stack the values
     into a list.
 
-    :param d: Input dictionary.
+    :param input_dict: Input dictionary.
     """
 
-    return {key: np.stack([a[key] for a in d]) for key in d[0]}
+    return {key: np.stack([a[key] for a in input_dict]) for key in input_dict[0]}
 
 
 def get_available_actions_flags(obs):
@@ -79,7 +84,7 @@ def get_available_actions_flags(obs):
 
     # Return only the available actions from the Observation object.
     available_actions_dense = np.zeros(len(actions.FUNCTIONS), dtype=np.float32)
-    available_actions_dense[obs['available_actions']] = 1
+    available_actions_dense[obs["available_actions"]] = 1
 
     return available_actions_dense
 
@@ -93,29 +98,34 @@ class ObsProcessor:
 
     N_SCREEN_CHANNELS = 13
     N_MINIMAP_CHANNELS = 5
+    N_NON_SPATIAL = 11
 
     def __init__(self):
         # Define the screen and minimaps scale and ids.
-        self.screen_numeric_idx, self.screen_numeric_scale = \
-            numeric_idx_and_scale(SCREEN_FEATURES)
+        self.screen_numeric_idx, self.screen_numeric_scale = numeric_idx_and_scale(
+            SCREEN_FEATURES
+        )
 
-        self.minimap_numeric_idx, self.minimap_numeric_scale = \
-            numeric_idx_and_scale(MINIMAP_FEATURES)
+        self.minimap_numeric_idx, self.minimap_numeric_scale = numeric_idx_and_scale(
+            MINIMAP_FEATURES
+        )
 
         # Finds the ids of the flags we care about in both the screen
         # and the minimap. This differs across the two, due to
         # different information being offered in both.
         screen_flag_names = ["creep", "power", "selected"]
 
-        self.screen_flag_idx = [k.index for k in SCREEN_FEATURES
-                                if k.name in screen_flag_names]
+        self.screen_flag_idx = [
+            k.index for k in SCREEN_FEATURES if k.name in screen_flag_names
+        ]
 
         minimap_flag_names = ["creep", "camera", "selected"]
 
-        self.minimap_flag_idx = [k.index for k in MINIMAP_FEATURES
-                                 if k.name in minimap_flag_names]
+        self.minimap_flag_idx = [
+            k.index for k in MINIMAP_FEATURES if k.name in minimap_flag_names
+        ]
 
-    def get_screen_numeric(self, obs):
+    def get_screen_numeric(self, screen_obs):
         """get_screen_numeric
 
         Get and scale the screen portion of the obs object,
@@ -124,8 +134,6 @@ class ObsProcessor:
         :param obs: The StarCraft II Observation object.
         """
 
-        screen_obs = obs["screen"]
-
         scaled_scalar_obs = log_transform(
             screen_obs[self.screen_numeric_idx], self.screen_numeric_scale
         )
@@ -133,10 +141,10 @@ class ObsProcessor:
         return np.r_[
             scaled_scalar_obs,
             screen_obs[self.screen_flag_idx],
-            get_visibility_flag(screen_obs[SCREEN_FEATURES.visibility_map.index])
+            get_visibility_flag(screen_obs[SCREEN_FEATURES.visibility_map.index]),
         ]
 
-    def get_minimap_numeric(self, obs):
+    def get_minimap_numeric(self, minimap_obs):
         """get_minimap_numeric
 
         Get and scale the mini-map portion of the obs object,
@@ -144,8 +152,6 @@ class ObsProcessor:
 
         :param obs: The StarCraft II Observation object.
         """
-
-        minimap_obs = obs["minimap"]
 
         # This is only height_map for mini-map.
         scaled_scalar_obs = log_transform(
@@ -155,7 +161,7 @@ class ObsProcessor:
         return np.r_[
             scaled_scalar_obs,
             minimap_obs[self.minimap_flag_idx],
-            get_visibility_flag(minimap_obs[MINIMAP_FEATURES.visibility_map.index])
+            get_visibility_flag(minimap_obs[MINIMAP_FEATURES.visibility_map.index]),
         ]
 
     def process_one_input(self, timestep: TimeStep):
@@ -169,16 +175,24 @@ class ObsProcessor:
         """
 
         obs = timestep.observation
+        feature_screen = np.array(obs["feature_screen"])
+        feature_minimap = np.array(obs["feature_minimap"])
+        player_obs = np.array(obs["player"])
 
         pp_obs = {
-            FEATURE_KEYS.screen_numeric: self.get_screen_numeric(obs),
-            FEATURE_KEYS.screen_unit_type: obs["screen"][SCREEN_FEATURES.unit_type.index],
-            FEATURE_KEYS.minimap_numeric: self.get_minimap_numeric(obs),
+            FEATURE_KEYS.screen_numeric: self.get_screen_numeric(feature_screen),
+            FEATURE_KEYS.screen_unit_type: feature_screen[
+                SCREEN_FEATURES.unit_type.index
+            ],
+            FEATURE_KEYS.minimap_numeric: self.get_minimap_numeric(feature_minimap),
+            FEATURE_KEYS.non_spatial_features: player_obs,
             FEATURE_KEYS.available_action_ids: get_available_actions_flags(obs),
-            FEATURE_KEYS.player_relative_screen: obs["screen"][
-                SCREEN_FEATURES.player_relative.index],
-            FEATURE_KEYS.player_relative_minimap: obs["minimap"][
-                MINIMAP_FEATURES.player_relative.index]
+            FEATURE_KEYS.player_relative_screen: feature_screen[
+                SCREEN_FEATURES.player_relative.index
+            ],
+            FEATURE_KEYS.player_relative_minimap: feature_minimap[
+                MINIMAP_FEATURES.player_relative.index
+            ],
         }
 
         return pp_obs
@@ -212,19 +226,19 @@ class ObsProcessor:
         return stack_list_of_dicts(mb_obs)
 
 
-def make_default_args(arg_names):
+def make_default_args(argument_names):
     """make_default_args
 
     Make a default set of arguments.
 
-    :param arg_names: A list of argument names.
+    :param argument_names: A list of argument names.
     """
 
     default_args = []
     spatial_seen = False
     spatial_arguments = ["screen", "minimap", "screen2"]
 
-    for k in arg_names:
+    for k in argument_names:
         if k in spatial_arguments:
             spatial_seen = True
             continue
@@ -246,12 +260,12 @@ def convert_point_to_rectangle(point, delta, dim):
     :param dim: The size of the rectangle.
     """
 
-    def l(x):
-        return max(0, min(x, dim - 1))
+    def meets(input_value):
+        return max(0, min(input_value, dim - 1))
 
-    p1 = [l(k - delta) for k in point]
-    p2 = [l(k + delta) for k in point]
-    return p1, p2
+    point_1 = [meets(k - delta) for k in point]
+    point_2 = [meets(k + delta) for k in point]
+    return point_1, point_2
 
 
 def arg_names():
@@ -260,20 +274,22 @@ def arg_names():
     Return a list of all argument names from the actions list.
     """
 
-    x = [[a.name for a in k.args] for k in actions.FUNCTIONS]
-    assert all("minimap2" not in k for k in x)
-    return x
+    args = [[a.name for a in k.args] for k in actions.FUNCTIONS]
+    assert all("minimap2" not in k for k in args)
+    return args
 
 
 def find_rect_function_id():
     """find_rect_function_id
 
-    Fine the id of the rectangle function ID, used for selecting units.
+    Find the id of the rectangle function ID, used for selecting units.
     """
 
-    x = [k.id for k, names in zip(actions.FUNCTIONS, arg_names()) if "screen2" in names]
-    assert len(x) == 1
-    return x[0]
+    rect_id = [
+        k.id for k, names in zip(actions.FUNCTIONS, arg_names()) if "screen2" in names
+    ]
+    assert len(rect_id) == 1
+    return rect_id[0]
 
 
 class ActionProcessor:
@@ -283,7 +299,9 @@ class ActionProcessor:
     """
 
     def __init__(self, dim, rect_delta=5):
-        self.default_args, is_spatial = zip(*[make_default_args(k) for k in arg_names()])
+        self.default_args, is_spatial = zip(
+            *[make_default_args(k) for k in arg_names()]
+        )
         self.is_spatial = np.array(is_spatial)
         self.rect_select_action_id = find_rect_function_id()
         self.rect_delta = rect_delta
@@ -301,7 +319,11 @@ class ActionProcessor:
 
         # If the action is a select action, then convert the point first, before performing it.
         if action_id == self.rect_select_action_id:
-            args.extend(convert_point_to_rectangle(spatial_coordinates, self.rect_delta, self.dim))
+            args.extend(
+                convert_point_to_rectangle(
+                    spatial_coordinates, self.rect_delta, self.dim
+                )
+            )
         elif self.is_spatial[action_id]:
             # Flip the co-ordinates from (x, y) to (y, x).
             args.append(spatial_coordinates[::-1])
@@ -317,8 +339,10 @@ class ActionProcessor:
         :param spatial_action_2ds: The co-ordinates to perform them all at.
         """
 
-        return [self.make_one_action(a_id, coord)
-                for a_id, coord in zip(action_ids, spatial_action_2ds)]
+        return [
+            self.make_one_action(a_id, coord)
+            for a_id, coord in zip(action_ids, spatial_action_2ds)
+        ]
 
     def combine_batch(self, mb_actions):
         """combine_batch
@@ -328,20 +352,25 @@ class ActionProcessor:
         :param mb_actions: A list of actions and co-ordinates.
         """
 
-        d = {}
-        d[FEATURE_KEYS.selected_action_id] = np.stack(k[0] for k in mb_actions)
-        d[FEATURE_KEYS.selected_spatial_action] = np.stack(k[1] for k in mb_actions)
+        action_dict = {}
+        action_dict[FEATURE_KEYS.selected_action_id] = np.stack(
+            k[0] for k in mb_actions
+        )
+        action_dict[FEATURE_KEYS.selected_spatial_action] = np.stack(
+            k[1] for k in mb_actions
+        )
 
-        d[FEATURE_KEYS.is_spatial_action_available] = self.is_spatial[
-            d[FEATURE_KEYS.selected_action_id]
+        action_dict[FEATURE_KEYS.is_spatial_action_available] = self.is_spatial[
+            action_dict[FEATURE_KEYS.selected_action_id]
         ]
 
-        return d
+        return action_dict
 
 
 FEATURE_LIST = (
     "minimap_numeric",
     "screen_numeric",
+    "non_spatial_features",
     "screen_unit_type",
     "is_spatial_action_available",
     "selected_spatial_action",
@@ -350,7 +379,7 @@ FEATURE_LIST = (
     "value_target",
     "advantage",
     "player_relative_screen",
-    "player_relative_minimap"
+    "player_relative_minimap",
 )
 
 AgentInputTuple = namedtuple("AgentInputTuple", FEATURE_LIST)

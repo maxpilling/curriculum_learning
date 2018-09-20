@@ -3,16 +3,27 @@ import os
 
 import numpy as np
 import tensorflow as tf
-
-from agent.policy import ConvPolicy
-from common.preprocess import ObsProcessor, FEATURE_KEYS, AgentInputTuple
-from common.util import weighted_random_sample, select_from_each_row, ravel_index_pairs
 from pysc2.lib import actions
 from tensorflow.contrib import layers
 from tensorflow.contrib.layers.python.layers.optimizers import OPTIMIZER_SUMMARIES
 
+from agent.policy import ConvPolicy
+from agent.SimpleModelLoader import SimpleModelLoader
+from common.preprocess import FEATURE_KEYS, AgentInputTuple, ObsProcessor
+from common.util import (
+    dump_all_tensors_to_file,
+    ravel_index_pairs,
+    select_from_each_row,
+    weighted_random_sample,
+)
+
+DEBUG = True
+
 # A named tuple to store the selected probabilities together.
-SelectedLogProbs = collections.namedtuple("SelectedLogProbs", ["action_id", "spatial", "total"])
+SelectedLogProbs = collections.namedtuple(
+    "SelectedLogProbs", ["action_id", "spatial", "total"]
+)
+
 
 def get_default_values(spatial_dimensions):
     """get_default_values
@@ -28,81 +39,56 @@ def get_default_values(spatial_dimensions):
         (
             FEATURE_KEYS.minimap_numeric,
             tf.float32,
-            [None, s_d, s_d, ObsProcessor.N_MINIMAP_CHANNELS]
+            [None, s_d, s_d, ObsProcessor.N_MINIMAP_CHANNELS],
         ),
         (
             FEATURE_KEYS.screen_numeric,
             tf.float32,
-            [None, s_d, s_d, ObsProcessor.N_SCREEN_CHANNELS]
+            [None, s_d, s_d, ObsProcessor.N_SCREEN_CHANNELS],
         ),
         (
-            FEATURE_KEYS.screen_unit_type,
-            tf.int32,
-            [None, s_d, s_d]
-        ),
-        (
-            FEATURE_KEYS.is_spatial_action_available,
+            FEATURE_KEYS.non_spatial_features,
             tf.float32,
-            [None]
+            [None, ObsProcessor.N_NON_SPATIAL],
         ),
-        (
-            FEATURE_KEYS.available_action_ids,
-            tf.float32,
-            [None, len(actions.FUNCTIONS)]
-        ),
-        (
-            FEATURE_KEYS.selected_spatial_action,
-            tf.int32,
-            [None, 2]
-        ),
-        (
-            FEATURE_KEYS.selected_action_id,
-            tf.int32,
-            [None]
-        ),
-        (
-            FEATURE_KEYS.value_target,
-            tf.float32,
-            [None]
-        ),
-        (
-            FEATURE_KEYS.player_relative_screen,
-            tf.int32,
-            [None, s_d, s_d]
-        ),
-        (
-            FEATURE_KEYS.player_relative_minimap,
-            tf.int32,
-            [None, s_d, s_d]
-        ),
-        (
-            FEATURE_KEYS.advantage,
-            tf.float32,
-            [None]
-        )
+        (FEATURE_KEYS.screen_unit_type, tf.int32, [None, s_d, s_d]),
+        (FEATURE_KEYS.is_spatial_action_available, tf.float32, [None]),
+        (FEATURE_KEYS.available_action_ids, tf.float32, [None, len(actions.FUNCTIONS)]),
+        (FEATURE_KEYS.selected_spatial_action, tf.int32, [None, 2]),
+        (FEATURE_KEYS.selected_action_id, tf.int32, [None]),
+        (FEATURE_KEYS.value_target, tf.float32, [None]),
+        (FEATURE_KEYS.player_relative_screen, tf.int32, [None, s_d, s_d]),
+        (FEATURE_KEYS.player_relative_minimap, tf.int32, [None, s_d, s_d]),
+        (FEATURE_KEYS.advantage, tf.float32, [None]),
     ]
 
     return AgentInputTuple(
-        **{name: tf.placeholder(dtype, shape, name) for name, dtype, shape in feature_list}
+        **{
+            name: tf.placeholder(dtype, shape, name)
+            for name, dtype, shape in feature_list
+        }
     )
+
 
 class A2C:
 
     _scalar_summary_key = "scalar_summaries"
 
-    def __init__(self,
-                 session: tf.Session,
-                 summary_path: str,
-                 all_summary_freq: int,
-                 scalar_summary_freq: int,
-                 spatial_dim: int,
-                 unit_type_emb_dim=4,
-                 loss_value_weight=1.0,
-                 entropy_weight_spatial=1e-6,
-                 entropy_weight_action_id=1e-5,
-                 max_gradient_norm=None,
-                 optimiser_params=None,
-                ):
+    def __init__(
+        self,
+        session: tf.Session,
+        summary_path: str,
+        all_summary_freq: int,
+        scalar_summary_freq: int,
+        spatial_dim: int,
+        unit_type_emb_dim=4,
+        loss_value_weight=1.0,
+        entropy_weight_spatial=1e-6,
+        entropy_weight_action_id=1e-5,
+        max_gradient_norm=None,
+        optimiser_params=None,
+        curriculum_number=None,
+    ):
         """
         Convolutional Based Agent for learning PySC2 Mini-games
         Tidied and altered code from https://github.com/pekaalto/sc2aibot
@@ -138,6 +124,7 @@ class A2C:
         self.train_step = 0
         self.max_gradient_norm = max_gradient_norm
         self.policy = ConvPolicy
+        self.curriculum_number = curriculum_number
 
         opt_class = tf.train.AdamOptimizer
 
@@ -145,10 +132,7 @@ class A2C:
         if optimiser_params != None:
             params = optimiser_params
         else:
-            params = {
-                "learning_rate": 1e-4,
-                "epsilon": 5e-7
-            }
+            params = {"learning_rate": 1e-4, "epsilon": 5e-7}
 
         self.optimiser = opt_class(**params)
 
@@ -168,9 +152,9 @@ class A2C:
         :param name: Name of the value.
         :param tensor: The tensor to summarise.
         """
-        tf.summary.scalar(name,
-                          tensor,
-                          collections=[tf.GraphKeys.SUMMARIES, self._scalar_summary_key])
+        tf.summary.scalar(
+            name, tensor, collections=[tf.GraphKeys.SUMMARIES, self._scalar_summary_key]
+        )
 
     def get_selected_action_probability(self, theta, selected_spatial_action):
         """get_selected_action_probability
@@ -191,6 +175,20 @@ class A2C:
 
         return SelectedLogProbs(action_id, spatial_coord, total)
 
+    def get_previous_model(self):
+        """get_previous_model
+
+        Get the previous model.
+        """
+
+        MODEL_META_GRAPH = "F:\\User Files\\Documents\\Git\\meng_project\\CNN\\_files\\models\\reinforcment_test_model_4\\model.ckpt-0.meta"
+
+        previous_model = SimpleModelLoader(
+            MODEL_META_GRAPH, self.session.graph, f"theta_{self.curriculum_number}"
+        )
+
+        return previous_model
+
     def build_model(self):
         """build_model
 
@@ -203,10 +201,32 @@ class A2C:
         # Initialise the placeholders property with some default values.
         self.placeholders = get_default_values(self.spatial_dim)
 
+        if self.curriculum_number is not None:
+            previous_model = self.get_previous_model()
+
+        theta_scope = (
+            f"theta_{self.curriculum_number}"
+            if self.curriculum_number is not None
+            else "theta"
+        )
+        train_operation = (
+            f"train_operation_{self.curriculum_number}"
+            if self.curriculum_number is not None
+            else "train_operation"
+        )
+
         # Provides checks to ensure that variable isn't shared by accident,
-        # and starts up the fully convolutional policy.
-        with tf.variable_scope("theta"):
-            theta = self.policy(self, trainable=True).build()
+        # and starts up the fully convolutional policy, as well as reverting
+        # any changes to the session that could have occurred after loading.
+        with self.session.as_default():
+            with tf.variable_scope(theta_scope):
+
+                if self.curriculum_number is not None:
+                    theta = self.policy(
+                        self, trainable=True, curriculum_number=self.curriculum_number
+                    ).build_transfer(self.session, previous_model)
+                else:
+                    theta = self.policy(self, trainable=True).build()
 
         # Get the actions and the probabilities of those actions.
         selected_spatial_action = ravel_index_pairs(
@@ -214,14 +234,12 @@ class A2C:
         )
 
         selected_log_probabilities = self.get_selected_action_probability(
-            theta,
-            selected_spatial_action
+            theta, selected_spatial_action
         )
 
         # Take the maximum here to avoid a divide by 0 error next.
         sum_of_available_spatial = tf.maximum(
-            1e-10,
-            tf.reduce_sum(self.placeholders.is_spatial_action_available)
+            1e-10, tf.reduce_sum(self.placeholders.is_spatial_action_available)
         )
 
         # Generate the negative entropy, used later as part of the loss
@@ -234,10 +252,7 @@ class A2C:
         negative_spatial_entropy /= sum_of_available_spatial
 
         negative_entropy_for_action_id = tf.reduce_mean(
-            tf.reduce_sum(
-                theta.action_id_probs * theta.action_id_log_probs,
-                axis=1
-            )
+            tf.reduce_sum(theta.action_id_probs * theta.action_id_log_probs, axis=1)
         )
 
         # Get the values for the possible actions.
@@ -248,20 +263,19 @@ class A2C:
 
         # Calculate the policy and value loss, such that the final loss
         # can be calculated and optimised against.
-        policy_loss = - tf.reduce_mean(
+        policy_loss = -tf.reduce_mean(
             selected_log_probabilities.total * self.placeholders.advantage
         )
 
         value_loss = tf.losses.mean_squared_error(
-            self.placeholders.value_target,
-            theta.value_estimate
+            self.placeholders.value_target, theta.value_estimate
         )
 
         total_loss = (
-            policy_loss +
-            value_loss * self.loss_value_weight +
-            negative_spatial_entropy * self.entropy_weight_spatial +
-            negative_entropy_for_action_id * self.entropy_weight_action_id
+            policy_loss
+            + value_loss * self.loss_value_weight
+            + negative_spatial_entropy * self.entropy_weight_spatial
+            + negative_entropy_for_action_id * self.entropy_weight_action_id
         )
 
         # Define a training step to be optimising the loss to be the lowest.
@@ -272,52 +286,51 @@ class A2C:
             clip_gradients=self.max_gradient_norm,
             summaries=OPTIMIZER_SUMMARIES,
             learning_rate=None,
-            name="train_operation"
+            name=train_operation,
         )
 
         # Finally, log some information about the model in its current state.
         self.get_scalar_summary(
-            "Value - Estimate:",
-            tf.reduce_mean(self.value_estimate)
+            "Value - Estimate:", tf.reduce_mean(self.value_estimate)
         )
 
         self.get_scalar_summary(
-            "Value - Target:",
-            tf.reduce_mean(self.placeholders.value_target)
+            "Value - Target:", tf.reduce_mean(self.placeholders.value_target)
         )
 
         self.get_scalar_summary(
             "Action - Is Spatial Action Available:",
-            tf.reduce_mean(self.placeholders.is_spatial_action_available)
+            tf.reduce_mean(self.placeholders.is_spatial_action_available),
         )
 
         self.get_scalar_summary(
             "Action - Selected Action ID Log Probability",
-            tf.reduce_mean(selected_log_probabilities.action_id)
+            tf.reduce_mean(selected_log_probabilities.action_id),
         )
 
         self.get_scalar_summary("Loss - Policy Loss", policy_loss)
         self.get_scalar_summary("Loss - Value Loss", value_loss)
-        self.get_scalar_summary("Loss - Negative Spatial Entropy", negative_spatial_entropy)
         self.get_scalar_summary(
-            "Loss - Negative Entropy for Action ID",
-            negative_entropy_for_action_id
+            "Loss - Negative Spatial Entropy", negative_spatial_entropy
+        )
+        self.get_scalar_summary(
+            "Loss - Negative Entropy for Action ID", negative_entropy_for_action_id
         )
 
         self.get_scalar_summary("Loss - Total", total_loss)
         self.get_scalar_summary(
-            "Value - Advantage",
-            tf.reduce_mean(self.placeholders.advantage)
+            "Value - Advantage", tf.reduce_mean(self.placeholders.advantage)
         )
 
         self.get_scalar_summary(
             "Action - Selected Total Log Probability",
-            tf.reduce_mean(selected_log_probabilities.total)
+            tf.reduce_mean(selected_log_probabilities.total),
         )
 
         self.get_scalar_summary(
             "Action - Selected Spatial Action Log Probability",
-            tf.reduce_sum(selected_log_probabilities.spatial) / sum_of_available_spatial
+            tf.reduce_sum(selected_log_probabilities.spatial)
+            / sum_of_available_spatial,
         )
 
         # Clean up and save.
@@ -328,8 +341,10 @@ class A2C:
             tf.get_collection(self._scalar_summary_key)
         )
 
-    @staticmethod
-    def organise_obs_for_session(obs):
+        if DEBUG:
+            dump_all_tensors_to_file(self.session.graph, "combined_tensor_list.log")
+
+    def organise_obs_for_session(self, obs):
         """organise_obs_for_session
 
         Nicely format the Obs object, such that it can
@@ -338,7 +353,19 @@ class A2C:
         :param obs: The observation object, passed from the SC2LE.
         """
 
-        return {k + ":0": v for k, v in obs.items()}
+        original_dict = {k + ":0": v for k, v in obs.items()}
+
+        expanded_dict = {**original_dict}
+
+        if self.curriculum_number is None:
+            return expanded_dict
+
+        for new_input in range(1, self.curriculum_number + 1):
+            new_dict = {k + f"_{new_input}:0": v for k, v in obs.items()}
+
+            expanded_dict = {**expanded_dict, **new_dict}
+
+        return expanded_dict
 
     def step(self, obs):
         """step
@@ -358,7 +385,7 @@ class A2C:
         # estimate for that pair.
         action_to_take, spatial_action, value_estimate = self.session.run(
             [self.sampled_action_id, self.sampled_spatial_action, self.value_estimate],
-            feed_dict=feed_dict
+            feed_dict=feed_dict,
         )
 
         # Swap back to an actual 2D grid.
@@ -386,14 +413,12 @@ class A2C:
         # If either of the summaries need writing, this
         # should be added to the current operations.
         should_write_all_summaries = (
-            (self.train_step % self.all_summary_freq == 0) and
-            self.summary_path is not None
-        )
+            self.train_step % self.all_summary_freq == 0
+        ) and self.summary_path is not None
 
         should_write_scalar_summaries = (
-            (self.train_step % self.scalar_summary_freq == 0) and
-            self.summary_path is not None
-        )
+            self.train_step % self.scalar_summary_freq == 0
+        ) and self.summary_path is not None
 
         if should_write_all_summaries:
             operations.append(self.all_summary_op)
@@ -420,10 +445,7 @@ class A2C:
 
         feed_dict = self.organise_obs_for_session(obs)
 
-        return self.session.run(
-            self.value_estimate,
-            feed_dict=feed_dict
-        )
+        return self.session.run(self.value_estimate, feed_dict=feed_dict)
 
     def flush_summaries(self):
         """flush_summaries
@@ -450,11 +472,10 @@ class A2C:
         step = step or self.train_step
         print("Saving the model to %s, at step %d" % (path, step))
 
-        self.saver.save(
-            self.session,
-            path + '/model.ckpt',
-            global_step=step
-        )
+        self.summary_writer.add_graph(self.session.graph)
+        self.flush_summaries()
+
+        self.saver.save(self.session, path + "/model.ckpt", global_step=step)
 
     def load(self, path):
         """load
@@ -469,7 +490,7 @@ class A2C:
         self.saver.restore(self.session, checkpoint.model_checkpoint_path)
 
         # Reload the training step the loaded model was at.
-        self.train_step = int(checkpoint.model_checkpoint_path.split('-')[-1])
+        self.train_step = int(checkpoint.model_checkpoint_path.split("-")[-1])
 
         print("Loaded old model with training step: %d" % self.train_step)
 
