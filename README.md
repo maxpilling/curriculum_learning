@@ -18,14 +18,21 @@ The way used throughout the project was via Singularity.
     *   If running on a machine that has a GPU + CUDA, ensure to pass `--nv`
         after `shell` or `exec`.
 
-### Virtual Env
+### Poetry
 
 Only used initially, so may not be fully working.
 
-*   Run the `setup.sh` script, which will setup a Python virtual environment,
-    and install SC2 if needed.
-*   Run `. ./start.sh` to enter the Python virtual environment.
-*   Run `deactivate` to leave once finished.
+* Install SC2. If installed to a non-standard location set the `$SC2PATH`
+ environment variable to point to the install location.
+    * An example of the install and setting this variable is in the
+     `Singularity` install file.
+* Install [poetry](https://github.com/sdispater/poetry) with `pip install poetry`.
+* Once installed, use `poetry install`. This will create a virtualenv and
+ install all needed packages into it.
+* Then you can call the scripts like so:
+```sh
+poetry run python CNN/run.py --map_name MAP_NAME --model_name MODEL_NAME --training=False
+```
 
 ## Instructions to Run
 
@@ -37,7 +44,7 @@ To run a specific pretrained CNN model, the script should be called as follows,
 where `MAP_NAME` is the map or mini-game in question and `MODEL_NAME` is the
 exact name of the model, as stored in `CNN\_files\`.
 
-```
+```sh
 python run.py --map_name MAP_NAME --model_name MODEL_NAME --training=False
 ```
 

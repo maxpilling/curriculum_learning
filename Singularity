@@ -55,8 +55,8 @@ From: ubuntu:16.04
     chmod -R 755 /opt/StarCraftII/Maps/
 
     # Install PySC2 and TensorFlow
-    /opt/conda/bin/pip install pysc2==1.2
-    /opt/conda/bin/conda install -y --quiet -c anaconda tensorflow-gpu
+    /opt/conda/bin/pip install pysc2
+    /opt/conda/bin/conda install -y --quiet -c anaconda tensorflow-gpu==1.8
 
     mkdir /nobackup
 
