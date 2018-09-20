@@ -8,13 +8,11 @@ from functools import partial
 import tensorflow as tf
 from absl import flags
 from pysc2.env import sc2_env
+from tensorflow.python import debug as tf_debug
 
 from agent.agent import A2C
 from agent.runner import Runner
 from common.multienv import SubprocVecEnv, make_sc2env
-from tensorflow.python import debug as tf_debug
-
-from pysc2.env import sc2_env
 
 # Flags taken from example code at https://github.com/xhujoy/pysc2-agents/blob/master/main.py
 
