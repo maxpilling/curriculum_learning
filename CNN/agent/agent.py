@@ -88,6 +88,7 @@ class A2C:
         max_gradient_norm=None,
         optimiser_params=None,
         curriculum_number=None,
+        previous_model_file=None
     ):
         """
         Convolutional Based Agent for learning PySC2 Mini-games
@@ -181,7 +182,7 @@ class A2C:
         Get the previous model.
         """
 
-        MODEL_META_GRAPH = "F:\\User Files\\Documents\\Git\\meng_project\\CNN\\_files\\models\\reinforcment_test_model_4\\model.ckpt-0.meta"
+        MODEL_META_GRAPH = self.previous_model_file
 
         previous_model = SimpleModelLoader(
             MODEL_META_GRAPH, self.session.graph, f"theta_{self.curriculum_number}"

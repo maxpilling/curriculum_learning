@@ -43,7 +43,9 @@ flags.DEFINE_integer(
 flags.DEFINE_integer(
     "number_episodes", -1, "Number of episodes to run for, will go forever by default"
 )
-
+flags.DEFINE_string(
+    "previous_model", None, "The previous model file for use in curricula"
+)
 flags.DEFINE_string("checkpoint_path", "_files/models", "Path for agent checkpoints.")
 flags.DEFINE_string(
     "summary_path", "_files/summaries", "Path for tensorboard summaries."
@@ -218,6 +220,7 @@ def main():
         all_summary_freq=FLAGS.all_summary_freq,
         max_gradient_norm=FLAGS.max_gradient_norm,
         curriculum_number=FLAGS.curriculum_num,
+        previous_model_file=FLAGS.previous_model
     )
 
     agent.build_model()
