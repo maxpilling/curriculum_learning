@@ -24,6 +24,7 @@ class Runner(object):
         discount=0.99,
         do_training=True,
         number_episodes=-1,
+        episode_counter=0
     ):
         self.envs = envs
         self.agent = agent
@@ -33,7 +34,7 @@ class Runner(object):
         self.discount = discount
         self.do_training = do_training
         self.batch_counter = 0
-        self.episode_counter = 0
+        self.episode_counter = episode_counter
         self.number_episodes = number_episodes
 
     def reset(self):

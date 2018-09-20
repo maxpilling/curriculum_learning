@@ -225,6 +225,12 @@ def main():
 
     agent.build_model()
     print("Finished building model...")
+    last_episode = None
+    if FLAGS.curriculum_number is not None:
+        last_episode = agent.get_next_episode()
+        print("Got previous episode count of {last_episode}")
+    else:
+        last_episode = 0
 
     # If there is a checkpoint, we should load it.
     if os.path.exists(RELATIVE_CHECKPOINT_PATH):
@@ -250,6 +256,7 @@ def main():
         n_steps=n_steps_per_batch,
         do_training=FLAGS.training,
         number_episodes=FLAGS.number_episodes,
+        episode_counter=last_episode
     )
 
     runner.reset()

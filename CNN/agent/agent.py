@@ -190,6 +190,13 @@ class A2C:
 
         return previous_model
 
+    def get_next_episode(self):
+        """
+            Will load the previous step from the loaded checkpoint file.
+            Only called when curriculum_number is None
+            :returns: An integer representing the episode counter
+        """
+        return int(tf.train.get_global_step()) + 1
     def build_model(self):
         """build_model
 
