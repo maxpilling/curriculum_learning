@@ -209,7 +209,7 @@ class A2C:
         # Initialise the placeholders property with some default values.
         self.placeholders = get_default_values(self.spatial_dim)
 
-        if self.curriculum_number is not None:
+        if self.curriculum_number is not 0:
             previous_model = self.get_previous_model()
 
         theta_scope = (
