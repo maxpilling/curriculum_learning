@@ -126,7 +126,7 @@ class A2C:
         self.max_gradient_norm = max_gradient_norm
         self.policy = ConvPolicy
         self.curriculum_number = curriculum_number
-
+        self.previous_model_file = previous_model_file
         opt_class = tf.train.AdamOptimizer
 
         # Use some default values if none are passed over.
