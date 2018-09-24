@@ -226,7 +226,7 @@ def main():
     agent.build_model()
     print("Finished building model...")
     last_episode = None
-    if FLAGS.curriculum_number is not 0:
+    if FLAGS.curriculum_num is not 0:
         last_episode = agent.get_next_episode()
         print("Got previous episode count of {last_episode}")
     else:
