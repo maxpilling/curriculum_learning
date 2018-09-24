@@ -87,7 +87,7 @@ class A2C:
         entropy_weight_action_id=1e-5,
         max_gradient_norm=None,
         optimiser_params=None,
-        curriculum_number=None,
+        curriculum_number=0,
         previous_model_file=None
     ):
         """
@@ -214,12 +214,12 @@ class A2C:
 
         theta_scope = (
             f"theta_{self.curriculum_number}"
-            if self.curriculum_number is not None
+            if self.curriculum_number is not 0
             else "theta"
         )
         train_operation = (
             f"train_operation_{self.curriculum_number}"
-            if self.curriculum_number is not None
+            if self.curriculum_number is not 0
             else "train_operation"
         )
 
@@ -229,7 +229,7 @@ class A2C:
         with self.session.as_default():
             with tf.variable_scope(theta_scope):
 
-                if self.curriculum_number is not None:
+                if self.curriculum_number is not 0:
                     theta = self.policy(
                         self, trainable=True, curriculum_number=self.curriculum_number
                     ).build_transfer(self.session, previous_model)
@@ -365,7 +365,7 @@ class A2C:
 
         expanded_dict = {**original_dict}
 
-        if self.curriculum_number is None:
+        if self.curriculum_number is 0:
             return expanded_dict
 
         for new_input in range(1, self.curriculum_number + 1):

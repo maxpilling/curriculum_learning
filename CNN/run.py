@@ -38,7 +38,7 @@ flags.DEFINE_integer(
     "save_replays_every", 0, "How often to save a replay, 0 for never."
 )
 flags.DEFINE_integer(
-    "curriculum_num", None, "The current curriculum number, used for theta_ etc."
+    "curriculum_num", 0, "The current curriculum number, used for theta_ etc."
 )
 flags.DEFINE_integer(
     "number_episodes", -1, "Number of episodes to run for, will go forever by default"
@@ -226,7 +226,7 @@ def main():
     agent.build_model()
     print("Finished building model...")
     last_episode = None
-    if FLAGS.curriculum_number is not None:
+    if FLAGS.curriculum_number is not 0:
         last_episode = agent.get_next_episode()
         print("Got previous episode count of {last_episode}")
     else:
