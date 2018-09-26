@@ -25,7 +25,7 @@ def worker(remote, env_fn_wrapper):
     """
 
     # Get the function wrappers current value.
-    env = env_fn_wrapper.x()
+    env = env_fn_wrapper.current_input()
 
     # Given a specific input, deal with the
     # command and either increment, reset or
