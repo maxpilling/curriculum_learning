@@ -190,7 +190,7 @@ def main():
         save_replay_episodes=FLAGS.save_replays_every,
         replay_dir=FULL_REPLAY_PATH,
         agent_interface_format=agent_details,
-        random_seed=FLAGS.random_seed,
+        random_seed=FLAGS.random_seed
     )
 
     environment = SubprocVecEnv(
