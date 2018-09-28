@@ -73,7 +73,7 @@ class Runner(object):
         # is only defined in the mini-games, so would need updating
         # if used for a different type of scoring system.
         score = timestep.observation["score_cumulative"][0]
-        current_step = timestep.observation["train_step"][0]
+        current_step = timestep.observation["global_step"][0]
 
         print(f"Episode {self.episode_counter} ended. Score {score} at step {current_step}")
 
