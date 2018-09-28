@@ -504,3 +504,9 @@ class A2C:
 
         # Now increment, since we are on the next step.
         self.train_step += 1
+
+        def get_trainingstep(self):
+            """
+                Returns the current training step of the agent. 
+            """
+            return self.train_step
