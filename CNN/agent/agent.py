@@ -405,6 +405,7 @@ class A2C:
         # Flip for the backwards co-ordinate system.
         spatial_action_2d = spatial_action_2d.transpose()
 
+        self.train_step += 1
         return action_to_take, spatial_action_2d, value_estimate
 
     def train(self, obs):
@@ -441,7 +442,6 @@ class A2C:
         if should_write_all_summaries or should_write_scalar_summaries:
             self.summary_writer.add_summary(run_value[-1], global_step=self.train_step)
 
-        self.train_step += 1
 
     def get_value(self, obs):
         """get_value
