@@ -93,8 +93,8 @@ class SubprocVecEnv:
     def _step_or_reset(self, command, actions=None):
         actions = actions or [None] * self.n_envs
 
+        self.game_steps = self.game_steps + 1
         for remote, action in zip(self.remotes, actions):
-            self.game_steps = self.game_steps + 1
             remote.send((command, action))
 
         timesteps = [remote.recv() for remote in self.remotes]
