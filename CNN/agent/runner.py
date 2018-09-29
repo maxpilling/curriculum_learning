@@ -75,7 +75,7 @@ class Runner(object):
         # if used for a different type of scoring system.
         score = timestep.observation["score_cumulative"][0]
         current_steps = None
-        print(f"Episode {self.episode_counter} ended. Score {score} at step {current_steps")
+        print(f"Episode {self.episode_counter} ended. Score {score} at step {current_steps}")
 
         self._log_score_to_tb(score)
         self.episode_counter += 1
