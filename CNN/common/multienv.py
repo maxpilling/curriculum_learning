@@ -75,7 +75,7 @@ class SubprocVecEnv:
 
     def __init__(self, env_fns):
         n_envs = len(env_fns)
-
+        self.game_steps = 0
         self.remotes, self.work_remotes = zip(*[Pipe() for _ in range(n_envs)])
 
         self.processes = [
@@ -92,6 +92,7 @@ class SubprocVecEnv:
         actions = actions or [None] * self.n_envs
 
         for remote, action in zip(self.remotes, actions):
+            self.game_steps = self.game_steps + 1
             remote.send((command, action))
 
         timesteps = [remote.recv() for remote in self.remotes]
