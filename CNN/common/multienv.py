@@ -87,6 +87,8 @@ class SubprocVecEnv:
             process.start()
 
         self.n_envs = n_envs
+    def get_steps(self):
+        return self.game_steps
 
     def _step_or_reset(self, command, actions=None):
         actions = actions or [None] * self.n_envs

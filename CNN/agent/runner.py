@@ -75,7 +75,7 @@ class Runner(object):
         # if used for a different type of scoring system.
         score = timestep.observation["score_cumulative"][0]
 
-        print(f"Episode {self.episode_counter} ended. Score {score} at step {self.current_step}")
+        print(f"Episode {self.episode_counter} ended. Score {score} at step {timestep.get_steps()}")
 
         self._log_score_to_tb(score)
         self.episode_counter += 1
@@ -102,6 +102,7 @@ class Runner(object):
         # For the number of steps, save the relevant data each step.
         # When finished, deal with the episode end.
         for n_step in range(self.n_steps):
+            self.current_step = self.current_step + 1
             # Save the value estimate here, to make the n step reward calculation easier.
             action_id, spatial_action_2d, value_estimate = self.agent.step(latest_obs)
 
@@ -115,7 +116,6 @@ class Runner(object):
             mb_rewards[:, n_step] = [t.reward for t in obs_raw]
 
             for timestep in obs_raw:
-                self.current_step = self.current_step + 1
                 if timestep.last():
                     self._handle_episode_end(timestep)
 
