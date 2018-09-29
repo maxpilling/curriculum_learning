@@ -102,7 +102,6 @@ class Runner(object):
         # For the number of steps, save the relevant data each step.
         # When finished, deal with the episode end.
         for n_step in range(self.n_steps):
-            self.current_step = self.current_step + 1
             # Save the value estimate here, to make the n step reward calculation easier.
             action_id, spatial_action_2d, value_estimate = self.agent.step(latest_obs)
 
@@ -141,10 +140,12 @@ class Runner(object):
         if not self.do_training:
             pass
         else:
+            self.current_step += 1
             self.agent.train(full_input)
 
         self.latest_obs = latest_obs
         self.batch_counter += 1
+        print(f"Number of total game steps: {self.agent.get_training_step()}")
 
         sys.stdout.flush()
         return True
