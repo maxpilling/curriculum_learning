@@ -74,7 +74,7 @@ class Runner(object):
         # is only defined in the mini-games, so would need updating
         # if used for a different type of scoring system.
         score = timestep.observation["score_cumulative"][0]
-        current_steps = self.agent.get_training_step()
+        current_steps = self.envs.get_steps()
         print(f"Episode {self.episode_counter} ended. Score {score} at step {current_steps}")
 
         self._log_score_to_tb(score)
