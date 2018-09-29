@@ -75,7 +75,7 @@ class Runner(object):
         # if used for a different type of scoring system.
         score = timestep.observation["score_cumulative"][0]
         current_steps = None
-        print(f"Episode {self.episode_counter} ended. Score {score} at step {current_steps}")
+        print(f"Episode {self.episode_counter} ended. Score {score} at step {timestep["game_loop"][0]}")
 
         self._log_score_to_tb(score)
         self.episode_counter += 1
@@ -113,10 +113,12 @@ class Runner(object):
             obs_raw = self.envs.step(actions_pp)
             latest_obs = self.obs_processor.process(obs_raw)
             mb_rewards[:, n_step] = [t.reward for t in obs_raw]
+            self.current_step += 1
 
             for timestep in obs_raw:
                 if timestep.last():
                     self._handle_episode_end(timestep)
+            print(f"Total game steps: {self.agent.get_training_step()}")
 
         mb_values[:, -1] = self.agent.get_value(latest_obs)
 
@@ -140,12 +142,11 @@ class Runner(object):
         if not self.do_training:
             pass
         else:
-            self.current_step += 1
             self.agent.train(full_input)
 
         self.latest_obs = latest_obs
         self.batch_counter += 1
-        print(f"Number of total game steps: {self.agent.get_training_step()}")
+        #print(f"Number of total game steps: {self.agent.get_training_step()}")
 
         sys.stdout.flush()
         return True

@@ -202,6 +202,7 @@ def main():
     environment = SubprocVecEnv(
         (partial(make_sc2env, **environment_arguments),) * FLAGS.n_envs
     )
+    
     print("Finished setting up env...")
 
     print(f"Environment arguments are: {environment_arguments}")
