@@ -111,11 +111,11 @@ class Runner(object):
 
             actions_pp = self.action_processor.process(action_id, spatial_action_2d)
             obs_raw = self.envs.step(actions_pp)
-            self.current_step = self.current_step + 1
             latest_obs = self.obs_processor.process(obs_raw)
             mb_rewards[:, n_step] = [t.reward for t in obs_raw]
 
             for timestep in obs_raw:
+                self.current_step = self.current_step + 1
                 if timestep.last():
                     self._handle_episode_end(timestep)
 
