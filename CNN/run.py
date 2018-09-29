@@ -45,7 +45,7 @@ flags.DEFINE_integer(
 flags.DEFINE_integer(
     "number_episodes", -1, "Number of episodes to run for, will go forever by default"
 )
-flags.DEFINE.DEFINE_integer(
+flags.DEFINE_integer(
     "number_steps", -1, "Maximum number of cummulative game steps to take"
 )
 ##--
