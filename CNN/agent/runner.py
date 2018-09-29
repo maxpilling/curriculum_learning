@@ -36,6 +36,7 @@ class Runner(object):
         self.batch_counter = 0
         self.episode_counter = episode_counter
         self.number_episodes = number_episodes
+        self.current_step = 0
 
     def reset(self):
         """reset
@@ -73,9 +74,8 @@ class Runner(object):
         # is only defined in the mini-games, so would need updating
         # if used for a different type of scoring system.
         score = timestep.observation["score_cumulative"][0]
-        current_step = timestep.observation["game_loop"][0] #TODO: FInd a way to fetch the total number of game steps
 
-        print(f"Episode {self.episode_counter} ended. Score {score} at step {current_step}")
+        print(f"Episode {self.episode_counter} ended. Score {score} at step {self.current_step}")
 
         self._log_score_to_tb(score)
         self.episode_counter += 1
@@ -111,6 +111,7 @@ class Runner(object):
 
             actions_pp = self.action_processor.process(action_id, spatial_action_2d)
             obs_raw = self.envs.step(actions_pp)
+            self.current_step = self.current_step + 1
             latest_obs = self.obs_processor.process(obs_raw)
             mb_rewards[:, n_step] = [t.reward for t in obs_raw]
 
