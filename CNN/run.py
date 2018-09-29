@@ -40,9 +40,15 @@ flags.DEFINE_integer(
 flags.DEFINE_integer(
     "curriculum_num", 0, "The current curriculum number, used for theta_ etc."
 )
+#--
+#the two flags below work in sync. If the agent reaches the maximum for EITHER of them, the game will stop.
 flags.DEFINE_integer(
     "number_episodes", -1, "Number of episodes to run for, will go forever by default"
 )
+flags.DEFINE.DEFINE_integer(
+    "number_steps", -1, "Maximum number of cummulative game steps to take"
+)
+##--
 flags.DEFINE_string(
     "previous_model", None, "The previous model file for use in curricula"
 )

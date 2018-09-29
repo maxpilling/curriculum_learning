@@ -88,7 +88,8 @@ class A2C:
         max_gradient_norm=None,
         optimiser_params=None,
         curriculum_number=0,
-        previous_model_file=None
+        previous_model_file=None,
+
     ):
         """
         Convolutional Based Agent for learning PySC2 Mini-games
