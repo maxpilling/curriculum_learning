@@ -89,7 +89,6 @@ class A2C:
         optimiser_params=None,
         curriculum_number=0,
         previous_model_file=None,
-
     ):
         """
         Convolutional Based Agent for learning PySC2 Mini-games
@@ -444,7 +443,6 @@ class A2C:
         if should_write_all_summaries or should_write_scalar_summaries:
             self.summary_writer.add_summary(run_value[-1], global_step=self.train_step)
 
-
     def get_value(self, obs):
         """get_value
 
@@ -500,8 +498,10 @@ class A2C:
 
         os.makedirs(path, exist_ok=True)
 
-        print(f"Saving the model to {path}, for episode {episode}")
-        self.permanent_saver.save(self.session, path + "/ep_model.ckpt", global_step=episode)
+        print(f"Saving the model permanently to {path}, for episode {episode}")
+        self.permanent_saver.save(
+            self.session, path + "/ep_model.ckpt", global_step=episode
+        )
 
     def load(self, path):
         """load

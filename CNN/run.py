@@ -29,6 +29,11 @@ flags.DEFINE_integer("n_envs", 1, "Number of environments to run in parallel.")
 flags.DEFINE_integer(
     "n_steps_per_batch", None, "Number of steps per batch, if None use 8."
 )
+flags.DEFINE_integer(
+    "save_permanently_every",
+    None,
+    "Number of episodes to save a model permanently, if None use 25000.",
+)
 flags.DEFINE_integer("all_summary_freq", 50, "Record all summaries every n batch.")
 flags.DEFINE_integer("scalar_summary_freq", 5, "Record scalar summaries every n batch.")
 flags.DEFINE_integer(
@@ -40,15 +45,16 @@ flags.DEFINE_integer(
 flags.DEFINE_integer(
     "curriculum_num", 0, "The current curriculum number, used for theta_ etc."
 )
-#--
-#the two flags below work in sync. If the agent reaches the maximum for EITHER of them, the game will stop.
+
+# The two flags below work in sync.
+# If the agent reaches the maximum for EITHER of them, the game will stop.
 flags.DEFINE_integer(
     "number_episodes", -1, "Number of episodes to run for, will go forever by default"
 )
 flags.DEFINE_integer(
-    "number_steps", -1, "Maximum number of cummulative game steps to take"
+    "number_steps", -1, "Maximum number of cumulative game steps to take"
 )
-##--
+
 flags.DEFINE_string(
     "previous_model", None, "The previous model file for use in curricula"
 )
@@ -91,6 +97,9 @@ FLAGS(sys.argv)
 SCRIPT_LOCATION = os.path.dirname(os.path.realpath(__file__))
 FULL_REPLAY_PATH = os.path.join(SCRIPT_LOCATION, FLAGS.replay_dir, FLAGS.model_name)
 RELATIVE_CHECKPOINT_PATH = os.path.join(FLAGS.checkpoint_path, FLAGS.model_name)
+RELATIVE_PERMANENT_PATH = os.path.join(
+    FLAGS.checkpoint_path, FLAGS.model_name, "permanent"
+)
 HAVE_BEEN_KILLED = False
 
 if FLAGS.training:
@@ -196,13 +205,13 @@ def main():
         save_replay_episodes=FLAGS.save_replays_every,
         replay_dir=FULL_REPLAY_PATH,
         agent_interface_format=agent_details,
-        random_seed=FLAGS.random_seed
+        random_seed=FLAGS.random_seed,
     )
 
     environment = SubprocVecEnv(
         (partial(make_sc2env, **environment_arguments),) * FLAGS.n_envs
     )
-    
+
     print("Finished setting up env...")
 
     print(f"Environment arguments are: {environment_arguments}")
@@ -227,7 +236,7 @@ def main():
         all_summary_freq=FLAGS.all_summary_freq,
         max_gradient_norm=FLAGS.max_gradient_norm,
         curriculum_number=FLAGS.curriculum_num,
-        previous_model_file=FLAGS.previous_model
+        previous_model_file=FLAGS.previous_model,
     )
 
     agent.build_model()
@@ -255,15 +264,23 @@ def main():
     else:
         n_steps_per_batch = FLAGS.n_steps_per_batch
 
+    # Check that the save permanently flag is set.
+    if FLAGS.save_permanently_every is None:
+        save_permanently_every = 25000
+    else:
+        save_permanently_every = FLAGS.save_permanently_every
+
     # Setup the runner.
     runner = Runner(
         envs=environment,
         agent=agent,
-        discount=FLAGS.discount,
+        save_permanently_every=save_permanently_every,
+        save_path=RELATIVE_PERMANENT_PATH,
         n_steps=n_steps_per_batch,
+        discount=FLAGS.discount,
         do_training=FLAGS.training,
         number_episodes=FLAGS.number_episodes,
-        episode_counter=last_episode
+        episode_counter=last_episode,
     )
 
     runner.reset()

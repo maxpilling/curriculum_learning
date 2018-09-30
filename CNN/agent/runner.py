@@ -20,6 +20,8 @@ class Runner(object):
         self,
         envs,
         agent: A2C,
+        save_permanently_every,
+        save_path,
         n_steps=5,
         discount=0.99,
         do_training=True,
@@ -28,6 +30,9 @@ class Runner(object):
     ):
         self.envs = envs
         self.env_step_count = np.zeros(envs.n_envs)
+
+        self.save_permanently_every = save_permanently_every
+        self.save_path = save_path
 
         self.agent = agent
 
@@ -84,6 +89,10 @@ class Runner(object):
         )
 
         self._log_score_to_tb(score)
+
+        if self.episode_counter % self.save_permanently_every == 0:
+            self.agent.save_permanently(self.save_path, self.episode_counter)
+
         self.episode_counter += 1
 
     def run_batch(self):
