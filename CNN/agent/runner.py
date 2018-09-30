@@ -42,7 +42,6 @@ class Runner(object):
         self.batch_counter = 0
         self.episode_counter = episode_counter
         self.number_episodes = number_episodes
-        self.current_step = 0
 
     def reset(self):
         """reset
@@ -120,7 +119,6 @@ class Runner(object):
             obs_raw = self.envs.step(actions_pp)
             latest_obs = self.obs_processor.process(obs_raw)
             mb_rewards[:, n_step] = [t.reward for t in obs_raw]
-            self.current_step += 1
 
             for env_num, timestep in enumerate(obs_raw):
 
@@ -160,7 +158,6 @@ class Runner(object):
 
         self.latest_obs = latest_obs
         self.batch_counter += 1
-        # print(f"Number of total game steps: {self.agent.get_training_step()}")
 
         sys.stdout.flush()
         return True

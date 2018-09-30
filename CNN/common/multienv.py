@@ -75,7 +75,6 @@ class SubprocVecEnv:
 
     def __init__(self, env_fns):
         n_envs = len(env_fns)
-        self.game_steps = 0
         self.remotes, self.work_remotes = zip(*[Pipe() for _ in range(n_envs)])
 
         self.processes = [
@@ -87,13 +86,10 @@ class SubprocVecEnv:
             process.start()
 
         self.n_envs = n_envs
-    def get_steps(self):
-        return self.game_steps
 
     def _step_or_reset(self, command, actions=None):
         actions = actions or [None] * self.n_envs
 
-        self.game_steps = self.game_steps + 1
         for remote, action in zip(self.remotes, actions):
             remote.send((command, action))
 
@@ -120,7 +116,7 @@ class SubprocVecEnv:
     def close(self):
         """reset
 
-        Close the envrionment.
+        Close the environment.
         """
 
         for remote in self.remotes:
@@ -132,7 +128,7 @@ class SubprocVecEnv:
     def reset_done_envs(self):
         """reset_done_envs
 
-        Reset complete envrionments.
+        Reset complete environments.
         """
         pass
 
