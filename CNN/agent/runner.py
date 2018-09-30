@@ -24,15 +24,21 @@ class Runner(object):
         discount=0.99,
         do_training=True,
         number_episodes=-1,
-        episode_counter=0
+        episode_counter=0,
     ):
         self.envs = envs
+        self.env_step_count = np.zeros(envs.n_envs)
+
         self.agent = agent
+
         self.obs_processor = ObsProcessor()
         self.action_processor = ActionProcessor(dim=flags.FLAGS.resolution)
+
         self.n_steps = n_steps
+
         self.discount = discount
         self.do_training = do_training
+
         self.batch_counter = 0
         self.episode_counter = episode_counter
         self.number_episodes = number_episodes
@@ -60,7 +66,7 @@ class Runner(object):
         summary.value.add(tag="sc2/episode_score", simple_value=score)
         self.agent.summary_writer.add_summary(summary, self.episode_counter)
 
-    def _handle_episode_end(self, timestep):
+    def _handle_episode_end(self, timestep, action_count):
         """_handle_episode_end
 
         Deal with an episode ending, by logging the score and increasing
@@ -74,8 +80,9 @@ class Runner(object):
         # is only defined in the mini-games, so would need updating
         # if used for a different type of scoring system.
         score = timestep.observation["score_cumulative"][0]
-        current_steps = self.envs.get_steps()
-        print(f"Episode {self.episode_counter} ended. Score {score} at step {current_steps}")
+        print(
+            f"Episode {self.episode_counter} ended. Score {score} at step {action_count}"
+        )
 
         self._log_score_to_tb(score)
         self.episode_counter += 1
@@ -115,9 +122,12 @@ class Runner(object):
             mb_rewards[:, n_step] = [t.reward for t in obs_raw]
             self.current_step += 1
 
-            for timestep in obs_raw:
+            for env_num, timestep in enumerate(obs_raw):
                 if timestep.last():
-                    self._handle_episode_end(timestep)
+                    self._handle_episode_end(timestep, self.env_step_count[env_num])
+                    self.env_step_count[env_num] = 0
+                else:
+                    self.env_step_count[env_num] += 1
 
         mb_values[:, -1] = self.agent.get_value(latest_obs)
 
@@ -145,7 +155,7 @@ class Runner(object):
 
         self.latest_obs = latest_obs
         self.batch_counter += 1
-        #print(f"Number of total game steps: {self.agent.get_training_step()}")
+        # print(f"Number of total game steps: {self.agent.get_training_step()}")
 
         sys.stdout.flush()
         return True
