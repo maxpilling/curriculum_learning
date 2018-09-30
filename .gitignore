@@ -337,3 +337,5 @@ CNN/common/mass_log_dir/
 /DeepQ/.vs/
 
 *.csv
+
+\.pytest_cache/
