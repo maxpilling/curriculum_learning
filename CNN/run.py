@@ -32,7 +32,7 @@ flags.DEFINE_integer(
 flags.DEFINE_integer(
     "save_permanently_every",
     None,
-    "Number of episodes to save a model permanently, if None use 25000.",
+    "Number of episodes to save a model permanently, if None use 50000.",
 )
 flags.DEFINE_integer("all_summary_freq", 50, "Record all summaries every n batch.")
 flags.DEFINE_integer("scalar_summary_freq", 5, "Record scalar summaries every n batch.")
@@ -266,7 +266,7 @@ def main():
 
     # Check that the save permanently flag is set.
     if FLAGS.save_permanently_every is None:
-        save_permanently_every = 25000
+        save_permanently_every = 50000
     else:
         save_permanently_every = FLAGS.save_permanently_every
 
