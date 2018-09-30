@@ -34,6 +34,9 @@ Only used initially, so may not be fully working.
 poetry run python CNN/run.py --map_name MAP_NAME --model_name MODEL_NAME --training=False
 ```
 
+This way is meant for PC dev work, so the TensorFlow version does not need a GPU.
+If this is needed, then call `poetry remove tensorflow` and `poetry add tensorflow-gpu`.
+
 ## Instructions to Run
 
 An example script of running the CNN can be found in `CNN\runPySC2.sh`, which
