@@ -123,11 +123,16 @@ class Runner(object):
             self.current_step += 1
 
             for env_num, timestep in enumerate(obs_raw):
+
+                # Increment the number of steps the env took.
+                # This should be done for all envs, since even one that is now
+                # finished did take an action in the code above.
+                self.env_step_count[env_num] += 1
+
+                # If the env has finished, log and reset the step counter.
                 if timestep.last():
                     self._handle_episode_end(timestep, self.env_step_count[env_num])
                     self.env_step_count[env_num] = 0
-                else:
-                    self.env_step_count[env_num] += 1
 
         mb_values[:, -1] = self.agent.get_value(latest_obs)
 
