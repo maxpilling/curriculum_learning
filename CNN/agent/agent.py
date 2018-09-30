@@ -198,6 +198,7 @@ class A2C:
             :returns: An integer representing the episode counter
         """
         return int(tf.train.get_global_step()) + 1
+
     def build_model(self):
         """build_model
 
@@ -345,6 +346,7 @@ class A2C:
         # Clean up and save.
         self.init_op = tf.global_variables_initializer()
         self.saver = tf.train.Saver(max_to_keep=2)
+        self.permanent_saver = tf.train.Saver(max_to_keep=0)
         self.all_summary_op = tf.summary.merge_all(tf.GraphKeys.SUMMARIES)
         self.scalar_summary_op = tf.summary.merge(
             tf.get_collection(self._scalar_summary_key)
@@ -485,6 +487,21 @@ class A2C:
         self.flush_summaries()
 
         self.saver.save(self.session, path + "/model.ckpt", global_step=step)
+
+    def save_permanently(self, path, episode):
+        """save_permanently
+
+        Save the model for later re-use, but save it in such a way it
+        will not be overwritten later on.
+
+        :param path: The path to save to.
+        :param episode: The episode the model is on.
+        """
+
+        os.makedirs(path, exist_ok=True)
+
+        print(f"Saving the model to {path}, for episode {episode}")
+        self.permanent_saver.save(self.session, path + "/ep_model.ckpt", global_step=episode)
 
     def load(self, path):
         """load
