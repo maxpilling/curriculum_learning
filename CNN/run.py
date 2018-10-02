@@ -110,13 +110,14 @@ else:
     )
 
 
-def signal_term_handler(signal, frame):
+def signal_term_handler(signal_number, current_frame):
     """signal_term_handler
 
     Process the SIGTERM event by setting a global var to gracefully save and close
     """
+    global HAVE_BEEN_KILLED
 
-    print("Received a SIGTERM command, closing!")
+    print(f"Received a {signal_number} for {current_frame}, closing!")
     HAVE_BEEN_KILLED = True
 
 
@@ -241,7 +242,7 @@ def main():
 
     agent.build_model()
     print("Finished building model...")
-    last_episode = None
+
     if FLAGS.curriculum_num is not 0:
         last_episode = agent.get_next_episode()
         print("Got previous episode count of {last_episode}")
@@ -253,10 +254,6 @@ def main():
         agent.load(RELATIVE_CHECKPOINT_PATH)
     else:
         agent.init()
-
-    # TODO: Remove this, only needed whilst we check the graph structure.
-    print("Do an initial save to check the model...")
-    save(agent)
 
     # Check that number of steps per batch is defined.
     if FLAGS.n_steps_per_batch is None:

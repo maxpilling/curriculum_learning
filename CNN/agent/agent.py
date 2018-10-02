@@ -130,7 +130,7 @@ class A2C:
         opt_class = tf.train.AdamOptimizer
 
         # Use some default values if none are passed over.
-        if optimiser_params != None:
+        if optimiser_params is not None:
             params = optimiser_params
         else:
             params = {"learning_rate": 1e-4, "epsilon": 5e-7}
@@ -233,7 +233,7 @@ class A2C:
                 if self.curriculum_number is not 0:
                     theta = self.policy(
                         self, trainable=True, curriculum_number=self.curriculum_number
-                    ).build_transfer(self.session, previous_model)
+                    ).build_transfer(previous_model)
                 else:
                     theta = self.policy(self, trainable=True).build()
 

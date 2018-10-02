@@ -2,12 +2,11 @@ import sys
 
 import numpy as np
 import tensorflow as tf
+from absl import flags
 
 from agent.agent import A2C
-from absl import flags
-from collections import namedtuple
-from common.preprocess import ObsProcessor, ActionProcessor, FEATURE_KEYS
-from common.util import general_n_step_advantage, combine_first_dimensions
+from common.preprocess import FEATURE_KEYS, ActionProcessor, ObsProcessor
+from common.util import combine_first_dimensions, general_n_step_advantage
 
 
 class Runner(object):

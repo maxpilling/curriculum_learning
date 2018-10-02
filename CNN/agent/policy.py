@@ -1,13 +1,9 @@
 import tensorflow as tf
 from pysc2.lib import actions
-from pysc2.lib.features import SCREEN_FEATURES, MINIMAP_FEATURES
+from pysc2.lib.features import MINIMAP_FEATURES, SCREEN_FEATURES
 from tensorflow.contrib import layers
 
-from agent.non_spatial_setup import (
-    pad_and_tile_non_spatial,
-    reference_tiling_method,
-    tile_and_tile_non_spatial,
-)
+from agent.non_spatial_setup import reference_tiling_method
 
 DEBUG = False
 
@@ -155,7 +151,7 @@ class ConvPolicy:
 
         return final_tensor
 
-    def build_transfer(self, session, previous_model):
+    def build_transfer(self, previous_model):
         """build_transfer
 
         Build the actual network, using the

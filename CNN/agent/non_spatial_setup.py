@@ -1,5 +1,6 @@
-import tensorflow as tf
 from math import ceil
+
+import tensorflow as tf
 
 DEBUG = True
 
