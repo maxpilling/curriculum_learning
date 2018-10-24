@@ -59,12 +59,16 @@ From: ubuntu:16.04
     /opt/conda/bin/conda install -y --quiet -c anaconda tensorflow-gpu==1.8
 
     mkdir /nobackup
+    mv /tmp/*.SC2Map /opt/StarCraftII/Maps/mini_games/
+    mv /tmp/*.py /opt/conda/lib/python3.6/site-packages/pysc2/maps/
+
+%files
+    /home/chris/Git/Research/CustomMaps/* /tmp/
 
 %environment
 
     # Update the path to make sure SCII is discoverable.
     export PATH=/opt/conda/bin:$PATH
     export SC2PATH=/opt/StarCraftII
-
 %runscript
 
