@@ -473,7 +473,7 @@ class ConvPolicy:
         non_spatial_features = tf.cast(
             self.placeholders.non_spatial_features, tf.float32
         )
-        log_non_spatial_features = tf.log(non_spatial_features + 1.)
+        log_non_spatial_features = tf.log(non_spatial_features + 1.0)
 
         four_d_non_spatial = reference_tiling_method(self, log_non_spatial_features)
 
