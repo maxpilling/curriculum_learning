@@ -35,16 +35,23 @@ Only used initially, so may not be fully working.
 * Then you can call the scripts like so:
 
 ```sh
+# Basic example:
+# Map names can be gotten from the map file names that you just downloaded.
 poetry run python CNN/run.py --map_name MAP_NAME --model_name MODEL_NAME --training=False
 
 # For example:
 poetry run python CNN/run.py --map_name MoveToBeacon --model_name TestModel --training=True
 
 # To load that model back at a later date and continue training:
-poetry run python CNN/run.py --map_name MoveToBeacon --model_name TestModel --training=False --if_output_exists=continue
+poetry run python CNN/run.py --map_name MoveToBeacon --model_name TestModel --training=True --if_output_exists=continue
 
 # To load that model back at a later date with no more training:
 poetry run python CNN/run.py --map_name MoveToBeacon --model_name TestModel --training=False
+
+# To use that model in a secondary training phase:
+# This has not been tested, so its possible you'll need to instead run the initial model
+# with curriculum_num=0, since I don't remember how that code works.
+poetry run python CNN/run.py --map_name MoveToBeacon --model_name TestModel2 --training=True --curriculum_num=1 --previous_model=_files/models/TestModel
 ```
 
 This way is meant for PC dev work, so the TensorFlow version does not need a GPU.
