@@ -55,7 +55,7 @@ From: ubuntu:16.04
     chmod -R 755 /opt/StarCraftII/Maps/
 
     # Install PySC2 and TensorFlow
-    /opt/conda/bin/pip install pysc2
+    /opt/conda/bin/pip install pysc2==2.0.1
     /opt/conda/bin/conda install -y --quiet -c anaconda tensorflow-gpu==1.8
 
     mkdir /nobackup
@@ -63,7 +63,7 @@ From: ubuntu:16.04
     mv /tmp/*.py /opt/conda/lib/python3.6/site-packages/pysc2/maps/
 
 %files
-    /home/chris/Git/Research/CustomMaps/* /tmp/
+    CustomMaps/* /tmp/
 
 %environment
 
