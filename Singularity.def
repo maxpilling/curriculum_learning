@@ -42,20 +42,18 @@ From: ubuntu:16.04
     unzip -P iagreetotheeula /tmp/sc2.zip -d /opt/
     rm /tmp/sc2.zip
 
+    # remove the duplicate
+    # rm /opt/StarCraftII/Maps/Melee/Flat64.SC2Map
+    
     # And the map packs
     wget --continue http://blzdistsc2-a.akamaihd.net/MapPacks/Melee.zip -O /tmp/melee.zip
-    unzip -P iagreetotheeula /tmp/melee.zip -d /opt/StarCraftII/Maps/
+    unzip -P iagreetotheeula /tmp/melee.zip -d /opt/StarCraftII/Maps/ && \
+    n
     rm /tmp/melee.zip
 
-    # remove the duplicate
-    rm /opt/StarCraftII/Maps/Melee/Flat64.SC2Map
 
     wget --continue https://github.com/deepmind/pysc2/releases/download/v1.2/mini_games.zip -O /tmp/mini_games.zip
     unzip /tmp/mini_games.zip -d /opt/StarCraftII/Maps/
-    # rm /tmp/mini_games.zip
-    # rm /opt/StarCraftII/Maps/mini_games/Melee/Flat64.SC2Map
-    # mv /opt/StarCraftII/Maps/mini_games /opt/StarCraftII/Maps
-    # rm -r /opt/StarCraftII/Maps/mini_games
 
     # Fix the permissions
     chmod -R 755 /opt/StarCraftII/Maps/
@@ -77,4 +75,3 @@ From: ubuntu:16.04
     export PATH=/opt/conda/bin:$PATH
     export SC2PATH=/opt/StarCraftII
 %runscript
-
