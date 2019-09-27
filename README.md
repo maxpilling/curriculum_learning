@@ -10,7 +10,7 @@ The way used throughout the project was via Singularity.
     *   This must be done on a personal machine! Singularity needs `root`
         access for the initial build.
 *   Swap to the repo folder.
-*   Run `sudo singularity build starcraft.simg Singularity`.
+*   Run `sudo singularity build starcraft.simg Singularity.def`.
     *   This is going to install everything, so takes a while.
 *   Can be used either with:
     *   `singularity shell -C starcraft.simg`
