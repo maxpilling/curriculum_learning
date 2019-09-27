@@ -30,41 +30,43 @@ From: ubuntu:16.04
     apt-get install -y libgtk2.0-dev
 
     # Install Conda and add it to the path
-    wget https://repo.continuum.io/archive/Anaconda3-5.1.0-Linux-x86_64.sh && \
     echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
-        /bin/bash Anaconda3-5.1.0-Linux-x86_64.sh -b -p /opt/conda/ && \
-        rm Anaconda3-5.1.0-Linux-x86_64.sh
+        wget --quiet https://repo.continuum.io/archive/Anaconda3-5.1.0-Linux-x86_64.sh -O ~/anaconda.sh && \
+        /bin/bash ~/anaconda.sh -b -p /opt/conda && \
+        rm ~/anaconda.sh
 
     export PATH=/opt/conda/bin:$PATH
 
-    # Install PySC2 and TensorFlow
-    ls /opt/conda/bin
-    /opt/conda/bin/pip install pysc2==2.0.1
-    /opt/conda/bin/conda install -y --quiet -c anaconda tensorflow-gpu==1.8
-
     # Install Starcraft II
-    wget --continue  --tries=0 http://blzdistsc2-a.akamaihd.net/Linux/SC2.4.0.2.zip -O /tmp/sc2.zip
+    wget --continue  --tries=0 http://blzdistsc2-a.akamaihd.net/Linux/SC2.4.10.zip -O /tmp/sc2.zip
     unzip -P iagreetotheeula /tmp/sc2.zip -d /opt/
     rm /tmp/sc2.zip
 
+    # remove the duplicate
+    # rm /opt/StarCraftII/Maps/Melee/Flat64.SC2Map
+    
     # And the map packs
-    wget --continue http://blzdistsc2-a.akamaihd.net/MapPacks/Melee.zip -O /tmp/melee.zip
-    unzip -P iagreetotheeula /tmp/melee.zip -d /opt/StarCraftII/Maps/
-    rm /tmp/melee.zip
+    # wget --continue http://blzdistsc2-a.akamaihd.net/MapPacks/Melee.zip -O /tmp/melee.zip
+    # unzip -P iagreetotheeula /tmp/melee.zip -d /opt/StarCraftII/Maps/
+    # rm /tmp/melee.zip
+
 
     wget --continue https://github.com/deepmind/pysc2/releases/download/v1.2/mini_games.zip -O /tmp/mini_games.zip
     unzip /tmp/mini_games.zip -d /opt/StarCraftII/Maps/
-    rm /tmp/mini_games.zip
 
     # Fix the permissions
     chmod -R 755 /opt/StarCraftII/Maps/
 
+    # Install PySC2 and TensorFlow
+    /opt/conda/bin/pip install pysc2==2.0.1
+    /opt/conda/bin/conda install -y --quiet -c anaconda tensorflow-gpu==1.8
+
     mkdir /nobackup
-    mv CustomMaps/*.py /opt/StarCraftII/Maps/mini_games/
-    mv CustomMaps/*.SC2Map /opt/conda/lib/python3.6/site-packages/pysc2/maps/
+    mv /tmp/*.SC2Map /opt/StarCraftII/Maps/mini_games/
+    mv /tmp/*.py /opt/conda/lib/python3.6/site-packages/pysc2/maps/
 
 %files
-    CustomMaps
+    CustomMaps/
 
 %environment
 
